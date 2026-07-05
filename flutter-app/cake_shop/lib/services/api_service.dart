@@ -50,15 +50,11 @@ class ApiService {
       return await future.timeout(_timeout);
     } on TimeoutException {
       throw Exception(
-        'Connection timed out.\n'
-        '• Backend running? npm run dev\n'
-        '• Account → Server connection → update your PC IP\n'
-        '• USB? Run: adb reverse tcp:3000 tcp:3000',
+        'Connection timed out. Check your internet and try again.',
       );
     } on http.ClientException {
       throw Exception(
-        'Cannot reach $_baseUrl\n'
-        'Account → Server connection → set PC IP or USB mode',
+        'Cannot reach the server. Check your internet connection and try again.',
       );
     }
   }

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/admin_provider.dart';
@@ -135,18 +136,20 @@ class AdminAccountTab extends StatelessWidget {
                 value: user.id,
               ),
               const SizedBox(height: 24),
-              _actionTile(
-                context,
-                icon: Icons.dns_outlined,
-                title: 'Server connection',
-                onTap: () => Navigator.push(
+              if (kDebugMode) ...[
+                _actionTile(
                   context,
-                  MaterialPageRoute(
-                    builder: (_) => const ServerSettingsScreen(),
+                  icon: Icons.dns_outlined,
+                  title: 'Server connection (dev)',
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const ServerSettingsScreen(),
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 8),
+                const SizedBox(height: 8),
+              ],
               _actionTile(
                 context,
                 icon: Icons.edit_outlined,

@@ -1,5 +1,8 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+import '../../config/api_config.dart';
 import '../../services/api_service.dart';
 import '../../services/server_settings_service.dart';
 import '../../theme/app_theme.dart';
@@ -65,6 +68,7 @@ class _ServerSettingsScreenState extends State<ServerSettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final settings = context.watch<ServerSettingsService>();
+    final isRelease = kReleaseMode;
 
     return Scaffold(
       backgroundColor: AppTheme.background,
@@ -102,68 +106,97 @@ class _ServerSettingsScreenState extends State<ServerSettingsScreen> {
               ],
             ),
           ),
-          const SizedBox(height: 24),
-          Text('Connection type', style: AppTheme.labelBold),
-          const SizedBox(height: 10),
-          _modeTile(
-            settings,
-            ServerConnectionMode.wifi,
-            Icons.wifi_rounded,
-            'Wi‑Fi (real phone)',
-            'Enter your laptop IP — change when you switch networks',
-          ),
-          _modeTile(
-            settings,
-            ServerConnectionMode.usb,
-            Icons.usb_rounded,
-            'USB cable',
-            'Run: adb reverse tcp:3000 tcp:3000 — no IP changes',
-          ),
-          _modeTile(
-            settings,
-            ServerConnectionMode.emulator,
-            Icons.phone_android_rounded,
-            'Android emulator',
-            'Uses 10.0.2.2 automatically',
-          ),
-          if (settings.mode == ServerConnectionMode.wifi) ...[
-            const SizedBox(height: 20),
-            Text('Your PC IP address', style: AppTheme.labelBold),
+          const SizedBox(height: 20),
+          if (isRelease) ...[
+            _hintCard(
+              'This app uses the cloud server automatically.\n'
+              'Users do not need to enter a PC IP address.',
+            ),
+          ] else ...[
+            Text('Connection type', style: AppTheme.labelBold),
+            const SizedBox(height: 10),
+            _modeTile(
+              settings,
+              ServerConnectionMode.production,
+              Icons.cloud_done_rounded,
+              'Cloud server (production)',
+              'Hosted API — same as release APK, no IP needed',
+            ),
             const SizedBox(height: 8),
-            TextField(
-              controller: _hostController,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                hintText: 'e.g. 192.168.1.8',
-                prefixIcon: const Icon(Icons.computer_rounded),
-                filled: true,
-                fillColor: Colors.white,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(14),
-                  borderSide: BorderSide.none,
+            ExpansionTile(
+              tilePadding: EdgeInsets.zero,
+              title: Text(
+                'Local development',
+                style: AppTheme.labelBold.copyWith(color: AppTheme.textMuted),
+              ),
+              subtitle: const Text('Only when testing on your PC'),
+              children: [
+                _modeTile(
+                  settings,
+                  ServerConnectionMode.wifi,
+                  Icons.wifi_rounded,
+                  'Wi‑Fi (real phone)',
+                  'Enter your laptop IP on the same network',
+                ),
+                _modeTile(
+                  settings,
+                  ServerConnectionMode.usb,
+                  Icons.usb_rounded,
+                  'USB cable',
+                  'Run: adb reverse tcp:3000 tcp:3000',
+                ),
+                _modeTile(
+                  settings,
+                  ServerConnectionMode.emulator,
+                  Icons.phone_android_rounded,
+                  'Android emulator',
+                  'Uses 10.0.2.2 automatically',
+                ),
+              ],
+            ),
+            if (settings.mode == ServerConnectionMode.wifi) ...[
+              const SizedBox(height: 20),
+              Text('Your PC IP address', style: AppTheme.labelBold),
+              const SizedBox(height: 8),
+              TextField(
+                controller: _hostController,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  hintText: 'e.g. 192.168.1.8',
+                  prefixIcon: const Icon(Icons.computer_rounded),
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: BorderSide.none,
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'On Windows run ipconfig → Wi‑Fi → IPv4. Phone and PC must be on the same Wi‑Fi.',
-              style: AppTheme.bodySmall.copyWith(color: AppTheme.textMuted),
-            ),
-            const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _saveWifi,
-                child: const Text('Save IP'),
+              const SizedBox(height: 8),
+              Text(
+                'On Windows run ipconfig → Wi‑Fi → IPv4.',
+                style: AppTheme.bodySmall.copyWith(color: AppTheme.textMuted),
               ),
-            ),
-          ],
-          if (settings.mode == ServerConnectionMode.usb) ...[
-            const SizedBox(height: 20),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _saveWifi,
+                  child: const Text('Save IP'),
+                ),
+              ),
+            ],
+            if (settings.mode == ServerConnectionMode.usb) ...[
+              const SizedBox(height: 20),
+              _hintCard(
+                'Connect phone by USB, enable USB debugging, then run:\n\n'
+                'adb reverse tcp:3000 tcp:3000',
+              ),
+            ],
+            const SizedBox(height: 12),
             _hintCard(
-              'Connect phone by USB, enable USB debugging, then run in terminal:\n\n'
-              'adb reverse tcp:3000 tcp:3000\n\n'
-              'Works on any Wi‑Fi — no IP to change.',
+              'Production URL in code:\n$productionApiBaseUrl\n\n'
+              'Change in lib/config/api_config.dart or use --dart-define=PRODUCTION_API_URL=...',
             ),
           ],
           const SizedBox(height: 24),

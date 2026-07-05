@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
@@ -80,17 +81,18 @@ class ProfileTab extends StatelessWidget {
                   ),
                 ),
                 const Spacer(),
-                TextButton.icon(
-                  onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const ServerSettingsScreen(),
+                if (kDebugMode)
+                  TextButton.icon(
+                    onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const ServerSettingsScreen(),
+                      ),
                     ),
+                    icon: const Icon(Icons.dns_outlined, size: 18),
+                    label: const Text('Server connection (dev)'),
                   ),
-                  icon: const Icon(Icons.dns_outlined, size: 18),
-                  label: const Text('Server connection'),
-                ),
-                const SizedBox(height: 8),
+                if (kDebugMode) const SizedBox(height: 8),
                 Text(
                   'You can browse cakes without signing in',
                   style: TextStyle(color: Colors.grey.shade500, fontSize: 13),
@@ -228,21 +230,23 @@ class ProfileTab extends StatelessWidget {
                 ),
                 const SizedBox(height: 32),
                 _signOutButton(context, auth),
-                const SizedBox(height: 16),
-                Center(
-                  child: TextButton.icon(
-                    onPressed: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const ServerSettingsScreen()),
-                    ),
-                    icon: const Icon(Icons.settings_outlined, size: 16),
-                    label: const Text('App settings'),
-                    style: TextButton.styleFrom(
-                      foregroundColor: AppTheme.textMuted,
-                      textStyle: const TextStyle(fontSize: 12),
+                if (kDebugMode) ...[
+                  const SizedBox(height: 16),
+                  Center(
+                    child: TextButton.icon(
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const ServerSettingsScreen()),
+                      ),
+                      icon: const Icon(Icons.settings_outlined, size: 16),
+                      label: const Text('Server settings (dev)'),
+                      style: TextButton.styleFrom(
+                        foregroundColor: AppTheme.textMuted,
+                        textStyle: const TextStyle(fontSize: 12),
+                      ),
                     ),
                   ),
-                ),
+                ],
                 const SizedBox(height: 24),
               ]),
             ),

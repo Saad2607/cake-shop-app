@@ -3,28 +3,40 @@ import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// How the phone reaches your PC running the Node backend.
+import '../config/api_config.dart';
+
+/// How the app reaches the backend API.
 enum ServerConnectionMode {
+  production,
   wifi,
   usb,
   emulator,
 }
 
-/// Saved server connection — change from the app when you switch Wi‑Fi networks.
+/// Server connection settings. Release builds always use [ServerConnectionMode.production].
 class ServerSettingsService extends ChangeNotifier {
   static const _modeKey = 'server_connection_mode';
   static const _hostKey = 'server_wifi_host';
 
   static const int port = 3000;
 
-  ServerConnectionMode _mode = ServerConnectionMode.wifi;
+  ServerConnectionMode _mode = ServerConnectionMode.production;
   String _wifiHost = '';
 
   ServerConnectionMode get mode => _mode;
   String get wifiHost => _wifiHost;
 
+  bool get usesProductionServer =>
+      kReleaseMode || _mode == ServerConnectionMode.production;
+
   String get baseUrl {
+    if (kReleaseMode) {
+      return normalizeApiBaseUrl(productionApiBaseUrl);
+    }
+
     switch (_mode) {
+      case ServerConnectionMode.production:
+        return normalizeApiBaseUrl(productionApiBaseUrl);
       case ServerConnectionMode.usb:
         return 'http://127.0.0.1:$port/api';
       case ServerConnectionMode.emulator:
@@ -48,6 +60,8 @@ class ServerSettingsService extends ChangeNotifier {
 
   String get modeLabel {
     switch (_mode) {
+      case ServerConnectionMode.production:
+        return 'Cloud server';
       case ServerConnectionMode.wifi:
         return 'Wi‑Fi';
       case ServerConnectionMode.usb:
@@ -58,18 +72,28 @@ class ServerSettingsService extends ChangeNotifier {
   }
 
   Future<void> load() async {
+    if (kReleaseMode) {
+      _mode = ServerConnectionMode.production;
+      notifyListeners();
+      return;
+    }
+
     final prefs = await SharedPreferences.getInstance();
     final modeIndex = prefs.getInt(_modeKey);
     if (modeIndex != null &&
         modeIndex >= 0 &&
         modeIndex < ServerConnectionMode.values.length) {
       _mode = ServerConnectionMode.values[modeIndex];
+    } else {
+      _mode = ServerConnectionMode.production;
     }
     _wifiHost = prefs.getString(_hostKey) ?? '';
     notifyListeners();
   }
 
   Future<void> setMode(ServerConnectionMode mode) async {
+    if (kReleaseMode) return;
+
     _mode = mode;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(_modeKey, mode.index);
@@ -77,6 +101,8 @@ class ServerSettingsService extends ChangeNotifier {
   }
 
   Future<void> setWifiHost(String host) async {
+    if (kReleaseMode) return;
+
     _wifiHost = host.trim();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_hostKey, _wifiHost);

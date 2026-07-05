@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+backend/.env
+
+# Flutter
+flutter-app/cake_shop/.dart_tool/
+flutter-app/cake_shop/.flutter-plugins
+flutter-app/cake_shop/.flutter-plugins-dependencies
+flutter-app/cake_shop/build/
+flutter-app/cake_shop/.packages
+flutter-app/cake_shop/pubspec.lock
+
+# Android (legacy + flutter)
+**/build/
+**/.gradle/
+**/local.properties
+*.apk
+
+# IDE
+.idea/
+*.iml
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log

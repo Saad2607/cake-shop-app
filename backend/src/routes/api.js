@@ -1,0 +1,45 @@
+const express = require('express');
+const authController = require('../controllers/authController');
+const cakeController = require('../controllers/cakeController');
+const cartController = require('../controllers/cartController');
+const orderController = require('../controllers/orderController');
+const adminController = require('../controllers/adminController');
+const { authMiddleware, adminMiddleware } = require('../middleware/auth');
+const { registerRules, loginRules } = require('../utils/validators');
+
+const router = express.Router();
+
+// Auth
+router.post('/auth/register', registerRules, authController.register);
+router.post('/auth/login', loginRules, authController.login);
+router.get('/auth/profile', authMiddleware, authController.getProfile);
+router.put('/auth/profile', authMiddleware, authController.updateProfile);
+
+// Cakes (public read)
+router.get('/cakes', cakeController.getAllCakes);
+router.get('/cakes/:id', cakeController.getCakeById);
+
+// Cakes (admin)
+router.post('/cakes', authMiddleware, adminMiddleware, cakeController.createCake);
+router.put('/cakes/:id', authMiddleware, adminMiddleware, cakeController.updateCake);
+router.delete('/cakes/:id', authMiddleware, adminMiddleware, cakeController.deleteCake);
+
+// Cart
+router.get('/cart', authMiddleware, cartController.getCart);
+router.post('/cart', authMiddleware, cartController.addToCart);
+router.put('/cart/:id', authMiddleware, cartController.updateCartItem);
+router.delete('/cart/:id', authMiddleware, cartController.removeCartItem);
+
+// Orders
+router.post('/orders', authMiddleware, orderController.placeOrder);
+router.get('/orders', authMiddleware, orderController.getOrders);
+router.get('/orders/:id', authMiddleware, orderController.getOrderById);
+router.patch('/orders/:id/cancel', authMiddleware, orderController.cancelOrder);
+
+// Admin
+router.get('/admin/dashboard', authMiddleware, adminMiddleware, adminController.getDashboard);
+router.get('/admin/customers', authMiddleware, adminMiddleware, adminController.getCustomers);
+router.get('/admin/orders', authMiddleware, adminMiddleware, orderController.getAllOrders);
+router.patch('/admin/orders/:id/status', authMiddleware, adminMiddleware, orderController.updateOrderStatus);
+
+module.exports = router;

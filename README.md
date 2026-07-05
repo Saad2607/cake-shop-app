@@ -1,6 +1,5 @@
 # Cake Online Shopping App
 
-**Software Engineering Project**
 
 A full-stack mobile e-commerce application: **Flutter** frontend, **Node.js** REST API backend, and **MongoDB** database.
 

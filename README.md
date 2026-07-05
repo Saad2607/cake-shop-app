@@ -143,4 +143,3 @@ See `docs/` folder for SRS, SDD, UML diagrams, test plan, user manual, and proje
 
 ---
 
-*Software Engineering Project — June 2026*

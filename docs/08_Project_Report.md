@@ -2,6 +2,8 @@
 
 ## Cake Online Shopping Android App
 
+**Product name:** Sweet Delights
+
 **Course:** Software Engineering  
 **Institution:** [University Name]  
 **Department:** [Department Name]  
@@ -13,9 +15,9 @@
 
 ## Abstract
 
-This report documents the complete software development lifecycle of the Cake Online Shopping Android App — a mobile e-commerce application that enables customers to browse, customize, and order cakes from a local bakery. The project follows standard software engineering practices including requirements analysis, system design, implementation using Kotlin and Android Room, testing, and deployment. The application implements user authentication, product catalog, shopping cart, checkout, and order tracking features using MVVM architecture. Results demonstrate a functional MVP suitable for academic evaluation and future commercial extension.
+This report documents the software development lifecycle of the **Sweet Delights** cake ordering application — a full-stack mobile e-commerce solution. Customers browse and order cakes via a **Flutter** Android app; a **Node.js** REST API with **MongoDB** handles authentication, catalog, cart, orders, and admin operations. Key features include guest browsing, UPI/COD checkout, order tracking with notifications, product sharing via public links, post-delivery reviews, and an in-app admin panel. The project follows SRS, system design, testing, and deployment practices suitable for academic evaluation and cloud hosting (e.g. Render + MongoDB Atlas).
 
-**Keywords:** Android, E-commerce, Kotlin, Room Database, MVVM, Software Engineering
+**Keywords:** Flutter, Node.js, MongoDB, E-commerce, REST API, JWT, Software Engineering
 
 ---
 

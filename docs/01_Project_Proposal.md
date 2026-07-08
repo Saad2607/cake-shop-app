@@ -2,6 +2,8 @@
 
 ## Cake Online Shopping Android App
 
+**Product name:** Sweet Delights
+
 ---
 
 ## 1. Project Title

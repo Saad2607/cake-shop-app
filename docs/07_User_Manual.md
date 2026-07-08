@@ -1,63 +1,63 @@
 # User Manual
 
-## Cake Online Shopping Android App
+## Sweet Delights — Cake Online Shopping App
 
-**Version:** 1.0  
-**Date:** June 2026
+**Version:** 3.0  
+**Date:** July 2026
 
 ---
 
 ## 1. Introduction
 
-Welcome to **Cake Shop** — your mobile app for ordering delicious cakes online. This manual guides you through installing and using the application.
+Welcome to **Sweet Delights** — your mobile app for browsing and ordering handcrafted cakes online. You can explore the menu as a guest and sign in only when you want to checkout or track orders.
 
 ---
 
 ## 2. System Requirements
 
-- Android smartphone or tablet
+- Android smartphone or tablet (primary target)
 - Android 7.0 (Nougat) or higher
 - At least 50 MB free storage
-- Internet connection (recommended)
+- Internet connection
 
 ---
 
 ## 3. Installation
 
-### Option A: From APK (Demo)
-1. Receive the `CakeShop-debug.apk` file from your developer
-2. On your phone, enable **Install from Unknown Sources** (Settings → Security)
-3. Open the APK file and tap **Install**
-4. Tap **Open** when installation completes
+### Option A: From APK
+1. Receive the `app-release.apk` file from your team or download link
+2. Enable **Install from unknown sources** if prompted
+3. Open the APK and tap **Install**
+4. Tap **Open** when done
 
-### Option B: From Android Studio (Developers)
-1. Connect phone via USB with USB debugging enabled
-2. Open project in Android Studio
-3. Click **Run** (▶) and select your device
+### Option B: From Flutter (developers)
+```bash
+cd flutter-app/cake_shop
+flutter pub get
+flutter run
+```
 
 ---
 
 ## 4. Getting Started
 
-### 4.1 First Launch
-When you open the app, you will see the **Splash Screen**, then the **Login** screen.
+### 4.1 First launch
+1. **Splash screen** — Sweet Delights logo and branding
+2. **Onboarding** (first time) — swipe through features, tap **Get Started**
+3. **Home** — browse cakes immediately (no login required)
 
-### 4.2 Create an Account
-1. Tap **Register** or **Sign Up**
-2. Enter your:
-   - Full Name
-   - Email Address
-   - Phone Number
-   - Password (minimum 6 characters)
-3. Tap **Register**
-4. On success, log in with your new credentials
+### 4.2 Create an account
+1. Go to **Account** tab → **Create Account** (or **Sign In** → Register)
+2. Enter name, email, phone, and password
+3. Tap **Register**, then sign in
 
-### 4.3 Login
-1. Enter your **Email** and **Password**
-2. Tap **Login**
-3. You will arrive at the **Home** screen
+### 4.3 Sign in
+1. **Account** tab → **Sign In**
+2. Enter email and password
+3. Use **Forgot password?** if needed
+4. After sign-in you return to the Account tab (back button does not exit the app)
 
-**Demo account (if preloaded):**
+**Demo account:**
 - Email: `customer@test.com`
 - Password: `test123`
 
@@ -65,128 +65,133 @@ When you open the app, you will see the **Splash Screen**, then the **Login** sc
 
 ## 5. Using the App
 
-### 5.1 Home Screen — Browse Cakes
+### 5.1 Home — Browse cakes
 
-The home screen displays available cakes in a grid.
+- **Search** — find cakes by name
+- **Categories** — Birthday, Wedding, Cupcake, Custom, Seasonal
+- **Delivery ETA** — estimated delivery time chip
+- **Promo banner** — offers (e.g. SWEET50 with countdown)
+- **Notification bell** — tap for latest order update (when signed in)
+- Tap a cake card to open **details**
 
-- **Search bar** — Type a cake name to search
-- **Category chips** — Tap All, Birthday, Wedding, Cupcake, Custom, or Seasonal to filter
-- **Cake card** — Shows image, name, price, and star rating
-- Tap any cake to view details
+### 5.2 Cake details
 
-### 5.2 Cake Details
+- View photos, description, sizes, flavors, and price
+- Optional **custom message** on the cake
+- **Add to Cart** — choose size and flavor first
+- **Wishlist** (heart icon)
+- **Share** — sends cake image, name, price, and a **product link** friends can open in browser or app
 
-On the detail screen you can:
+### 5.3 Cart & checkout
 
-1. Read the full description
-2. Select **Size** (e.g., 500g, 1kg, 2kg)
-3. Select **Flavor** (e.g., Chocolate, Vanilla)
-4. Enter an optional **Custom Message** for the cake (e.g., "Happy Birthday!")
-5. Adjust **Quantity** using + / − buttons
-6. Tap **Add to Cart**
+- **Cart** tab — change quantities, remove items, floating cart bar on Home
+- **Checkout** — delivery address (saved Home/Office/Other), date, UPI or COD
+- Guest cart merges after login
 
-### 5.3 Shopping Cart
+### 5.4 Orders
 
-Access the cart from the **Cart** tab in the bottom navigation.
+- **Orders** tab (sign-in required) — active and past orders
+- Tap an order for tracking steps, ETA, and items
+- **Cancel** while status is Pending
+- **Rate** delivered orders (1–5 stars)
 
-- View all items with selected options and prices
-- Change quantity with + / − buttons
-- Remove an item by tapping the delete icon
-- See the **Subtotal** at the bottom
-- Tap **Proceed to Checkout** when ready
+### 5.5 Account & Settings
 
-### 5.4 Checkout
+**Account tab (signed in):**
+- Order history shortcut, wishlist
+- **Settings** — opens:
+  - Order notifications (on/off)
+  - Edit profile
+  - Delivery addresses
+  - Help & support
+- Sign out
 
-1. **Delivery Address** — Enter your full delivery address
-2. **Delivery Date** — Tap the date field and pick a future date
-3. **Payment Method** — Choose:
-   - Cash on Delivery (COD)
-   - Mock Card Payment (demo only)
-4. Review the **Order Summary**
-5. Tap **Place Order**
+**Account tab (guest):**
+- Sign In / Create Account
+- Browse without signing in
 
-### 5.5 Order Confirmation
+### 5.6 Notifications
 
-After placing an order:
-- You will see your **Order Number** (e.g., ORD-20260701-001)
-- Total amount and delivery date are displayed
-- Tap **View Orders** or **Continue Shopping**
+When order notifications are enabled (Settings), you receive alerts as your order moves through: confirmed → baking → ready → delivered.
 
-### 5.6 Order History & Tracking
+### 5.7 Sharing a cake
 
-Go to the **Orders** tab to see all your orders.
-
-Each order shows:
-- Order number and date
-- Status badge: Pending, Confirmed, Baking, Ready, Delivered, or Cancelled
-- Total amount
-
-Tap an order for full details including items ordered.
-
-**To cancel:** Open a **Pending** order and tap **Cancel Order** (if available).
-
-### 5.7 Profile
-
-The **Profile** tab shows your account information.
-
-- View name, email, and phone
-- Tap **Edit Profile** to update your details
-- Tap **Logout** to sign out
+1. Open any cake → tap **Share**
+2. Choose WhatsApp, Messages, etc.
+3. Recipient gets image + text + link (e.g. `https://your-server.com/p/...`)
+4. Opening the link shows the product page; **Open in app** if Sweet Delights is installed
 
 ---
 
 ## 6. Navigation Summary
 
-| Tab | Icon | Function |
-|-----|------|----------|
-| Home | 🏠 | Browse and search cakes |
-| Cart | 🛒 | View and manage cart |
-| Orders | 📦 | Order history and tracking |
-| Profile | 👤 | Account settings |
+| Tab | Function |
+|-----|----------|
+| Home | Browse, search, promos |
+| Cart | Shopping cart |
+| Orders | Track orders (login required) |
+| Account | Profile, settings, sign in |
+
+**Back button:** From a non-Home tab, back goes to Home first; from Sign In, back returns to Account.
 
 ---
 
-## 7. Troubleshooting
+## 7. Admin (demo)
+
+Sign in as admin to manage the bakery:
+
+| Email | Password |
+|-------|----------|
+| admin@cakeshop.com | admin123 |
+
+- Dashboard, orders, customers
+- Add/edit cakes with image URL preview
+- Update order status (triggers customer notifications)
+
+---
+
+## 8. Troubleshooting
 
 | Problem | Solution |
 |---------|----------|
-| App won't install | Enable "Unknown sources"; ensure enough storage |
-| Login fails | Check email/password; register if new user |
-| Cart is empty after restart | Ensure you are logged in (cart is per user) |
-| Images not loading | Check internet connection |
-| App crashes | Force stop app, clear cache, reinstall |
-| Can't place order | Ensure cart is not empty and delivery date is future |
+| Login fails | Check credentials; use demo account or register |
+| Shared link does not open for friends | Use release APK with cloud server URL, not PC IP |
+| Images not loading | Check internet; re-run backend seed if needed |
+| Cart empty after login | Guest cart syncs on login — add items again if needed |
+| Notifications not showing | Enable in Settings; allow notification permission on Android |
+| API connection error (dev) | Set server in Account → Server connection (dev) |
 
 ---
 
-## 8. FAQ
+## 9. FAQ
+
+**Q: Can I browse without an account?**  
+A: Yes. Sign in is required for checkout and order history.
 
 **Q: Is payment real?**  
-A: No. Version 1.0 uses simulated payment for academic demonstration.
+A: UPI opens wallet apps for demo; COD is also available. Use test flow for academic demo.
 
-**Q: Can I order without registering?**  
-A: You can browse as a guest, but checkout requires an account.
+**Q: Does the shared link work for everyone?**  
+A: Only if the app uses a **public server URL** (e.g. Render). Local Wi‑Fi links work only on the same network.
 
-**Q: How do I reorder a previous cake?**  
-A: Browse the catalog and add the same cake to cart again.
-
-**Q: Who do I contact for support?**  
-A: Contact your bakery administrator or app developer team.
+**Q: How do I update cake photos?**  
+A: Admin can set image URL on each product; seed script includes name-matched defaults.
 
 ---
 
-## 9. Privacy Notice
+## 10. Privacy Notice
 
-The app stores your name, email, phone, and order history locally on your device. Passwords are stored securely (hashed). No data is shared with third parties in the demo version.
+The app stores account and order data on the server (MongoDB). Passwords are hashed. Share links expose only public product information (name, price, description, image).
 
 ---
 
-## 10. Version History
+## 11. Version History
 
 | Version | Date | Changes |
 |---------|------|---------|
 | 1.0 | June 2026 | Initial release |
+| 3.0 | July 2026 | Sweet Delights branding, settings, share links, notifications, reviews, delivery addresses, admin images, guest browse |
 
 ---
 
-*For technical support, contact: [your-email@university.edu]*
+*For technical support, contact your project team or supervisor.*

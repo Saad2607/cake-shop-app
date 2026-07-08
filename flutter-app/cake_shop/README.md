@@ -1,11 +1,11 @@
-# Flutter App — Cake Shop
+# Flutter App — Sweet Delights
 
-Mobile frontend for Cake Online Shopping App.
+Mobile frontend for the Cake Online Shopping App.
 
 ## Prerequisites
 
 - Flutter SDK 3.2+
-- Running backend API (see `../../backend/README.md`)20...............................................
+- Running backend API (see `../../backend/README.md`)
 
 ## Setup
 
@@ -20,26 +20,64 @@ flutter run
 
 ## Configure API URL
 
-Edit `lib/config/api_config.dart`:
+**Release builds** use the cloud URL from `lib/config/api_config.dart`:
 
 ```dart
-static const String baseUrl = 'http://10.0.2.2:3000/api'; // Android emulator
+// Or at build time:
+// flutter build apk --release --dart-define=PRODUCTION_API_URL=https://YOUR-APP.onrender.com/api
 ```
 
-## Project Structure
+**Debug builds:** Account tab → **Server connection (dev)** (Wi‑Fi / USB / emulator / cloud).
+
+## Build release APK
+
+```bash
+flutter build apk --release \
+  --dart-define=PRODUCTION_API_URL=https://YOUR-APP.onrender.com/api
+```
+
+## Project structure
 
 ```
 lib/
 ├── main.dart
-├── config/api_config.dart
-├── models/          # Data models
-├── services/        # API HTTP client
-├── providers/       # State management (Provider)
-├── screens/         # UI screens
-└── theme/           # App theme
+├── config/api_config.dart       # Production API & share URL
+├── constants/app_branding.dart  # "Sweet Delights"
+├── models/
+├── services/                    # API, notifications, server settings
+├── providers/                   # Auth, cart, orders, wishlist, …
+├── screens/
+│   ├── home/                    # Main tabs
+│   ├── catalog/                 # Cake detail + share
+│   ├── profile/                 # Account, settings
+│   ├── admin/                   # Admin panel
+│   └── auth/
+├── widgets/
+│   ├── app_logo.dart            # Brand logo
+│   └── deep_link_handler.dart   # Open shared cake links
+└── utils/
+    ├── cake_share.dart          # Share image + product link
+    └── cake_visuals.dart        # Name-matched cake images
 ```
 
-## Demo Login
+## Main features
 
-- Email: `customer@test.com`
-- Password: `test123`
+- Guest browsing; sign-in required for checkout and orders
+- Share cake: photo + link (`/p/{id}` on your server)
+- Order notifications, wishlist, delivery addresses
+- Settings: notifications, profile, addresses, help
+- Admin: cakes, orders, image URL on products
+
+## Demo login
+
+| Email | Password |
+|-------|----------|
+| customer@test.com | test123 |
+| admin@cakeshop.com | admin123 |
+
+## App icon & splash
+
+- Launcher: `android/app/src/main/res/drawable/ic_launcher_foreground.xml`
+- Brand widget: `lib/widgets/app_logo.dart`
+
+After icon changes, reinstall the app or run `flutter run` to refresh the launcher icon.

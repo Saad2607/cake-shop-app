@@ -1,6 +1,6 @@
 # Software Engineering Project Checklist
 
-## Cake Online Shopping App (Flutter + Node.js + MongoDB)
+## Sweet Delights — Cake Online Shopping App (Flutter + Node.js + MongoDB)
 
 ---
 
@@ -10,7 +10,7 @@
 - [ ] Install MongoDB (local) OR create MongoDB Atlas cluster
 - [ ] Install Flutter SDK 3.2+
 - [ ] Copy `backend/.env.example` to `backend/.env`
-- [ ] Set `MONGODB_URI` in `.env`
+- [ ] Set `MONGODB_URI`, `JWT_SECRET`, and `PUBLIC_APP_URL` in `.env`
 
 ---
 
@@ -18,9 +18,10 @@
 
 - [ ] Start MongoDB service (if local)
 - [ ] `cd backend && npm install`
-- [ ] `npm run seed` — demo users & cakes in MongoDB
-- [ ] `npm run dev` — API running on port 3000
+- [ ] `npm run seed` — demo users, 24 cakes, image URLs
+- [ ] `npm run dev` — API on port 3000
 - [ ] Test: `GET http://localhost:3000/health`
+- [ ] Test share page: `GET http://localhost:3000/p/{cakeId}`
 - [ ] Test login: `POST http://localhost:3000/api/auth/login`
 
 ---
@@ -30,25 +31,34 @@
 - [ ] `cd flutter-app/cake_shop`
 - [ ] `flutter pub get`
 - [ ] Run `flutter create .` if platform folders missing
-- [ ] Set `ApiConfig.baseUrl` in `lib/config/api_config.dart`
+- [ ] Set `PRODUCTION_API_URL` in `api_config.dart` or `--dart-define` for release
 - [ ] `flutter run` on emulator/device
-- [ ] Test full flow: login → browse → cart → checkout → orders
+- [ ] Test: guest browse → sign in → cart → checkout → orders → share cake
+- [ ] Test: Settings, notifications, wishlist, reviews
 
 ---
 
-## Phase 4: Documentation
+## Phase 4: Deployment (optional)
+
+- [ ] Deploy backend to Render with MongoDB Atlas
+- [ ] Run `npm run seed` on production database
+- [ ] Build APK: `flutter build apk --release --dart-define=PRODUCTION_API_URL=...`
+- [ ] Verify shared product links open in browser
+
+---
+
+## Phase 5: Documentation
 
 - [ ] Fill team names in proposal & report
-- [ ] Update SDD with Flutter + Node.js + MongoDB architecture
+- [ ] Update screenshots (Sweet Delights UI, logo, share, settings)
 - [ ] Export UML diagrams as PNG
-- [ ] Add screenshots to project report
 - [ ] Complete test case execution log
 
 ---
 
-## Phase 5: Submission
+## Phase 6: Submission
 
-- [ ] APK build: `flutter build apk`
+- [ ] APK build: `flutter build apk --release`
 - [ ] Presentation slides from `docs/10_Presentation_Outline.md`
 - [ ] Demo video backup
 - [ ] Submit all docs + source code
@@ -59,7 +69,7 @@
 
 | # | Deliverable | Location |
 |---|-------------|----------|
-| 1 | Flutter App | `flutter-app/cake_shop/` |
+| 1 | Flutter App (Sweet Delights) | `flutter-app/cake_shop/` |
 | 2 | Node.js API | `backend/` |
 | 3 | MongoDB Schema | `database/mongodb_schema.md` |
 | 4 | Documentation | `docs/` |
@@ -69,10 +79,10 @@
 
 ## Demo Credentials
 
-| Email | Password |
-|-------|----------|
-| customer@test.com | test123 |
-| admin@cakeshop.com | admin123 |
+| Role | Email | Password |
+|------|-------|----------|
+| Customer | customer@test.com | test123 |
+| Admin | admin@cakeshop.com | admin123 |
 
 ---
 

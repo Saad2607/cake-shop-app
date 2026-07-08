@@ -2,6 +2,8 @@
 
 ## Cake Online Shopping Android App
 
+**Product name:** Sweet Delights
+
 **Document ID:** SRS-CAKE-001  
 **Version:** 1.0  
 **Date:** June 2026

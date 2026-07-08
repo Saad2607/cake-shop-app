@@ -224,4 +224,4 @@ See `backend/README.md` for details.
 
 ---
 
-*Software Engineering Project — Flutter + Node.js + MongoDB*
+*Flutter + Node.js + MongoDB*

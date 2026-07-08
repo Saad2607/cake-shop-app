@@ -148,6 +148,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       context.read<PromoProvider>().clear();
       await NotificationService.instance.showOrderPlaced(order.orderNumber);
       if (mounted) {
+        await context.read<NotificationProvider>().incrementCustomerCount();
         context.read<NotificationProvider>().recordOrder(order.id, order.status);
       }
       Navigator.pushReplacement(

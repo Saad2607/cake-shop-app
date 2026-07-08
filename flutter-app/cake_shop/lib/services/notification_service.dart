@@ -9,11 +9,20 @@ class NotificationService {
       FlutterLocalNotificationsPlugin();
   bool _initialized = false;
 
-  static const _channel = AndroidNotificationDetails(
+  static const _customerChannel = AndroidNotificationDetails(
     'order_updates',
     'Order Updates',
     channelDescription: 'Alerts when your cake order status changes',
     importance: Importance.high,
+    priority: Priority.high,
+    icon: '@drawable/ic_launcher',
+  );
+
+  static const _adminChannel = AndroidNotificationDetails(
+    'admin_orders',
+    'New Orders',
+    channelDescription: 'Alerts when a customer places a new order',
+    importance: Importance.max,
     priority: Priority.high,
     icon: '@drawable/ic_launcher',
   );
@@ -52,13 +61,17 @@ class NotificationService {
     required int id,
     required String title,
     required String body,
+    AndroidNotificationDetails? androidDetails,
   }) async {
     if (!_initialized) await init();
     await _plugin.show(
       id,
       title,
       body,
-      const NotificationDetails(android: _channel, iOS: DarwinNotificationDetails()),
+      NotificationDetails(
+        android: androidDetails ?? _customerChannel,
+        iOS: const DarwinNotificationDetails(),
+      ),
     );
   }
 
@@ -76,6 +89,15 @@ class NotificationService {
       id: id,
       title: _titleForStatus(newStatus),
       body: 'Order $orderNumber · ${OrderStatusFlow.label(newStatus)}',
+    );
+  }
+
+  Future<void> showNewAdminOrder(String orderNumber, String customerName) async {
+    await show(
+      id: 'admin-$orderNumber'.hashCode,
+      title: 'New order received! 🔔',
+      body: '$orderNumber from $customerName — tap Orders to confirm.',
+      androidDetails: _adminChannel,
     );
   }
 

@@ -20,6 +20,8 @@ import 'providers/promo_provider.dart';
 
 import 'providers/wishlist_provider.dart';
 
+import 'constants/app_branding.dart';
+
 import 'screens/app_bootstrap.dart';
 
 import 'services/api_service.dart';
@@ -101,7 +103,7 @@ class CakeShopApp extends StatelessWidget {
 
         child: MaterialApp(
 
-          title: 'Cake Shop',
+          title: kAppName,
 
           debugShowCheckedModeBanner: false,
 

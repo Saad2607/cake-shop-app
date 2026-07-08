@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/admin_provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/notification_provider.dart';
 import '../../theme/admin_theme.dart';
 import '../../widgets/admin/admin_merchant_header.dart';
 import 'admin_account_tab.dart';
@@ -34,6 +35,9 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
 
   void _loadTab(int index) {
     setState(() => _tab = index);
+    if (index == 1) {
+      context.read<NotificationProvider>().clearAdminCount();
+    }
     final admin = context.read<AdminProvider>();
     switch (index) {
       case 0:
@@ -55,7 +59,12 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
   @override
   Widget build(BuildContext context) {
     final admin = context.watch<AdminProvider>();
+    final notif = context.watch<NotificationProvider>();
     final todayOrders = admin.dashboard?.todayOrders;
+    final pendingOrders = admin.dashboard?.pendingOrders ?? 0;
+    final adminAlertCount = notif.adminNotificationCount > 0
+        ? notif.adminNotificationCount
+        : pendingOrders;
 
     return Scaffold(
       backgroundColor: AdminTheme.scaffold,
@@ -95,15 +104,25 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
             backgroundColor: AdminTheme.surface,
             indicatorColor: AdminTheme.accent.withValues(alpha: 0.12),
             labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-            destinations: const [
-              NavigationDestination(
+            destinations: [
+              const NavigationDestination(
                 icon: Icon(Icons.grid_view_rounded, size: 22),
                 selectedIcon: Icon(Icons.grid_view_rounded, color: AdminTheme.accent, size: 22),
                 label: 'Overview',
               ),
               NavigationDestination(
-                icon: Icon(Icons.receipt_long_outlined, size: 22),
-                selectedIcon: Icon(Icons.receipt_long_rounded, color: AdminTheme.accent, size: 22),
+                icon: Badge(
+                  isLabelVisible: adminAlertCount > 0,
+                  label: Text('$adminAlertCount'),
+                  backgroundColor: AdminTheme.warning,
+                  child: const Icon(Icons.receipt_long_outlined, size: 22),
+                ),
+                selectedIcon: Badge(
+                  isLabelVisible: adminAlertCount > 0,
+                  label: Text('$adminAlertCount'),
+                  backgroundColor: AdminTheme.warning,
+                  child: const Icon(Icons.receipt_long_rounded, color: AdminTheme.accent, size: 22),
+                ),
                 label: 'Orders',
               ),
               NavigationDestination(

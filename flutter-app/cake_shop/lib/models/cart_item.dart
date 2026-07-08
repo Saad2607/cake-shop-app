@@ -30,6 +30,7 @@ class CartItem {
       selectedFlavor: json['selectedFlavor'] as String,
       customMessage: json['customMessage'] as String?,
       unitPrice: (json['unitPrice'] as num).toDouble(),
+      cakeName: json['cakeName'] as String?,
     );
   }
 }

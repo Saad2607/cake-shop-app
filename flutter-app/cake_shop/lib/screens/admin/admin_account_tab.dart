@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../providers/admin_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/cart_provider.dart';
+import '../../providers/notification_provider.dart';
 import '../../theme/admin_theme.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/app_snackbar.dart';
@@ -136,6 +137,8 @@ class AdminAccountTab extends StatelessWidget {
                 value: user.id,
               ),
               const SizedBox(height: 24),
+              _adminNotificationCard(context),
+              const SizedBox(height: 12),
               if (kDebugMode) ...[
                 _actionTile(
                   context,
@@ -163,6 +166,57 @@ class AdminAccountTab extends StatelessWidget {
           ),
         ),
       ],
+      ),
+    );
+  }
+
+  Widget _adminNotificationCard(BuildContext context) {
+    final notif = context.watch<NotificationProvider>();
+    final count = notif.adminNotificationCount;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AdminTheme.surface,
+        borderRadius: AdminTheme.radiusMd,
+        border: Border.all(color: AdminTheme.border),
+      ),
+      child: Row(
+        children: [
+          Badge(
+            isLabelVisible: count > 0,
+            label: Text('$count'),
+            backgroundColor: AdminTheme.warning,
+            child: Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: AdminTheme.accent.withValues(alpha: 0.1),
+                borderRadius: AdminTheme.radiusSm,
+              ),
+              child: const Icon(Icons.notifications_active_rounded, color: AdminTheme.accent),
+            ),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('New order alerts', style: AdminTheme.sectionTitle.copyWith(fontSize: 15)),
+                Text(
+                  count > 0
+                      ? '$count new order alert${count == 1 ? '' : 's'} received'
+                      : 'Get notified when customers place orders',
+                  style: AdminTheme.kpiLabel,
+                ),
+              ],
+            ),
+          ),
+          Switch.adaptive(
+            value: notif.enabled,
+            activeColor: AdminTheme.accent,
+            onChanged: (v) => notif.setEnabled(v),
+          ),
+        ],
       ),
     );
   }

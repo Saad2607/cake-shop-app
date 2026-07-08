@@ -2,8 +2,16 @@ const CartItem = require('../models/CartItem');
 
 async function getCart(req, res) {
   try {
-    const items = await CartItem.find({ userId: req.user.id });
-    const publicItems = items.map((i) => i.toPublicJSON());
+    const items = await CartItem.find({ userId: req.user.id }).populate('cakeId', 'name');
+    const publicItems = items.map((item) => {
+      const json = item.toPublicJSON();
+      const cake = item.cakeId;
+      if (cake && typeof cake === 'object' && cake.name) {
+        json.cakeId = cake._id.toString();
+        json.cakeName = cake.name;
+      }
+      return json;
+    });
     const total = publicItems.reduce((sum, i) => sum + i.unitPrice * i.quantity, 0);
     res.json({ items: publicItems, total });
   } catch (error) {

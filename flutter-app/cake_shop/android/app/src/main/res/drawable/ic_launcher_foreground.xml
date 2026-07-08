@@ -4,10 +4,31 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
+    <!-- Cake base -->
     <path
         android:fillColor="#FFFFFF"
-        android:pathData="M54,28c-14,0 -24,12 -24,26c0,14 10,26 24,26s24,-12 24,-26c0,-14 -10,-26 -24,-26z"/>
+        android:pathData="M30,58h48c0,0 4,0 4,4v10c0,4 -4,4 -4,4H30c0,0 -4,0 -4,-4V62c0,-4 4,-4 4,-4z"/>
+    <!-- Cake middle -->
+    <path
+        android:fillColor="#FFF3F7"
+        android:pathData="M34,46h40c0,0 3,0 3,3v9c0,3 -3,3 -3,3H34c0,0 -3,0 -3,-3V49c0,-3 3,-3 3,-3z"/>
+    <!-- Cake top -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M38,36h32c0,0 3,0 3,3v7c0,3 -3,3 -3,3H38c0,0 -3,0 -3,-3V39c0,-3 3,-3 3,-3z"/>
+    <!-- Frosting drip -->
+    <path
+        android:fillColor="#F8BBD0"
+        android:pathData="M34,46c2,3 4,2 6,0c2,3 4,2 6,0c2,3 4,2 6,0c2,3 4,2 6,0c2,3 4,2 6,0v3H34z"/>
+    <!-- Cherry -->
     <path
         android:fillColor="#E91E63"
-        android:pathData="M54,36l5,12l13,1l-10,8l4,13l-12,-7l-12,7l4,-13l-10,-8l13,-1z"/>
+        android:pathData="M54,24a6,6 0 1,1 0.01,0z"/>
+    <path
+        android:fillColor="#4CAF50"
+        android:pathData="M54,24c-2,-4 -6,-5 -8,-4c2,1 4,3 5,6c1,-2 2,-3 3,-2z"/>
+    <!-- Star accent -->
+    <path
+        android:fillColor="#FFD54F"
+        android:pathData="M72,30l2,4l4,1l-3,3l1,4l-4,-2l-4,2l1,-4l-3,-3l4,-1z"/>
 </vector>

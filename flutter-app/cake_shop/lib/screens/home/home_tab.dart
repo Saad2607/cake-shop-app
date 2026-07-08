@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../constants/app_branding.dart';
+import '../../providers/notification_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/cake_provider.dart';
 import '../../providers/delivery_address_provider.dart';
@@ -64,6 +66,10 @@ class _HomeTabState extends State<HomeTab> {
 
   void _showOrderUpdates(BuildContext context) {
     final auth = context.read<AuthProvider>();
+    final notif = context.read<NotificationProvider>();
+    if (auth.isLoggedIn) {
+      notif.clearCustomerCount();
+    }
     if (!auth.isLoggedIn) {
       showModalBottomSheet<void>(
         context: context,
@@ -355,7 +361,7 @@ class _HomeTabState extends State<HomeTab> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Sweet Delights',
+                                kAppName,
                                 style: AppTheme.displayLarge.copyWith(
                                   color: Colors.white,
                                   fontSize: 28,
@@ -382,10 +388,18 @@ class _HomeTabState extends State<HomeTab> {
                                 color: Colors.white.withValues(alpha: 0.2),
                               ),
                             ),
-                            child: const Icon(
-                              Icons.notifications_none_rounded,
-                              color: Colors.white,
-                              size: 22,
+                            child: Badge(
+                              isLabelVisible: context.watch<NotificationProvider>().customerNotificationCount > 0,
+                              label: Text(
+                                '${context.watch<NotificationProvider>().customerNotificationCount}',
+                                style: const TextStyle(fontSize: 10),
+                              ),
+                              backgroundColor: AppTheme.gold,
+                              child: const Icon(
+                                Icons.notifications_none_rounded,
+                                color: Colors.white,
+                                size: 22,
+                              ),
                             ),
                           ),
                         ),

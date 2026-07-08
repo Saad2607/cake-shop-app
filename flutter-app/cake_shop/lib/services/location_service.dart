@@ -3,7 +3,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 
 class LocationService {
-  /// Checks permission and returns a readable address from GPS.
+  /// Requests permission and GPS only when the user taps "Use current location".
   static Future<String> getCurrentAddress() async {
     try {
       return await _getCurrentAddressImpl();
@@ -16,20 +16,32 @@ class LocationService {
   }
 
   static Future<String> _getCurrentAddressImpl() async {
-    final enabled = await Geolocator.isLocationServiceEnabled();
-    if (!enabled) {
-      throw Exception('Location services are turned off. Enable GPS or enter address manually.');
-    }
-
     var permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
     }
     if (permission == LocationPermission.denied) {
-      throw Exception('Location permission denied. You can enter your address manually.');
+      throw Exception(
+        'Location permission denied. Allow access when prompted, or enter your address manually.',
+      );
     }
     if (permission == LocationPermission.deniedForever) {
-      throw Exception('Location permission blocked. Enable it in Settings or enter address manually.');
+      await Geolocator.openAppSettings();
+      throw Exception(
+        'Location permission blocked. Enable it in Settings, then tap current location again.',
+      );
+    }
+
+    var enabled = await Geolocator.isLocationServiceEnabled();
+    if (!enabled) {
+      await Geolocator.openLocationSettings();
+      await Future<void>.delayed(const Duration(milliseconds: 800));
+      enabled = await Geolocator.isLocationServiceEnabled();
+      if (!enabled) {
+        throw Exception(
+          'Turn on location (GPS) in settings, then tap current location again.',
+        );
+      }
     }
 
     final position = await Geolocator.getCurrentPosition(
@@ -67,7 +79,6 @@ class LocationService {
     return unique.join(', ');
   }
 
-  /// City/locality for short label, e.g. "Current location · Pune"
   static String shortLabelFromAddress(String address) {
     final parts = address.split(',').map((s) => s.trim()).where((s) => s.isNotEmpty).toList();
     if (parts.length >= 2) return 'Current location · ${parts[parts.length - 2]}';

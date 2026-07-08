@@ -308,6 +308,7 @@ class ProfileTab extends StatelessWidget {
 
   Widget _notificationCard(BuildContext context) {
     final notif = context.watch<NotificationProvider>();
+    final count = notif.customerNotificationCount;
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -319,13 +320,18 @@ class ProfileTab extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: AppTheme.primaryLight.withValues(alpha: 0.35),
-              borderRadius: BorderRadius.circular(12),
+          Badge(
+            isLabelVisible: count > 0,
+            label: Text('$count'),
+            backgroundColor: AppTheme.primary,
+            child: Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: AppTheme.primaryLight.withValues(alpha: 0.35),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(Icons.notifications_active_rounded, color: AppTheme.primary),
             ),
-            child: const Icon(Icons.notifications_active_rounded, color: AppTheme.primary),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -334,7 +340,9 @@ class ProfileTab extends StatelessWidget {
               children: [
                 Text('Order notifications', style: AppTheme.titleMedium),
                 Text(
-                  'Get alerts when your cake is baking, ready & delivered',
+                  count > 0
+                      ? '$count alert${count == 1 ? '' : 's'} received so far'
+                      : 'Get alerts when your cake is baking, ready & delivered',
                   style: AppTheme.bodySmall.copyWith(fontSize: 11),
                 ),
               ],

@@ -1,11 +1,12 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../providers/admin_provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/notification_provider.dart';
 import '../providers/order_provider.dart';
 
-/// Polls order status while the customer is logged in and triggers local push alerts.
+/// Polls orders while logged in and triggers local push alerts for customers and admins.
 class OrderNotificationListener extends StatefulWidget {
   final Widget child;
 
@@ -44,32 +45,45 @@ class _OrderNotificationListenerState extends State<OrderNotificationListener>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      _pollOrders();
+      _poll();
     }
   }
 
   void _handleAuth() {
     if (!mounted) return;
     final auth = context.read<AuthProvider>();
-    if (!auth.isLoggedIn || auth.user?.role == 'ADMIN') {
+    if (!auth.isLoggedIn) {
       _timer?.cancel();
       return;
     }
 
-    _pollOrders();
+    _poll();
     _timer?.cancel();
-    _timer = Timer.periodic(const Duration(seconds: 30), (_) => _pollOrders());
+    _timer = Timer.periodic(const Duration(seconds: 30), (_) => _poll());
   }
 
-  Future<void> _pollOrders() async {
+  Future<void> _poll() async {
     if (!mounted) return;
     final auth = context.read<AuthProvider>();
-    if (!auth.isLoggedIn || auth.user?.role == 'ADMIN') return;
+    if (!auth.isLoggedIn) return;
 
-    final orders = context.read<OrderProvider>();
     final notifications = context.read<NotificationProvider>();
     if (!notifications.enabled) return;
 
+    if (auth.user?.role == 'ADMIN') {
+      final admin = context.read<AdminProvider>();
+      await admin.loadAllOrders();
+      if (!mounted) return;
+
+      if (!notifications.adminOrdersSeeded) {
+        await notifications.seedAdminOrders(admin.allOrders);
+      } else {
+        await notifications.processAdminOrders(admin.allOrders);
+      }
+      return;
+    }
+
+    final orders = context.read<OrderProvider>();
     await orders.loadOrders();
     if (!mounted) return;
 

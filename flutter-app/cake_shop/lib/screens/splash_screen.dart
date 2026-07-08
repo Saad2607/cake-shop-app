@@ -6,6 +6,7 @@ import '../providers/auth_provider.dart';
 
 import '../services/onboarding_service.dart';
 
+import '../constants/app_branding.dart';
 import '../theme/app_theme.dart';
 
 import '../utils/app_router.dart';
@@ -308,7 +309,7 @@ class _SplashScreenState extends State<SplashScreen>
 
                           Text(
 
-                            'Sweet Delights',
+                            kAppName,
 
                             textAlign: TextAlign.center,
 

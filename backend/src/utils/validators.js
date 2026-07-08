@@ -22,4 +22,10 @@ const loginRules = [
   handleValidation,
 ];
 
-module.exports = { registerRules, loginRules, handleValidation };
+const forgotPasswordRules = [
+  body('email').isEmail().withMessage('Invalid email format'),
+  body('newPassword').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
+  handleValidation,
+];
+
+module.exports = { registerRules, loginRules, forgotPasswordRules, handleValidation };

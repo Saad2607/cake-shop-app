@@ -5,13 +5,14 @@ const cartController = require('../controllers/cartController');
 const orderController = require('../controllers/orderController');
 const adminController = require('../controllers/adminController');
 const { authMiddleware, adminMiddleware } = require('../middleware/auth');
-const { registerRules, loginRules } = require('../utils/validators');
+const { registerRules, loginRules, forgotPasswordRules } = require('../utils/validators');
 
 const router = express.Router();
 
 // Auth
 router.post('/auth/register', registerRules, authController.register);
 router.post('/auth/login', loginRules, authController.login);
+router.post('/auth/forgot-password', forgotPasswordRules, authController.forgotPassword);
 router.get('/auth/profile', authMiddleware, authController.getProfile);
 router.put('/auth/profile', authMiddleware, authController.updateProfile);
 

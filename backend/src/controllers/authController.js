@@ -86,4 +86,25 @@ async function updateProfile(req, res) {
   }
 }
 
-module.exports = { register, login, getProfile, updateProfile };
+async function forgotPassword(req, res) {
+  try {
+    const { email, newPassword } = req.body;
+    const normalizedEmail = email.toLowerCase().trim();
+    const user = await User.findOne({ email: normalizedEmail });
+
+    if (!user) {
+      return res.status(404).json({ error: 'No account found with this email' });
+    }
+
+    const passwordHash = await bcrypt.hash(newPassword, 10);
+    user.passwordHash = passwordHash;
+    await user.save();
+
+    res.json({ message: 'Password updated successfully. You can sign in now.' });
+  } catch (error) {
+    console.error('Forgot password error:', error);
+    res.status(500).json({ error: 'Could not reset password' });
+  }
+}
+
+module.exports = { register, login, getProfile, updateProfile, forgotPassword };

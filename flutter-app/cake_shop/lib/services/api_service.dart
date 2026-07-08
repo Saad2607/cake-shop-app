@@ -123,6 +123,18 @@ class ApiService {
     await _handleResponse(response);
   }
 
+  Future<void> forgotPassword(String email, String newPassword) async {
+    final response = await _request(http.post(
+      Uri.parse('${_baseUrl}/auth/forgot-password'),
+      headers: _headers,
+      body: json.encode({
+        'email': email,
+        'newPassword': newPassword,
+      }),
+    ));
+    await _handleResponse(response);
+  }
+
   Future<User> getProfile() async {
     final response = await _request(http.get(
       Uri.parse('${_baseUrl}/auth/profile'),

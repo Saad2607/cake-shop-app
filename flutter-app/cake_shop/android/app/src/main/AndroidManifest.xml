@@ -7,7 +7,7 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 
     <application
-        android:label="Cake Shop"
+        android:label="Sweet Delights"
         android:name="${applicationName}"
         android:icon="@drawable/ic_launcher"
         android:roundIcon="@drawable/ic_launcher"

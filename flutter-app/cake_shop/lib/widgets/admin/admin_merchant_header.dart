@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../../constants/app_branding.dart';
 import '../../theme/admin_theme.dart';
 
 /// Partner-style top bar (Swiggy / Zomato merchant header).
@@ -61,7 +62,7 @@ class AdminMerchantHeader extends StatelessWidget {
                       children: [
                         Expanded(
                           child: Text(
-                            'Sweet Delights',
+                            kAppName,
                             style: AdminTheme.sectionTitle.copyWith(fontSize: 17),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,

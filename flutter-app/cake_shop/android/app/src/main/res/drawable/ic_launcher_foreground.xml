@@ -4,31 +4,32 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- Cake base -->
+    <!-- Bottom tier -->
     <path
         android:fillColor="#FFFFFF"
-        android:pathData="M30,58h48c0,0 4,0 4,4v10c0,4 -4,4 -4,4H30c0,0 -4,0 -4,-4V62c0,-4 4,-4 4,-4z"/>
-    <!-- Cake middle -->
+        android:pathData="M26,62h56c3,0 5,2 5,5v12c0,3 -2,5 -5,5H26c-3,0 -5,-2 -5,-5V67c0,-3 2,-5 5,-5z"/>
+    <!-- Middle tier -->
     <path
-        android:fillColor="#FFF3F7"
-        android:pathData="M34,46h40c0,0 3,0 3,3v9c0,3 -3,3 -3,3H34c0,0 -3,0 -3,-3V49c0,-3 3,-3 3,-3z"/>
-    <!-- Cake top -->
+        android:fillColor="#FFF8FA"
+        android:pathData="M32,48h44c2.5,0 4.5,2 4.5,4.5v9c0,2.5 -2,4.5 -4.5,4.5H32c-2.5,0 -4.5,-2 -4.5,-4.5v-9c0,-2.5 2,-4.5 4.5,-4.5z"/>
+    <!-- Top tier -->
     <path
         android:fillColor="#FFFFFF"
-        android:pathData="M38,36h32c0,0 3,0 3,3v7c0,3 -3,3 -3,3H38c0,0 -3,0 -3,-3V39c0,-3 3,-3 3,-3z"/>
+        android:pathData="M38,36h32c2,0 4,2 4,4v8c0,2 -2,4 -4,4H38c-2,0 -4,-2 -4,-4V40c0,-2 2,-4 4,-4z"/>
     <!-- Frosting drip -->
     <path
-        android:fillColor="#F8BBD0"
-        android:pathData="M34,46c2,3 4,2 6,0c2,3 4,2 6,0c2,3 4,2 6,0c2,3 4,2 6,0c2,3 4,2 6,0v3H34z"/>
+        android:fillColor="#F2C4D0"
+        android:pathData="M32,48c3,4 5,3 8,1c3,4 5,3 8,1c3,4 5,3 8,1c3,4 5,3 8,1c3,4 5,3 8,1v4H32z"/>
     <!-- Cherry -->
     <path
-        android:fillColor="#E91E63"
-        android:pathData="M54,24a6,6 0 1,1 0.01,0z"/>
+        android:fillColor="#B8365E"
+        android:pathData="M54,22a5.5,5.5 0 1,1 0,11a5.5,5.5 0 1,1 0,-11z"/>
+    <!-- Cherry stem -->
     <path
         android:fillColor="#4CAF50"
-        android:pathData="M54,24c-2,-4 -6,-5 -8,-4c2,1 4,3 5,6c1,-2 2,-3 3,-2z"/>
-    <!-- Star accent -->
+        android:pathData="M54,22c-2,-3.5 -5.5,-4.5 -7.5,-3.5c2,0.8 3.5,2.5 4.5,5c0.8,-1.5 1.8,-2.5 3,-1.5z"/>
+    <!-- Gold sparkle -->
     <path
-        android:fillColor="#FFD54F"
-        android:pathData="M72,30l2,4l4,1l-3,3l1,4l-4,-2l-4,2l1,-4l-3,-3l4,-1z"/>
+        android:fillColor="#C9A962"
+        android:pathData="M76,28l1.8,3.6l4,0.8l-3,2.6l0.8,4l-3.6,-1.8l-3.6,1.8l0.8,-4l-3,-2.6l4,-0.8z"/>
 </vector>

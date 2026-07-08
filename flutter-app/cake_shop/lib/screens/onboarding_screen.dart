@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/onboarding_service.dart';
 import '../theme/app_theme.dart';
+import '../widgets/app_logo.dart';
 import '../utils/app_router.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
@@ -18,7 +19,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   static const _slides = [
     _Slide(
-      icon: Icons.cake_rounded,
+      useBrandLogo: true,
       title: 'Browse handcrafted cakes',
       subtitle:
           'Explore birthday, wedding, cupcakes & more.',
@@ -152,13 +153,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 }
 
 class _Slide {
-  final IconData icon;
+  final IconData? icon;
+  final bool useBrandLogo;
   final String title;
   final String subtitle;
   final List<Color> colors;
 
   const _Slide({
-    required this.icon,
+    this.icon,
+    this.useBrandLogo = false,
     required this.title,
     required this.subtitle,
     required this.colors,
@@ -195,7 +198,9 @@ class _OnboardingPage extends StatelessWidget {
                 ),
               ],
             ),
-            child: Icon(slide.icon, size: 72, color: AppTheme.primary),
+            child: slide.useBrandLogo
+                ? const AppLogo(size: 88, showCircleBackground: true)
+                : Icon(slide.icon, size: 72, color: AppTheme.primary),
           ),
           const SizedBox(height: 40),
           Text(

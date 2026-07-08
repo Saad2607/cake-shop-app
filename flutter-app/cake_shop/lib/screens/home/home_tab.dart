@@ -18,6 +18,7 @@ import '../../widgets/promo_banner.dart';
 import '../../widgets/product_carousel_tile.dart';
 import '../../widgets/section_header.dart';
 import '../../widgets/sort_filter_sheet.dart';
+import '../../widgets/app_logo.dart';
 import '../catalog/cake_detail_screen.dart';
 import '../orders/order_detail_screen.dart';
 
@@ -381,6 +382,8 @@ class _HomeTabState extends State<HomeTab> {
                   children: [
                     Row(
                       children: [
+                        const AppLogo.header(),
+                        const SizedBox(width: 10),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,

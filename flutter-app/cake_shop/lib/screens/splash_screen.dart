@@ -9,6 +9,7 @@ import '../services/onboarding_service.dart';
 import '../constants/app_branding.dart';
 import '../theme/app_theme.dart';
 
+import '../widgets/app_logo.dart';
 import '../utils/app_router.dart';
 
 import '../utils/app_session.dart';
@@ -231,67 +232,7 @@ class _SplashScreenState extends State<SplashScreen>
 
                       scale: _scale,
 
-                      child: Container(
-
-                        width: 120,
-
-                        height: 120,
-
-                        decoration: BoxDecoration(
-
-                          shape: BoxShape.circle,
-
-                          gradient: LinearGradient(
-
-                            begin: Alignment.topLeft,
-
-                            end: Alignment.bottomRight,
-
-                            colors: [
-
-                              Colors.white.withValues(alpha: 0.25),
-
-                              Colors.white.withValues(alpha: 0.08),
-
-                            ],
-
-                          ),
-
-                          border: Border.all(
-
-                            color: Colors.white.withValues(alpha: 0.3),
-
-                            width: 2,
-
-                          ),
-
-                          boxShadow: [
-
-                            BoxShadow(
-
-                              color: Colors.black.withValues(alpha: 0.15),
-
-                              blurRadius: 30,
-
-                              offset: const Offset(0, 10),
-
-                            ),
-
-                          ],
-
-                        ),
-
-                        child: const Icon(
-
-                          Icons.cake_rounded,
-
-                          size: 56,
-
-                          color: Colors.white,
-
-                        ),
-
-                      ),
+                      child: const AppLogo.splash(),
 
                     ),
 

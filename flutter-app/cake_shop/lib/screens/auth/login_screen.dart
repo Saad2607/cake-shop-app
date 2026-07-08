@@ -4,6 +4,7 @@ import '../../providers/auth_provider.dart';
 import '../../providers/cart_provider.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/navigation_helper.dart';
+import '../../widgets/app_logo.dart';
 import 'register_screen.dart';
 import 'forgot_password_screen.dart';
 
@@ -78,14 +79,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             )
                           : const SizedBox(height: 48),
                     ),
-                    Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.2),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(Icons.cake, size: 56, color: Colors.white),
-                    ),
+                    const AppLogo.auth(),
                     const SizedBox(height: 20),
                     Text(
                       'Welcome back',

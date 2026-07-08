@@ -63,6 +63,7 @@ class CakeImageTile extends StatelessWidget {
                 CachedNetworkImage(
                   imageUrl: url,
                   fit: BoxFit.cover,
+                  errorListener: (_) {},
                   placeholder: (_, __) => _GradientFallback(
                     cake: cake,
                     iconSize: iconSize,

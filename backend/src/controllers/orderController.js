@@ -175,11 +175,43 @@ async function getAllOrders(req, res) {
   }
 }
 
+async function submitReview(req, res) {
+  try {
+    const { rating, comment } = req.body;
+    const stars = Number(rating);
+
+    if (!Number.isInteger(stars) || stars < 1 || stars > 5) {
+      return res.status(400).json({ error: 'Rating must be between 1 and 5' });
+    }
+
+    const order = await Order.findById(req.params.id);
+    if (!order) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+    if (order.userId.toString() !== req.user.id) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+    if (order.status !== 'DELIVERED') {
+      return res.status(400).json({ error: 'You can review only delivered orders' });
+    }
+
+    order.rating = stars;
+    order.reviewComment = (comment || '').trim() || null;
+    await order.save();
+
+    res.json(order.toPublicJSON());
+  } catch (error) {
+    console.error('Submit review error:', error);
+    res.status(500).json({ error: 'Failed to submit review' });
+  }
+}
+
 module.exports = {
   placeOrder,
   getOrders,
   getOrderById,
   cancelOrder,
+  submitReview,
   updateOrderStatus,
   getAllOrders,
 };

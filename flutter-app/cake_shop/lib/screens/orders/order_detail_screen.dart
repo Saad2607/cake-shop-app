@@ -10,10 +10,12 @@ import '../../utils/app_snackbar.dart';
 import '../../utils/currency_formatter.dart';
 import '../../utils/order_status.dart';
 import '../../utils/payment_labels.dart';
-import '../../utils/reorder_helper.dart';
+import '../../utils/delivery_eta.dart';
 import '../../widgets/cancel_order_dialog.dart';
 import '../../widgets/gradient_header.dart';
 import '../../widgets/order_progress_tracker.dart';
+import '../../widgets/order_review_card.dart';
+import '../../utils/reorder_helper.dart';
 import '../home/main_screen.dart';
 
 class OrderDetailScreen extends StatelessWidget {
@@ -24,20 +26,23 @@ class OrderDetailScreen extends StatelessWidget {
   bool get _isActive =>
       order.status != 'DELIVERED' && order.status != 'CANCELLED';
 
-  String get _etaLabel {
-    if (order.status == 'DELIVERED') return 'Delivered';
-    if (order.status == 'CANCELLED') return 'Order cancelled';
-    if (order.status == 'READY') return 'Out for delivery · ~30 min';
-    if (order.status == 'BAKING') return 'Baking your cake · ~1–2 hrs';
-    if (order.status == 'CONFIRMED') return 'Confirmed · delivery in 2–4 hrs';
-    return 'Order received · preparing in 2–4 hrs';
-  }
+  String get _etaLabel => DeliveryEta.forOrderStatus(order.status);
 
   @override
   Widget build(BuildContext context) {
-    final statusColor = AppTheme.orderStatusColor(order.status);
-    final created = DateTime.fromMillisecondsSinceEpoch(order.createdAt);
-    final delivery = DateTime.fromMillisecondsSinceEpoch(order.deliveryDate);
+    final orders = context.watch<OrderProvider>().orders;
+    Order liveOrder = order;
+    for (final o in orders) {
+      if (o.id == order.id) {
+        liveOrder = o;
+        break;
+      }
+    }
+
+    final statusColor = AppTheme.orderStatusColor(liveOrder.status);
+    final created = DateTime.fromMillisecondsSinceEpoch(liveOrder.createdAt);
+    final delivery = DateTime.fromMillisecondsSinceEpoch(liveOrder.deliveryDate);
+    final isActive = liveOrder.status != 'DELIVERED' && liveOrder.status != 'CANCELLED';
 
     return Scaffold(
       backgroundColor: AppTheme.background,
@@ -49,7 +54,7 @@ class OrderDetailScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
         children: [
-          if (_isActive) _liveTrackingCard(statusColor),
+          if (isActive) _liveTrackingCard(statusColor, liveOrder),
           _sectionCard(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -57,7 +62,7 @@ class OrderDetailScreen extends StatelessWidget {
                 Row(
                   children: [
                     Expanded(
-                      child: Text(order.orderNumber, style: AppTheme.titleLarge),
+                      child: Text(liveOrder.orderNumber, style: AppTheme.titleLarge),
                     ),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -66,7 +71,7 @@ class OrderDetailScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
-                        OrderStatusFlow.label(order.status),
+                        OrderStatusFlow.label(liveOrder.status),
                         style: TextStyle(
                           color: statusColor,
                           fontWeight: FontWeight.w700,
@@ -82,11 +87,15 @@ class OrderDetailScreen extends StatelessWidget {
                   style: AppTheme.bodySmall,
                 ),
                 const SizedBox(height: 16),
-                OrderProgressTracker(status: order.status),
+                OrderProgressTracker(
+                  status: liveOrder.status,
+                  etaMessage: DeliveryEta.trackerSubtitle(liveOrder.status),
+                ),
               ],
             ),
           ),
           const SizedBox(height: 12),
+          OrderReviewCard(order: liveOrder),
           _sectionCard(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -228,7 +237,7 @@ class OrderDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _liveTrackingCard(Color statusColor) {
+  Widget _liveTrackingCard(Color statusColor, Order liveOrder) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
@@ -259,10 +268,13 @@ class OrderDetailScreen extends StatelessWidget {
               children: [
                 Text('Live status', style: AppTheme.labelBold.copyWith(fontSize: 10)),
                 const SizedBox(height: 2),
-                Text(_etaLabel, style: AppTheme.titleMedium.copyWith(fontSize: 14)),
+                Text(
+                  DeliveryEta.forOrderStatus(liveOrder.status),
+                  style: AppTheme.titleMedium.copyWith(fontSize: 14),
+                ),
                 const SizedBox(height: 4),
                 Text(
-                  'We\'ll notify you when your cake is on the way',
+                  DeliveryEta.trackerSubtitle(liveOrder.status),
                   style: AppTheme.bodySmall.copyWith(fontSize: 11),
                 ),
               ],

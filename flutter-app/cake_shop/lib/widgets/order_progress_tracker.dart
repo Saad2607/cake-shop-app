@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
+import '../utils/delivery_eta.dart';
 import '../utils/order_status.dart';
 
 /// Animated pipeline: Placed → Confirmed → Baking → Ready → Delivered
 class OrderProgressTracker extends StatelessWidget {
   final String status;
+  final String? etaMessage;
 
-  const OrderProgressTracker({super.key, required this.status});
+  const OrderProgressTracker({
+    super.key,
+    required this.status,
+    this.etaMessage,
+  });
 
   static const _steps = ['PENDING', 'CONFIRMED', 'BAKING', 'READY', 'DELIVERED'];
 
@@ -51,10 +57,37 @@ class OrderProgressTracker extends StatelessWidget {
     }
 
     final active = _activeIndex;
+    final subtitle = etaMessage ?? DeliveryEta.trackerSubtitle(status);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        if (subtitle.isNotEmpty) ...[
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(
+              color: AppTheme.goldLight.withValues(alpha: 0.45),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.schedule_rounded, size: 16, color: AppTheme.primary),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    subtitle,
+                    style: AppTheme.labelBold.copyWith(
+                      fontSize: 11,
+                      color: const Color(0xFF6B5030),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 14),
+        ],
         Row(
           children: List.generate(_steps.length * 2 - 1, (i) {
             if (i.isOdd) {
@@ -66,9 +99,7 @@ class OrderProgressTracker extends StatelessWidget {
                   margin: const EdgeInsets.only(bottom: 22),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(2),
-                    gradient: done
-                        ? AppTheme.ctaGradient
-                        : null,
+                    gradient: done ? AppTheme.ctaGradient : null,
                     color: done ? null : AppTheme.cardBorder,
                   ),
                 ),

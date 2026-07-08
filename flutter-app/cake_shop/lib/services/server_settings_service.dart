@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../config/api_config.dart';
+import '../utils/cake_link.dart';
 
 /// How the app reaches the backend API.
 enum ServerConnectionMode {
@@ -56,6 +57,18 @@ class ServerSettingsService extends ChangeNotifier {
         ? baseUrl.substring(0, baseUrl.length - 4)
         : baseUrl;
     return '$root/health';
+  }
+
+  /// Public web root for product share links — always cloud URL when configured.
+  String get shareBaseUrl {
+    final public = resolvePublicShareBaseUrl();
+    if (public.isNotEmpty) return public;
+    return CakeLink.webRootFromApiBase(baseUrl);
+  }
+
+  bool get hasPublicShareUrl {
+    final public = resolvePublicShareBaseUrl();
+    return public.isNotEmpty;
   }
 
   String get modeLabel {

@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const { connectDatabase } = require('./config/database');
 const apiRoutes = require('./routes/api');
+const { productSharePage } = require('./controllers/shareController');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -13,6 +14,9 @@ app.use(express.json());
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', service: 'Cake Shop API', database: 'MongoDB' });
 });
+
+// Public product share page (Amazon-style link preview)
+app.get('/p/:id', productSharePage);
 
 app.use('/api', apiRoutes);
 

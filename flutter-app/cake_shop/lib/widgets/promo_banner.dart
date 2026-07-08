@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/promo_provider.dart';
+import '../utils/promo_countdown.dart';
 import '../theme/app_theme.dart';
 import '../utils/promo_offers.dart';
 
@@ -63,7 +64,7 @@ class _PromoBannerState extends State<PromoBanner> {
     return Column(
       children: [
         SizedBox(
-          height: 148,
+          height: 172,
           child: PageView.builder(
             controller: _controller,
             padEnds: true,
@@ -118,15 +119,16 @@ class _PromoBannerState extends State<PromoBanner> {
                             ),
                           ),
                           Padding(
-                            padding: const EdgeInsets.all(22),
+                            padding: const EdgeInsets.fromLTRB(18, 16, 18, 14),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.min,
                               children: [
                                 Container(
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 8,
-                                    vertical: 3,
+                                    vertical: 2,
                                   ),
                                   decoration: BoxDecoration(
                                     color: b.accent.withValues(alpha: 0.25),
@@ -141,35 +143,65 @@ class _PromoBannerState extends State<PromoBanner> {
                                     ),
                                   ),
                                 ),
-                                const SizedBox(height: 10),
+                                const SizedBox(height: 8),
                                 Text(
                                   b.title,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                   style: AppTheme.displayMedium.copyWith(
                                     color: Colors.white,
-                                    fontSize: 20,
+                                    fontSize: 19,
                                   ),
                                 ),
-                                const SizedBox(height: 6),
+                                const SizedBox(height: 4),
                                 Text(
                                   b.subtitle,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
                                   style: AppTheme.bodySmall.copyWith(
                                     color: Colors.white.withValues(alpha: 0.8),
+                                    fontSize: 11,
+                                    height: 1.25,
                                   ),
                                 ),
-                                const SizedBox(height: 8),
+                                if (b.expiresAt != null) ...[
+                                  const SizedBox(height: 6),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 3,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.black.withValues(alpha: 0.18),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Text(
+                                      PromoCountdown.label(b.expiresAt!),
+                                      style: AppTheme.labelBold.copyWith(
+                                        color: b.accent,
+                                        fontSize: 9,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                                const SizedBox(height: 6),
                                 Row(
                                   children: [
                                     Icon(
                                       Icons.touch_app_rounded,
-                                      size: 14,
+                                      size: 13,
                                       color: Colors.white.withValues(alpha: 0.7),
                                     ),
                                     const SizedBox(width: 4),
-                                    Text(
-                                      b.tapHint,
-                                      style: AppTheme.labelBold.copyWith(
-                                        color: Colors.white.withValues(alpha: 0.75),
-                                        fontSize: 9,
+                                    Expanded(
+                                      child: Text(
+                                        b.tapHint,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: AppTheme.labelBold.copyWith(
+                                          color: Colors.white.withValues(alpha: 0.75),
+                                          fontSize: 9,
+                                        ),
                                       ),
                                     ),
                                   ],

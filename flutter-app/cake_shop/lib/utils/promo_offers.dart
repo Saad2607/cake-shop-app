@@ -16,6 +16,7 @@ class PromoOffer {
   final String? category;
   final String? infoMessage;
   final String tapHint;
+  final DateTime? expiresAt;
 
   const PromoOffer({
     required this.id,
@@ -31,12 +32,13 @@ class PromoOffer {
     this.minOrder,
     this.category,
     this.infoMessage,
+    this.expiresAt,
   });
 }
 
 /// Promo banners on home — tap to apply code or browse cakes.
 class PromoOffers {
-  static const all = [
+  static final all = [
     PromoOffer(
       id: 'first_order',
       title: 'First order delight',
@@ -49,6 +51,7 @@ class PromoOffers {
       discountPercent: 0.5,
       minOrder: 999,
       tapHint: 'Tap to apply SWEET50',
+      expiresAt: DateTime(2026, 7, 10, 23, 59, 59),
     ),
     PromoOffer(
       id: 'same_day',

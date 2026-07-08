@@ -36,6 +36,7 @@ router.post('/orders', authMiddleware, orderController.placeOrder);
 router.get('/orders', authMiddleware, orderController.getOrders);
 router.get('/orders/:id', authMiddleware, orderController.getOrderById);
 router.patch('/orders/:id/cancel', authMiddleware, orderController.cancelOrder);
+router.patch('/orders/:id/review', authMiddleware, orderController.submitReview);
 
 // Admin
 router.get('/admin/dashboard', authMiddleware, adminMiddleware, adminController.getDashboard);

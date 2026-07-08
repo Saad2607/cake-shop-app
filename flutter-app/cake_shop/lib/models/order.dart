@@ -15,6 +15,8 @@ class Order {
   final String? customerName;
   final String? customerEmail;
   final String? customerPhone;
+  final int? rating;
+  final String? reviewComment;
 
   Order({
     required this.id,
@@ -33,6 +35,8 @@ class Order {
     this.customerName,
     this.customerEmail,
     this.customerPhone,
+    this.rating,
+    this.reviewComment,
   }) : subtotalAmount = subtotalAmount ?? totalAmount;
 
   factory Order.fromJson(Map<String, dynamic> json) {
@@ -58,6 +62,8 @@ class Order {
       customerName: json['customerName'] as String?,
       customerEmail: json['customerEmail'] as String?,
       customerPhone: json['customerPhone'] as String?,
+      rating: (json['rating'] as num?)?.toInt(),
+      reviewComment: json['reviewComment'] as String?,
     );
   }
 }

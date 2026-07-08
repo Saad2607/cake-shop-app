@@ -6,6 +6,8 @@ import '../../providers/wishlist_provider.dart';
 import '../../services/api_service.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/cake_price.dart';
+import '../../services/server_settings_service.dart';
+import '../../utils/cake_share.dart';
 import '../../utils/currency_formatter.dart';
 import '../../widgets/cake_image_tile.dart';
 
@@ -28,6 +30,14 @@ class _CakeDetailScreenState extends State<CakeDetailScreen> {
   void dispose() {
     _messageController.dispose();
     super.dispose();
+  }
+
+  Future<void> _shareCake(Cake cake) {
+    final settings = context.read<ServerSettingsService>();
+    return CakeShare.shareCake(
+      cake,
+      shareBaseUrl: settings.shareBaseUrl,
+    );
   }
 
   Future<void> _addToCart(Cake cake) async {
@@ -137,7 +147,10 @@ class _CakeDetailScreenState extends State<CakeDetailScreen> {
                         ),
                       ),
                       actions: [
-                        _CircleAction(icon: Icons.share_outlined, onTap: () {}),
+                        _CircleAction(
+                          icon: Icons.share_outlined,
+                          onTap: () => _shareCake(cake),
+                        ),
                         const SizedBox(width: 8),
                         Consumer<WishlistProvider>(
                           builder: (context, wishlist, _) {

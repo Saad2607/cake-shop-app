@@ -3,16 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/cart_provider.dart';
-import '../../providers/notification_provider.dart';
 import '../../providers/order_provider.dart';
 import '../../theme/app_theme.dart';
-import '../../utils/app_snackbar.dart';
-import '../../widgets/delivery_address_sheet.dart';
-import '../../widgets/edit_profile_sheet.dart';
-import '../profile/help_support_screen.dart';
-import '../profile/wishlist_screen.dart';
+import '../profile/account_settings_screen.dart';
 import '../profile/server_settings_screen.dart';
-import '../auth/login_screen.dart';
+import '../profile/wishlist_screen.dart';import '../auth/login_screen.dart';
 import '../auth/register_screen.dart';
 import '../home/main_screen.dart';
 
@@ -159,8 +154,6 @@ class ProfileTab extends StatelessWidget {
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 _statsRow(context),
-                const SizedBox(height: 16),
-                _notificationCard(context),
                 const SizedBox(height: 20),
                 Text(
                   'Your orders',
@@ -190,7 +183,7 @@ class ProfileTab extends StatelessWidget {
                 ),
                 const SizedBox(height: 20),
                 Text(
-                  'Account & help',
+                  'Account',
                   style: AppTheme.bodySmall.copyWith(
                     fontWeight: FontWeight.w700,
                     letterSpacing: 0.4,
@@ -199,28 +192,13 @@ class ProfileTab extends StatelessWidget {
                 const SizedBox(height: 10),
                 _actionTile(
                   context,
-                  icon: Icons.location_on_outlined,
-                  title: 'Delivery address',
-                  subtitle: 'Change where we deliver',
-                  onTap: () => showDeliveryAddressSheet(context),
-                ),
-                const SizedBox(height: 8),
-                _actionTile(
-                  context,
-                  icon: Icons.help_outline_rounded,
-                  title: 'Help & support',
-                  subtitle: 'FAQs, call us, report issues',
+                  icon: Icons.settings_outlined,
+                  title: 'Settings',
+                  subtitle: 'Notifications, profile, addresses & help',
                   onTap: () => Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => const HelpSupportScreen()),
+                    MaterialPageRoute(builder: (_) => const AccountSettingsScreen()),
                   ),
-                ),
-                const SizedBox(height: 8),
-                _actionTile(
-                  context,
-                  icon: Icons.edit_outlined,
-                  title: 'Edit profile',
-                  onTap: () => _editProfile(context, user.name, user.phone),
                 ),
                 const SizedBox(height: 12),
                 _infoCard(
@@ -230,23 +208,6 @@ class ProfileTab extends StatelessWidget {
                 ),
                 const SizedBox(height: 32),
                 _signOutButton(context, auth),
-                if (kDebugMode) ...[
-                  const SizedBox(height: 16),
-                  Center(
-                    child: TextButton.icon(
-                      onPressed: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const ServerSettingsScreen()),
-                      ),
-                      icon: const Icon(Icons.settings_outlined, size: 16),
-                      label: const Text('Server settings (dev)'),
-                      style: TextButton.styleFrom(
-                        foregroundColor: AppTheme.textMuted,
-                        textStyle: const TextStyle(fontSize: 12),
-                      ),
-                    ),
-                  ),
-                ],
                 const SizedBox(height: 24),
               ]),
             ),
@@ -301,58 +262,6 @@ class ProfileTab extends StatelessWidget {
           const SizedBox(height: 10),
           Text(value, style: AppTheme.displayMedium.copyWith(fontSize: 22)),
           Text(label, style: AppTheme.bodySmall),
-        ],
-      ),
-    );
-  }
-
-  Widget _notificationCard(BuildContext context) {
-    final notif = context.watch<NotificationProvider>();
-    final count = notif.customerNotificationCount;
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppTheme.surface,
-        borderRadius: AppTheme.radiusLg,
-        border: Border.all(color: AppTheme.cardBorder),
-        boxShadow: [AppTheme.softShadow],
-      ),
-      child: Row(
-        children: [
-          Badge(
-            isLabelVisible: count > 0,
-            label: Text('$count'),
-            backgroundColor: AppTheme.primary,
-            child: Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: AppTheme.primaryLight.withValues(alpha: 0.35),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Icon(Icons.notifications_active_rounded, color: AppTheme.primary),
-            ),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Order notifications', style: AppTheme.titleMedium),
-                Text(
-                  count > 0
-                      ? '$count alert${count == 1 ? '' : 's'} received so far'
-                      : 'Get alerts when your cake is baking, ready & delivered',
-                  style: AppTheme.bodySmall.copyWith(fontSize: 11),
-                ),
-              ],
-            ),
-          ),
-          Switch.adaptive(
-            value: notif.enabled,
-            activeColor: AppTheme.primary,
-            onChanged: (v) => notif.setEnabled(v),
-          ),
         ],
       ),
     );
@@ -542,32 +451,5 @@ class ProfileTab extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  Future<void> _editProfile(
-    BuildContext context,
-    String name,
-    String phone,
-  ) async {
-    final updated = await showEditProfileSheet(
-      context,
-      name: name,
-      phone: phone,
-    );
-    if (updated != null && context.mounted) {
-      try {
-        await context.read<AuthProvider>().updateProfile(
-              updated.name,
-              updated.phone,
-            );
-        if (context.mounted) {
-          AppSnackBar.success(context, 'Profile updated');
-        }
-      } catch (_) {
-        if (context.mounted) {
-          AppSnackBar.error(context, 'Could not update profile');
-        }
-      }
-    }
   }
 }

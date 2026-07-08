@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+import '../models/saved_address.dart';
 import '../providers/delivery_address_provider.dart';
 import '../services/location_service.dart';
 import '../theme/app_theme.dart';
@@ -22,25 +24,31 @@ class _DeliveryAddressSheet extends StatefulWidget {
 }
 
 class _DeliveryAddressSheetState extends State<_DeliveryAddressSheet> {
-  final _labelCtrl = TextEditingController(text: 'Home');
   final _addressCtrl = TextEditingController();
+  String _label = 'Home';
+  String? _editingId;
   bool _loadingGps = false;
 
   @override
-  void initState() {
-    super.initState();
-    final saved = context.read<DeliveryAddressProvider>();
-    if (saved.hasAddress) {
-      _labelCtrl.text = saved.label;
-      _addressCtrl.text = saved.fullAddress;
-    }
-  }
-
-  @override
   void dispose() {
-    _labelCtrl.dispose();
     _addressCtrl.dispose();
     super.dispose();
+  }
+
+  void _loadForEdit(SavedAddress address) {
+    setState(() {
+      _editingId = address.id;
+      _label = address.label;
+      _addressCtrl.text = address.fullAddress;
+    });
+  }
+
+  void _startNew() {
+    setState(() {
+      _editingId = null;
+      _label = 'Home';
+      _addressCtrl.clear();
+    });
   }
 
   Future<void> _useCurrentLocation() async {
@@ -49,7 +57,9 @@ class _DeliveryAddressSheetState extends State<_DeliveryAddressSheet> {
       final address = await LocationService.getCurrentAddress();
       if (!mounted) return;
       _addressCtrl.text = address;
-      _labelCtrl.text = LocationService.shortLabelFromAddress(address);
+      _label = LocationService.shortLabelFromAddress(address)
+          .replaceFirst('Current location · ', '');
+      if (_label == address || _label.length > 20) _label = 'Other';
       AppSnackBar.success(context, 'Location detected');
     } catch (e) {
       if (!mounted) return;
@@ -67,9 +77,10 @@ class _DeliveryAddressSheetState extends State<_DeliveryAddressSheet> {
       AppSnackBar.error(context, 'Please enter your delivery address');
       return;
     }
-    await context.read<DeliveryAddressProvider>().setAddress(
-          label: _labelCtrl.text.trim().isEmpty ? 'Home' : _labelCtrl.text.trim(),
+    await context.read<DeliveryAddressProvider>().saveAddress(
+          label: _label,
           fullAddress: _addressCtrl.text.trim(),
+          id: _editingId,
         );
     if (!mounted) return;
     AppSnackBar.success(context, 'Delivery address saved');
@@ -78,9 +89,15 @@ class _DeliveryAddressSheetState extends State<_DeliveryAddressSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final provider = context.watch<DeliveryAddressProvider>();
+    final saved = provider.addresses;
+
     return Padding(
       padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
       child: Container(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.88,
+        ),
         decoration: const BoxDecoration(
           color: AppTheme.surface,
           borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
@@ -107,24 +124,8 @@ class _DeliveryAddressSheetState extends State<_DeliveryAddressSheet> {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    Container(
-                      padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.2),
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.3),
-                        ),
-                      ),
-                      child: const Icon(
-                        Icons.location_on_rounded,
-                        color: Colors.white,
-                        size: 32,
-                      ),
-                    ),
-                    const SizedBox(height: 14),
                     Text(
-                      'Delivery address',
+                      'Delivery addresses',
                       style: AppTheme.displayMedium.copyWith(
                         color: Colors.white,
                         fontSize: 22,
@@ -132,7 +133,7 @@ class _DeliveryAddressSheetState extends State<_DeliveryAddressSheet> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Used for delivery info and checkout',
+                      'Save Home, Office or Other for faster checkout',
                       style: AppTheme.bodySmall.copyWith(
                         color: Colors.white.withValues(alpha: 0.85),
                       ),
@@ -141,10 +142,110 @@ class _DeliveryAddressSheetState extends State<_DeliveryAddressSheet> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.fromLTRB(24, 24, 24, 28),
+                padding: const EdgeInsets.fromLTRB(24, 20, 24, 28),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    if (saved.isNotEmpty) ...[
+                      Row(
+                        children: [
+                          Text('Saved addresses', style: AppTheme.labelBold),
+                          const Spacer(),
+                          TextButton(
+                            onPressed: _startNew,
+                            child: const Text('Add new'),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      ...saved.map((address) {
+                        final selected = provider.selected?.id == address.id;
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: Material(
+                            color: selected
+                                ? AppTheme.primary.withValues(alpha: 0.08)
+                                : Colors.white,
+                            borderRadius: BorderRadius.circular(14),
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(14),
+                              onTap: () async {
+                                await provider.selectAddress(address.id);
+                                if (!context.mounted) return;
+                                Navigator.pop(context);
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.all(14),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      _iconForLabel(address.label),
+                                      color: selected
+                                          ? AppTheme.primary
+                                          : AppTheme.textMuted,
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            address.label,
+                                            style: AppTheme.titleMedium.copyWith(
+                                              fontSize: 14,
+                                              color: selected
+                                                  ? AppTheme.primary
+                                                  : AppTheme.textDark,
+                                            ),
+                                          ),
+                                          Text(
+                                            address.fullAddress,
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: AppTheme.bodySmall,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(Icons.edit_outlined,
+                                          size: 18),
+                                      onPressed: () => _loadForEdit(address),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      }),
+                      const SizedBox(height: 16),
+                      const Divider(color: AppTheme.cardBorder),
+                      const SizedBox(height: 16),
+                    ],
+                    Text(
+                      _editingId == null ? 'Add address' : 'Edit address',
+                      style: AppTheme.labelBold,
+                    ),
+                    const SizedBox(height: 10),
+                    Wrap(
+                      spacing: 8,
+                      children: SavedAddress.presetLabels.map((preset) {
+                        final active = _label == preset;
+                        return ChoiceChip(
+                          label: Text(preset),
+                          selected: active,
+                          onSelected: (_) => setState(() => _label = preset),
+                          selectedColor: AppTheme.primary.withValues(alpha: 0.15),
+                          labelStyle: TextStyle(
+                            color: active ? AppTheme.primary : AppTheme.textDark,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                    const SizedBox(height: 12),
                     OutlinedButton.icon(
                       onPressed: _loadingGps ? null : _useCurrentLocation,
                       icon: _loadingGps
@@ -158,28 +259,6 @@ class _DeliveryAddressSheetState extends State<_DeliveryAddressSheet> {
                         _loadingGps ? 'Getting location…' : 'Use current location',
                       ),
                     ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        const Expanded(child: Divider(color: AppTheme.cardBorder)),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
-                          child: Text(
-                            'OR',
-                            style: AppTheme.bodySmall.copyWith(fontSize: 11),
-                          ),
-                        ),
-                        const Expanded(child: Divider(color: AppTheme.cardBorder)),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    TextField(
-                      controller: _labelCtrl,
-                      decoration: const InputDecoration(
-                        labelText: 'Label (e.g. Home, Office)',
-                        prefixIcon: Icon(Icons.label_outline, color: AppTheme.primary),
-                      ),
-                    ),
                     const SizedBox(height: 12),
                     TextField(
                       controller: _addressCtrl,
@@ -187,7 +266,8 @@ class _DeliveryAddressSheetState extends State<_DeliveryAddressSheet> {
                       decoration: const InputDecoration(
                         labelText: 'Full address *',
                         hintText: 'House no., street, area, city, pin code',
-                        prefixIcon: Icon(Icons.location_on_outlined, color: AppTheme.primary),
+                        prefixIcon: Icon(Icons.location_on_outlined,
+                            color: AppTheme.primary),
                       ),
                     ),
                     const SizedBox(height: 24),
@@ -203,7 +283,7 @@ class _DeliveryAddressSheetState extends State<_DeliveryAddressSheet> {
                           shadowColor: Colors.transparent,
                           foregroundColor: Colors.white,
                         ),
-                        child: const Text('Save address'),
+                        child: Text(_editingId == null ? 'Save address' : 'Update address'),
                       ),
                     ),
                   ],
@@ -214,5 +294,16 @@ class _DeliveryAddressSheetState extends State<_DeliveryAddressSheet> {
         ),
       ),
     );
+  }
+
+  IconData _iconForLabel(String label) {
+    switch (label.toLowerCase()) {
+      case 'home':
+        return Icons.home_outlined;
+      case 'office':
+        return Icons.work_outline_rounded;
+      default:
+        return Icons.location_on_outlined;
+    }
   }
 }

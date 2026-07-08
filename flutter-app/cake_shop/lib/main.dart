@@ -30,6 +30,7 @@ import 'services/server_settings_service.dart';
 
 import 'theme/app_theme.dart';
 
+import 'widgets/deep_link_handler.dart';
 import 'widgets/order_notification_listener.dart';
 
 
@@ -99,9 +100,9 @@ class CakeShopApp extends StatelessWidget {
 
       ],
 
-      child: OrderNotificationListener(
-
-        child: MaterialApp(
+      child: DeepLinkHandler(
+        child: OrderNotificationListener(
+          child: MaterialApp(
 
           title: kAppName,
 
@@ -110,6 +111,8 @@ class CakeShopApp extends StatelessWidget {
           theme: AppTheme.lightTheme,
 
           home: const AppBootstrap(),
+
+          ),
 
         ),
 

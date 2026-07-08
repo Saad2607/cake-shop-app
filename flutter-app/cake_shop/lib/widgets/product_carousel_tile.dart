@@ -40,7 +40,24 @@ class ProductCarouselTile extends StatelessWidget {
                   child: SizedBox(
                     height: 88,
                     width: double.infinity,
-                    child: CakeImageTile(cake: cake, iconSize: 32),
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        CakeImageTile(cake: cake, iconSize: 32),
+                        if (!cake.inStock)
+                          Container(
+                            color: Colors.black.withValues(alpha: 0.55),
+                            alignment: Alignment.center,
+                            child: Text(
+                              'Sold out',
+                              style: AppTheme.labelBold.copyWith(
+                                color: Colors.white,
+                                fontSize: 10,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
                   ),
                 ),
                 Padding(

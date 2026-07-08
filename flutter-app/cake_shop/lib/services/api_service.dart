@@ -272,6 +272,19 @@ class ApiService {
     await _handleResponse(response);
   }
 
+  Future<Order> submitOrderReview(String id, int rating, {String? comment}) async {
+    final response = await _request(http.patch(
+      Uri.parse('${_baseUrl}/orders/$id/review'),
+      headers: _headers,
+      body: json.encode({
+        'rating': rating,
+        if (comment != null && comment.isNotEmpty) 'comment': comment,
+      }),
+    ));
+    final data = await _handleResponse(response);
+    return Order.fromJson(data);
+  }
+
   // Admin
   Future<AdminDashboard> getAdminDashboard() async {
     final response = await _request(http.get(

@@ -8,9 +8,11 @@ import '../../providers/cake_provider.dart';
 import '../../providers/delivery_address_provider.dart';
 import '../../providers/order_provider.dart';
 import '../../theme/app_theme.dart';
+import '../../utils/delivery_eta.dart';
 import '../../utils/order_status.dart';
 import '../../widgets/cake_card_widget.dart';
 import '../../widgets/delivery_address_sheet.dart';
+import '../../widgets/delivery_eta_chip.dart';
 import '../../widgets/empty_state.dart';
 import '../../widgets/promo_banner.dart';
 import '../../widgets/product_carousel_tile.dart';
@@ -428,7 +430,12 @@ class _HomeTabState extends State<HomeTab> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 10),
+                    DeliveryEtaChip(
+                      label: DeliveryEta.homeChipLabel(),
+                      light: true,
+                    ),
+                    const SizedBox(height: 12),
                     InkWell(
                       onTap: () => showDeliveryAddressSheet(context),
                       borderRadius: BorderRadius.circular(14),

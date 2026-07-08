@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
+import '../providers/notification_provider.dart';
+import '../providers/order_provider.dart';
 import '../screens/admin/admin_main_screen.dart';
 import '../screens/home/main_screen.dart';
 import '../services/notification_service.dart';
+import '../utils/app_snackbar.dart';
 
 /// Central navigation after auth events.
 class NavigationHelper {
-  static void afterCustomerAuth(BuildContext context, {bool welcome = true}) async {
+  static Future<void> afterCustomerAuth(BuildContext context, {bool welcome = true}) async {
     await NotificationService.instance.requestPermission();
     if (!context.mounted) return;
     Navigator.pushAndRemoveUntil(
@@ -26,12 +30,41 @@ class NavigationHelper {
     );
   }
 
-  static void afterAuth(BuildContext context, AuthProvider auth,
-      {bool welcome = true}) {
+  static Future<void> afterAuth(
+    BuildContext context,
+    AuthProvider auth, {
+    bool welcome = true,
+  }) async {
     if (auth.user?.role == 'ADMIN') {
       afterAdminAuth(context);
-    } else {
-      afterCustomerAuth(context, welcome: welcome);
+      return;
     }
+
+    // Opened from Account / cart guard — pop login and stay on the current tab.
+    if (Navigator.canPop(context)) {
+      await NotificationService.instance.requestPermission();
+      if (!context.mounted) return;
+      await context.read<OrderProvider>().loadOrders();
+      if (!context.mounted) return;
+      final orders = context.read<OrderProvider>().orders;
+      final notifications = context.read<NotificationProvider>();
+      if (notifications.hasSnapshots) {
+        await notifications.processOrders(orders);
+      } else {
+        await notifications.seedStatuses(orders);
+      }
+      if (!context.mounted) return;
+      Navigator.pop(context);
+      if (welcome && context.mounted) {
+        final name = auth.user?.name;
+        AppSnackBar.success(
+          context,
+          name != null && name.isNotEmpty ? 'Welcome back, $name!' : 'Welcome back!',
+        );
+      }
+      return;
+    }
+
+    await afterCustomerAuth(context, welcome: welcome);
   }
 }

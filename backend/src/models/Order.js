@@ -30,6 +30,8 @@ const orderSchema = new mongoose.Schema(
     deliveryDate: { type: Number, required: true },
     paymentMethod: { type: String, required: true },
     items: { type: [orderItemSchema], default: [] },
+    rating: { type: Number, min: 1, max: 5, default: null },
+    reviewComment: { type: String, default: null },
   },
   { timestamps: true }
 );
@@ -47,6 +49,8 @@ orderSchema.methods.toPublicJSON = function () {
     deliveryAddress: this.deliveryAddress,
     deliveryDate: this.deliveryDate,
     paymentMethod: this.paymentMethod,
+    rating: this.rating ?? null,
+    reviewComment: this.reviewComment ?? null,
     createdAt: this.createdAt?.getTime(),
     items: this.items.map((item) => ({
       id: item._id.toString(),

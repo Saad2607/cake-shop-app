@@ -12,7 +12,10 @@ import '../../utils/app_snackbar.dart';
 import '../../utils/currency_formatter.dart';
 import '../../utils/payment_labels.dart';
 import '../../widgets/delivery_address_sheet.dart';
+import '../../widgets/delivery_eta_chip.dart';
 import '../../widgets/gradient_header.dart';
+import '../../utils/promo_countdown.dart';
+import '../../utils/promo_offers.dart';
 import '../../widgets/upi_payment_sheet.dart';
 import '../orders/order_confirmation_screen.dart';
 
@@ -207,6 +210,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   _orderSummary(cart),
                   const SizedBox(height: 24),
                   _sectionTitle('Delivery details'),
+                  const SizedBox(height: 10),
+                  DeliveryEtaChip.checkout(scheduledDate: _deliveryDate),
                   const SizedBox(height: 12),
                   _card(
                     child: Column(
@@ -649,6 +654,29 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   child: const Text('Remove'),
                 ),
               ],
+            ),
+          ],
+          if (promo.applied?.expiresAt != null) ...[
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              decoration: BoxDecoration(
+                color: AppTheme.goldLight,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.timer_outlined, size: 16, color: AppTheme.primary),
+                  const SizedBox(width: 6),
+                  Text(
+                    PromoCountdown.label(promo.applied!.expiresAt!),
+                    style: AppTheme.labelBold.copyWith(
+                      fontSize: 11,
+                      color: const Color(0xFF6B5030),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
           if (minWarning != null) ...[

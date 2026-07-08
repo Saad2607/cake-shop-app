@@ -21,6 +21,7 @@ class _AdminCakeFormScreenState extends State<AdminCakeFormScreen> {
   late final TextEditingController _sizesCtrl;
   late final TextEditingController _flavorsCtrl;
   late final TextEditingController _ratingCtrl;
+  late final TextEditingController _imageUrlCtrl;
   String _category = 'BIRTHDAY';
   bool _inStock = true;
   bool _saving = false;
@@ -39,6 +40,8 @@ class _AdminCakeFormScreenState extends State<AdminCakeFormScreen> {
     _sizesCtrl = TextEditingController(text: c?.sizes.join(', ') ?? '1kg, 2kg');
     _flavorsCtrl = TextEditingController(text: c?.flavors.join(', ') ?? 'Chocolate, Vanilla');
     _ratingCtrl = TextEditingController(text: c != null ? c.rating.toString() : '4.5');
+    _imageUrlCtrl = TextEditingController(text: c?.imageUrl ?? '');
+    _imageUrlCtrl.addListener(() => setState(() {}));
     if (c != null) {
       _category = c.category;
       _inStock = c.inStock;
@@ -53,6 +56,7 @@ class _AdminCakeFormScreenState extends State<AdminCakeFormScreen> {
     _sizesCtrl.dispose();
     _flavorsCtrl.dispose();
     _ratingCtrl.dispose();
+    _imageUrlCtrl.dispose();
     super.dispose();
   }
 
@@ -73,7 +77,7 @@ class _AdminCakeFormScreenState extends State<AdminCakeFormScreen> {
       'flavors': _parseList(_flavorsCtrl.text),
       'rating': double.tryParse(_ratingCtrl.text.trim()) ?? 4.5,
       'inStock': _inStock,
-      'imageUrl': '',
+      'imageUrl': _imageUrlCtrl.text.trim(),
     };
 
     final admin = context.read<AdminProvider>();
@@ -163,6 +167,49 @@ class _AdminCakeFormScreenState extends State<AdminCakeFormScreen> {
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
               decoration: const InputDecoration(labelText: 'Rating (0-5)'),
             ),
+            const SizedBox(height: 14),
+            TextFormField(
+              controller: _imageUrlCtrl,
+              keyboardType: TextInputType.url,
+              decoration: const InputDecoration(
+                labelText: 'Product image URL',
+                hintText: 'https://… (paste link to real cake photo)',
+                prefixIcon: Icon(Icons.image_outlined),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Use a photo of this exact cake for best results. Upload to Google Drive or Imgur and paste the link.',
+              style: AppTheme.bodySmall.copyWith(color: AppTheme.textMuted, height: 1.35),
+            ),
+            if (_imageUrlCtrl.text.trim().isNotEmpty) ...[
+              const SizedBox(height: 12),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(14),
+                child: AspectRatio(
+                  aspectRatio: 16 / 9,
+                  child: Image.network(
+                    _imageUrlCtrl.text.trim(),
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => Container(
+                      color: AppTheme.cardBorder,
+                      child: const Center(
+                        child: Icon(Icons.broken_image_outlined, color: AppTheme.textMuted),
+                      ),
+                    ),
+                    loadingBuilder: (context, child, progress) {
+                      if (progress == null) return child;
+                      return Container(
+                        color: AppTheme.cardBorder,
+                        child: const Center(
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ],
             const SizedBox(height: 14),
             SwitchListTile(
               title: const Text('In stock'),

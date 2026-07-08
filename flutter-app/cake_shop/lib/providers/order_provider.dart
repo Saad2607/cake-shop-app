@@ -50,4 +50,14 @@ class OrderProvider extends ChangeNotifier {
       return false;
     }
   }
+
+  Future<Order?> submitReview(String id, int rating, {String? comment}) async {
+    try {
+      final updated = await api.submitOrderReview(id, rating, comment: comment);
+      await loadOrders();
+      return updated;
+    } catch (_) {
+      return null;
+    }
+  }
 }

@@ -131,7 +131,12 @@ class _MainScreenState extends State<MainScreen> {
 
 
 
-    return Scaffold(
+    return PopScope(
+      canPop: _index == 0,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) setState(() => _index = 0);
+      },
+      child: Scaffold(
 
       backgroundColor: AppTheme.background,
 
@@ -291,10 +296,10 @@ class _MainScreenState extends State<MainScreen> {
 
       ),
 
+    ),
+
     );
 
   }
 
 }
-
-

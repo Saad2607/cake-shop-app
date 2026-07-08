@@ -1,68 +1,126 @@
-# Sweet Delights API
+# Sweet Delights
 
-Backend for the Sweet Delights cake ordering app. Handles auth, catalog, cart, orders, admin tools, and public product share pages.
+Order handcrafted cakes from your phone — browse the menu, customize your cake, pay with UPI or cash on delivery, and track your order until it arrives.
 
-## Requirements
+Built with **Flutter**, **Node.js**, and **MongoDB**.
 
-- Node.js 18+
-- MongoDB (local or Atlas)
+---
 
-## Get started
+## What's included
+
+**Customer app**
+- Browse without signing in; sign in when you're ready to checkout
+- Search, categories, promos, and delivery ETA on the home screen
+- Cake details with size, flavor, custom message, wishlist, and share (photo + link)
+- Saved addresses, cart, checkout, order tracking, and ratings after delivery
+- Order notifications and account settings
+
+**Admin app** (same install, admin login)
+- Manage cakes, orders, and customers
+- Update order status (customers get notified)
+- Set product image URLs with live preview
+
+**API**
+- REST backend with JWT auth
+- Public product pages at `/p/{cakeId}` for WhatsApp-style sharing
+
+---
+
+## Repo layout
+
+```
+├── backend/              API (Express + MongoDB)
+├── flutter-app/cake_shop/   Android app (Flutter)
+├── database/             Schema notes
+├── docs/                 Extra guides
+└── SETUP.md              Step-by-step local setup
+```
+
+---
+
+## Run it locally
+
+You need **Node 18+**, **MongoDB** (local or [Atlas](https://www.mongodb.com/atlas)), and **Flutter 3.2+**.
+
+**1. API**
 
 ```bash
+cd backend
 cp .env.example .env
+# Edit .env — MONGODB_URI, JWT_SECRET
+
 npm install
 npm run seed
 npm run dev
 ```
 
-The server listens on `http://localhost:3000`.
+API runs at `http://localhost:3000`. Check `http://localhost:3000/health`.
 
-### Environment
+**2. App**
 
-```env
-MONGODB_URI=mongodb://localhost:27017/cake_shop
-JWT_SECRET=your-secret-key
-PUBLIC_APP_URL=http://localhost:3000
+```bash
+cd flutter-app/cake_shop
+flutter pub get
+flutter run
 ```
 
-On production, set `PUBLIC_APP_URL` to your live URL (e.g. `https://sweet-delights.onrender.com`) so shared cake links preview correctly in WhatsApp.
+On a physical phone, point the app to your PC IP under **Account → Server connection (dev)**, or use the Android emulator default (`10.0.2.2`).
 
-## Endpoints worth knowing
+**Test logins**
 
-| URL | What it does |
-|-----|----------------|
-| `GET /health` | Quick health check |
-| `GET /p/:cakeId` | Public product page when someone opens a shared link |
-| `/api/*` | JSON REST API (auth, cakes, cart, orders, admin) |
+| | Email | Password |
+|---|--------|----------|
+| Customer | customer@test.com | test123 |
+| Admin | admin@cakeshop.com | admin123 |
 
-Admin routes need a JWT with `role: ADMIN`.
+More detail: [SETUP.md](SETUP.md) · [backend/README.md](backend/README.md) · [flutter-app/cake_shop/README.md](flutter-app/cake_shop/README.md)
 
-## Scripts
+---
 
-| Command | What it does |
-|---------|----------------|
-| `npm run dev` | Start with auto-reload |
-| `npm start` | Production start |
-| `npm run seed` | Load demo users and 24 cakes |
-| `node scripts/validate-final-images.js` | Check that all cake image URLs still work |
+## Production build
 
-## Cake images
+Deploy the API (e.g. [Render](https://render.com)) with MongoDB Atlas, set `PUBLIC_APP_URL`, run `npm run seed` once, then build the app:
 
-Product photos live in `src/data/cakeImageCatalog.js` — one image per cake name. After editing, run `npm run seed` again.
+```bash
+flutter build apk --release \
+  --dart-define=PRODUCTION_API_URL=https://your-api.onrender.com/api
+```
 
-## Deploying on Render
+Release builds use that URL automatically — no IP setup for people installing the APK.
 
-1. Set root directory to `backend`
-2. Build: `npm install` · Start: `npm start`
-3. Add env vars: `MONGODB_URI`, `JWT_SECRET`, `PUBLIC_APP_URL`
-4. Seed the database once: `npm run seed`
+Shared cake links look like `https://your-api.onrender.com/p/{cakeId}` and open a product page anyone can view.
 
-## Data model
+---
 
-| Collection | Purpose |
-|----------|---------|
-| users | Customer and admin accounts |
-| cakes | Menu items |
-| cartitems | Per-user cart |
-| orders | Orders with line items and ratings |
+## API overview
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/health` | Health check |
+| GET | `/p/:id` | Shareable product page |
+| POST | `/api/auth/login` | Sign in |
+| GET | `/api/cakes` | Catalog |
+| POST | `/api/orders` | Place order |
+| … | `/api/admin/*` | Admin (JWT + admin role) |
+
+---
+
+<<<<<<< HEAD
+## Stack
+
+Flutter · Provider · Node.js · Express · Mongoose · JWT · MongoDB
+
+---
+
+## Docs
+
+- [Setup guide](SETUP.md)
+- [User guide](docs/07_User_Manual.md)
+- [Database schema](database/mongodb_schema.md)
+
+---
+
+**Sweet Delights** — premium cakes, delivered fresh.
+=======
+*Flutter + Node.js + MongoDB*
+>>>>>>> 9b9afefac0411dec0e0d8b09d6183ef407f3f03f

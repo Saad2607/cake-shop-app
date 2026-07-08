@@ -64,11 +64,13 @@ class _HomeTabState extends State<HomeTab> {
     });
   }
 
-  void _showOrderUpdates(BuildContext context) {
+  void _showOrderUpdates(BuildContext context) async {
     final auth = context.read<AuthProvider>();
     final notif = context.read<NotificationProvider>();
     if (auth.isLoggedIn) {
       notif.clearCustomerCount();
+      await context.read<OrderProvider>().loadOrders();
+      if (!context.mounted) return;
     }
     if (!auth.isLoggedIn) {
       showModalBottomSheet<void>(
@@ -148,23 +150,44 @@ class _HomeTabState extends State<HomeTab> {
                   itemBuilder: (_, i) {
                     final order = active[i];
                     final color = AppTheme.orderStatusColor(order.status);
-                    return Row(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                    return Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () {
+                          Navigator.pop(ctx);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => OrderDetailScreen(order: order),
+                            ),
+                          );
+                        },
+                        borderRadius: BorderRadius.circular(12),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 6),
+                          child: Row(
                             children: [
-                              Text(order.orderNumber, style: AppTheme.titleMedium),
-                              const SizedBox(height: 2),
-                              Text(
-                                OrderStatusFlow.label(order.status),
-                                style: AppTheme.bodySmall.copyWith(color: color),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(order.orderNumber, style: AppTheme.titleMedium),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      OrderStatusFlow.label(order.status),
+                                      style: AppTheme.bodySmall.copyWith(color: color),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Icon(
+                                Icons.chevron_right_rounded,
+                                color: AppTheme.primary.withValues(alpha: 0.7),
                               ),
                             ],
                           ),
                         ),
-                        Icon(Icons.chevron_right_rounded, color: AppTheme.textMuted.withValues(alpha: 0.5)),
-                      ],
+                      ),
                     );
                   },
                 ),

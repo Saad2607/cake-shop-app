@@ -278,30 +278,54 @@ const CAKES = [
 ];
 
 const CAKE_IMAGES = {
-  'Chocolate Fudge Birthday Cake': 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=800&q=80',
-  'Vanilla Dream Wedding Cake': 'https://images.unsplash.com/photo-1535254973040-607b474cb50d?w=800&q=80',
-  'Red Velvet Cupcake Box': 'https://images.unsplash.com/photo-1614707267537-b87a0323b629?w=800&q=80',
-  'Custom Photo Cake': 'https://images.unsplash.com/photo-1563729787504-d2d5b1c7ee25?w=800&q=80',
-  'Christmas Fruit Cake': 'https://images.unsplash.com/photo-1607926967395-65471121b817?w=800&q=80',
-  'Strawberry Shortcake': 'https://images.unsplash.com/photo-1565958011703-14f058988770?w=800&q=80',
-  'Black Forest Gateau': 'https://images.unsplash.com/photo-1621303833534-6d8927f4a978?w=800&q=80',
-  'Butterscotch Crunch Cake': 'https://images.unsplash.com/photo-1586788680434-30d324b2d3ea?w=800&q=80',
-  'Mango Alphonso Mousse Cake': 'https://images.unsplash.com/photo-1621961798959-8c0e40a4cde8?w=800&q=80',
-  'Oreo Chocolate Overload': 'https://images.unsplash.com/photo-1606890736304-750ef4f5cbbb?w=800&q=80',
-  'Gulab Jamun Fusion Cake': 'https://images.unsplash.com/photo-1589302168068-964664d93dc0?w=800&q=80',
-  'Blueberry Cheesecake Jar': 'https://images.unsplash.com/photo-1533134242443-674d894fe966?w=800&q=80',
-  'Chocolate Truffle Cupcake Box': 'https://images.unsplash.com/photo-1486427944299-d1955d23e34d?w=800&q=80',
-  'Classic White Wedding Cake': 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=800&q=80',
-  'Rose Gold Anniversary Cake': 'https://images.unsplash.com/photo-1464349095439-e9a21285b5f6?w=800&q=80',
-  'Cartoon Theme Kids Cake': 'https://images.unsplash.com/photo-1542826438-be43ddbfc114?w=800&q=80',
-  'Corporate Logo Cake': 'https://images.unsplash.com/photo-1558636508-e0db3814bd1d?w=800&q=80',
-  'Diwali Mithai Fusion Cake': 'https://images.unsplash.com/photo-1607926967395-65471121b817?w=800&q=80',
-  'New Year Champagne Cake': 'https://images.unsplash.com/photo-1576618148400-f54bed99fcfc?w=800&q=80',
-  'Tiramisu Coffee Cake': 'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=800&q=80',
-  'Ferrero Rocher Dream Cake': 'https://images.unsplash.com/photo-1606313564200-e75d5e30476e?w=800&q=80',
-  'Pineapple Fresh Cream Cake': 'https://images.unsplash.com/photo-1588195538326-c5b1e5b80caa?w=800&q=80',
-  'Rainbow Unicorn Cake': 'https://images.unsplash.com/photo-1563729787504-d2d5b1c7ee25?w=800&q=80',
-  'Belgian Chocolate Éclair Box': 'https://images.unsplash.com/photo-1488477181946-6428a0291773?w=800&q=80',
+  'Chocolate Fudge Birthday Cake':
+      'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=800&q=80&auto=format&fit=crop',
+  'Vanilla Dream Wedding Cake':
+      'https://images.unsplash.com/photo-1535254973040-607b474cb50d?w=800&q=80&auto=format&fit=crop',
+  'Red Velvet Cupcake Box':
+      'https://images.unsplash.com/photo-1614707267537-b87a0323b629?w=800&q=80&auto=format&fit=crop',
+  'Custom Photo Cake':
+      'https://images.unsplash.com/photo-1562440779-3f31512c5fc1?w=800&q=80&auto=format&fit=crop',
+  'Christmas Fruit Cake':
+      'https://images.unsplash.com/photo-1578130279058-f25cc81ede79?w=800&q=80&auto=format&fit=crop',
+  'Strawberry Shortcake':
+      'https://images.unsplash.com/photo-1565958011703-14f058988770?w=800&q=80&auto=format&fit=crop',
+  'Black Forest Gateau':
+      'https://images.unsplash.com/photo-1606890736304-750ef4f5cbbb?w=800&q=80&auto=format&fit=crop',
+  'Butterscotch Crunch Cake':
+      'https://images.unsplash.com/photo-1586985289906-406988047345?w=800&q=80&auto=format&fit=crop',
+  'Mango Alphonso Mousse Cake':
+      'https://images.unsplash.com/photo-1563729787504-d2d5b1c7ee25?w=800&q=80&auto=format&fit=crop',
+  'Oreo Chocolate Overload':
+      'https://images.unsplash.com/photo-1606313564200-e75d5e30476e?w=800&q=80&auto=format&fit=crop',
+  'Gulab Jamun Fusion Cake':
+      'https://images.unsplash.com/photo-1571115764595-ef82553eaeb7?w=800&q=80&auto=format&fit=crop',
+  'Blueberry Cheesecake Jar':
+      'https://images.unsplash.com/photo-1533134242443-674d894fe966?w=800&q=80&auto=format&fit=crop',
+  'Chocolate Truffle Cupcake Box':
+      'https://images.unsplash.com/photo-1486427944299-d1955d23e34d?w=800&q=80&auto=format&fit=crop',
+  'Classic White Wedding Cake':
+      'https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=800&q=80&auto=format&fit=crop',
+  'Rose Gold Anniversary Cake':
+      'https://images.unsplash.com/photo-1464349095439-e9a21285b5f6?w=800&q=80&auto=format&fit=crop',
+  'Cartoon Theme Kids Cake':
+      'https://images.unsplash.com/photo-1542826438-be43ddbfc114?w=800&q=80&auto=format&fit=crop',
+  'Corporate Logo Cake':
+      'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=800&q=80&auto=format&fit=crop',
+  'Diwali Mithai Fusion Cake':
+      'https://images.unsplash.com/photo-1621303833534-6d8927f4a978?w=800&q=80&auto=format&fit=crop',
+  'New Year Champagne Cake':
+      'https://images.unsplash.com/photo-1505255237516-076770b08426?w=800&q=80&auto=format&fit=crop',
+  'Tiramisu Coffee Cake':
+      'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=800&q=80&auto=format&fit=crop',
+  'Ferrero Rocher Dream Cake':
+      'https://images.unsplash.com/photo-1606313564200-e75d5e30476e?w=800&q=80&auto=format&fit=crop',
+  'Pineapple Fresh Cream Cake':
+      'https://images.unsplash.com/photo-1588195538326-c5b1e5b80caa?w=800&q=80&auto=format&fit=crop',
+  'Rainbow Unicorn Cake':
+      'https://images.unsplash.com/photo-1563729787504-d2d5b1c7ee25?w=800&q=80&auto=format&fit=crop',
+  'Belgian Chocolate Éclair Box':
+      'https://images.unsplash.com/photo-1614707267537-b87a0323b629?w=800&q=80&auto=format&fit=crop',
 };
 
 for (const cake of CAKES) {

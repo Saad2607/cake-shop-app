@@ -105,6 +105,7 @@ Shared cake links look like `https://your-api.onrender.com/p/{cakeId}` and open 
 
 ---
 
+<<<<<<< HEAD
 ## Stack
 
 Flutter · Provider · Node.js · Express · Mongoose · JWT · MongoDB
@@ -120,3 +121,6 @@ Flutter · Provider · Node.js · Express · Mongoose · JWT · MongoDB
 ---
 
 **Sweet Delights** — premium cakes, delivered fresh.
+=======
+*Flutter + Node.js + MongoDB*
+>>>>>>> 9b9afefac0411dec0e0d8b09d6183ef407f3f03f

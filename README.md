@@ -1,119 +1,62 @@
-# Sweet Delights — Cake Online Shopping App
+# Sweet Delights
 
-A full-stack mobile e-commerce application for ordering handcrafted cakes: **Flutter** frontend, **Node.js** REST API, and **MongoDB** database.
+Order handcrafted cakes from your phone — browse the menu, customize your cake, pay with UPI or cash on delivery, and track your order until it arrives.
 
-**App name:** Sweet Delights  
-**Package:** `com.cakeshop.cake_shop`
-
----
-
-## Project Overview
-
-| Item | Details |
-|------|---------|
-| **Project Title** | Cake Online Shopping App (Sweet Delights) |
-| **Frontend** | Flutter (Dart) — Android (iOS-ready structure) |
-| **Backend** | Node.js + Express + Mongoose |
-| **Database** | MongoDB |
-| **Auth** | JWT (customer + admin roles) |
-| **Version** | 3.0.0 |
+Built with **Flutter**, **Node.js**, and **MongoDB**.
 
 ---
 
-## Features
+## What's included
 
-### Customer app
-- Browse cakes **without signing in** (guest mode)
-- Home search, categories, trending carousel, promo offers (e.g. SWEET50 countdown)
-- Cake detail: size, flavor, custom message, wishlist, **share with image + product link**
-- Delivery ETA chip, multiple saved addresses (Home / Office / Other)
-- Cart, UPI-style checkout, cash on delivery
-- Order tracking with status steps and ETA
-- Post-delivery **1–5 star reviews**
-- Push-style **order notifications** (baking, ready, delivered)
-- **Account → Settings**: notifications, edit profile, addresses, help & support
-- Forgot password flow
-- **Deep links** — open a shared cake in the app (`sweetdelights://cake/{id}`)
+**Customer app**
+- Browse without signing in; sign in when you're ready to checkout
+- Search, categories, promos, and delivery ETA on the home screen
+- Cake details with size, flavor, custom message, wishlist, and share (photo + link)
+- Saved addresses, cart, checkout, order tracking, and ratings after delivery
+- Order notifications and account settings
 
-### Admin panel (in-app)
-- Dashboard, cake CRUD with **image URL preview**
-- Order management and status updates
-- Customer list, new-order notifications
+**Admin app** (same install, admin login)
+- Manage cakes, orders, and customers
+- Update order status (customers get notified)
+- Set product image URLs with live preview
 
-### Backend
-- REST API under `/api`
-- Public **product share pages** at `/p/:id` (link previews for WhatsApp, etc.)
-- Name-matched cake images in seed data (verified Unsplash URLs)
-- Deployable on **Render** with MongoDB Atlas
+**API**
+- REST backend with JWT auth
+- Public product pages at `/p/{cakeId}` for WhatsApp-style sharing
 
 ---
 
-## Architecture
+## Repo layout
 
 ```
-┌─────────────────┐     HTTP/REST      ┌─────────────────┐     Mongoose     ┌─────────────────┐
-│  Flutter App    │ ◄────────────────► │  Node.js API    │ ◄──────────────► │    MongoDB      │
-│  Sweet Delights │     JWT Auth       │  (Express)      │                  │   (NoSQL DB)    │
-└────────┬────────┘                    └────────┬────────┘                  └─────────────────┘
-         │                                      │
-         │  Share link: https://host/p/{cakeId} │
-         └──────────────────────────────────────┘
+├── backend/              API (Express + MongoDB)
+├── flutter-app/cake_shop/   Android app (Flutter)
+├── database/             Schema notes
+├── docs/                 Extra guides
+└── SETUP.md              Step-by-step local setup
 ```
 
 ---
 
-## Project Structure
+## Run it locally
 
-```
-SE Project/
-├── README.md
-├── PROJECT_CHECKLIST.md
-├── docs/                              # SE documentation (SRS, SDD, user manual, …)
-├── database/
-│   └── mongodb_schema.md
-├── backend/
-│   ├── src/
-│   │   ├── server.js                  # /health, /p/:id share pages, /api/*
-│   │   ├── data/cakeImageCatalog.js   # Name-matched product images
-│   │   ├── controllers/
-│   │   ├── models/
-│   │   └── routes/
-│   └── scripts/seed.js
-└── flutter-app/
-    └── cake_shop/
-        └── lib/
-            ├── config/api_config.dart
-            ├── widgets/app_logo.dart  # Brand logo
-            ├── utils/cake_share.dart  # Share image + link
-            └── screens/
-```
+You need **Node 18+**, **MongoDB** (local or [Atlas](https://www.mongodb.com/atlas)), and **Flutter 3.2+**.
 
----
-
-## Quick Start
-
-### 1. MongoDB
-
-**Local:** Install [MongoDB Community](https://www.mongodb.com/try/download/community) and start the service.
-
-**Cloud:** Free cluster at [MongoDB Atlas](https://www.mongodb.com/atlas) — copy the connection string.
-
-### 2. Backend
+**1. API**
 
 ```bash
 cd backend
 cp .env.example .env
-# Set MONGODB_URI and JWT_SECRET
+# Edit .env — MONGODB_URI, JWT_SECRET
 
 npm install
-npm run seed          # Demo users, 24 cakes, image URLs
-npm run dev           # http://localhost:3000
+npm run seed
+npm run dev
 ```
 
-Verify: `GET http://localhost:3000/health`  
-Share page example: `GET http://localhost:3000/p/{cakeId}`
+API runs at `http://localhost:3000`. Check `http://localhost:3000/health`.
 
-### 3. Flutter app
+**2. App**
 
 ```bash
 cd flutter-app/cake_shop
@@ -121,107 +64,59 @@ flutter pub get
 flutter run
 ```
 
-**Release APK** (uses cloud API — set your Render URL):
+On a physical phone, point the app to your PC IP under **Account → Server connection (dev)**, or use the Android emulator default (`10.0.2.2`).
 
-```bash
-flutter build apk --release \
-  --dart-define=PRODUCTION_API_URL=https://YOUR-APP.onrender.com/api
-```
+**Test logins**
 
-Optional public share base (if different from API host):
-
-```bash
---dart-define=PUBLIC_SHARE_URL=https://YOUR-APP.onrender.com
-```
-
-### 4. API URL (development)
-
-In debug builds, use **Account → Server connection (dev)** or set mode in app:
-
-| Environment | API base |
-|-------------|----------|
-| Cloud (production) | `api_config.dart` / `--dart-define=PRODUCTION_API_URL` |
-| Android emulator | `http://10.0.2.2:3000/api` |
-| Physical device (Wi‑Fi) | `http://YOUR_PC_IP:3000/api` |
-| USB (`adb reverse`) | `http://127.0.0.1:3000/api` |
-
-> **Sharing cakes:** Shared links use the **public/cloud URL** when configured. Local IPs (`192.168.x.x`) only work on the same Wi‑Fi.
-
----
-
-## Deployment (Render + APK)
-
-1. Push `backend/` to GitHub; create a **Web Service** on [Render](https://render.com).
-2. Set env vars: `MONGODB_URI`, `JWT_SECRET`, `PUBLIC_APP_URL` (e.g. `https://your-app.onrender.com`).
-3. Run `npm run seed` once (Shell or locally against Atlas).
-4. Set `PRODUCTION_API_URL` in Flutter and build release APK.
-5. Distribute APK; backend-only changes deploy via Git push (no new APK).
-
----
-
-## API Endpoints (summary)
-
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| GET | `/health` | No | Health check |
-| GET | `/p/:id` | No | Public product share page (HTML + Open Graph) |
-| POST | `/api/auth/register` | No | Register |
-| POST | `/api/auth/login` | No | Login → JWT |
-| POST | `/api/auth/forgot-password` | No | Reset password |
-| GET | `/api/auth/profile` | Yes | Profile |
-| PUT | `/api/auth/profile` | Yes | Update profile |
-| GET | `/api/cakes` | No | List cakes |
-| GET | `/api/cakes/:id` | No | Cake detail |
-| GET/POST | `/api/cart` | Yes | Cart |
-| POST | `/api/orders` | Yes | Place order |
-| GET | `/api/orders` | Yes | My orders |
-| PATCH | `/api/orders/:id/review` | Yes | Rate delivered order |
-| GET | `/api/admin/*` | Admin | Dashboard, orders, customers |
-
-See `backend/README.md` for details.
-
----
-
-## Demo Credentials
-
-| Role | Email | Password |
-|------|-------|----------|
+| | Email | Password |
+|---|--------|----------|
 | Customer | customer@test.com | test123 |
 | Admin | admin@cakeshop.com | admin123 |
 
----
-
-## Technology Stack
-
-| Layer | Technology |
-|-------|------------|
-| Frontend | Flutter 3, Provider, cached_network_image, share_plus, app_links |
-| Backend | Node.js, Express, JWT, bcrypt |
-| Database | MongoDB, Mongoose |
-| Images | Curated Unsplash URLs per cake name |
-| Notifications | flutter_local_notifications |
+More detail: [SETUP.md](SETUP.md) · [backend/README.md](backend/README.md) · [flutter-app/cake_shop/README.md](flutter-app/cake_shop/README.md)
 
 ---
 
-## Documentation
+## Production build
 
-| Document | Path |
-|----------|------|
-| User manual | `docs/07_User_Manual.md` |
-| SRS | `docs/02_SRS_Software_Requirements_Specification.md` |
-| System design | `docs/03_System_Design_Document.md` |
-| Test plan | `docs/06_Test_Plan_and_Test_Cases.md` |
-| Project report | `docs/08_Project_Report.md` |
-| Submission checklist | `PROJECT_CHECKLIST.md` |
+Deploy the API (e.g. [Render](https://render.com)) with MongoDB Atlas, set `PUBLIC_APP_URL`, run `npm run seed` once, then build the app:
 
----
+```bash
+flutter build apk --release \
+  --dart-define=PRODUCTION_API_URL=https://your-api.onrender.com/api
+```
 
-## Branding
+Release builds use that URL automatically — no IP setup for people installing the APK.
 
-- **Display name:** Sweet Delights (launcher, splash, home header)
-- **Logo:** Custom tiered-cake mark (`lib/widgets/app_logo.dart` + Android adaptive icon)
-- **Theme:** Rose, cream, and gold bakery palette (`lib/theme/app_theme.dart`)
+Shared cake links look like `https://your-api.onrender.com/p/{cakeId}` and open a product page anyone can view.
 
 ---
 
-*Software Engineering Project — Flutter + Node.js + MongoDB*
+## API overview
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/health` | Health check |
+| GET | `/p/:id` | Shareable product page |
+| POST | `/api/auth/login` | Sign in |
+| GET | `/api/cakes` | Catalog |
+| POST | `/api/orders` | Place order |
+| … | `/api/admin/*` | Admin (JWT + admin role) |
+
+---
+
+## Stack
+
+Flutter · Provider · Node.js · Express · Mongoose · JWT · MongoDB
+
+---
+
+## Docs
+
+- [Setup guide](SETUP.md)
+- [User guide](docs/07_User_Manual.md)
+- [Database schema](database/mongodb_schema.md)
+
+---
+
+**Sweet Delights** — premium cakes, delivered fresh.

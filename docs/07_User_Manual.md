@@ -1,9 +1,8 @@
 # User Manual
 
-## Sweet Delights — Cake Online Shopping App
+## Sweet Delights — User Guide
 
-**Version:** 3.0  
-**Date:** July 2026
+**Version:** 3.0
 
 ---
 
@@ -136,9 +135,9 @@ When order notifications are enabled (Settings), you receive alerts as your orde
 
 ---
 
-## 7. Admin (demo)
+## 7. Admin
 
-Sign in as admin to manage the bakery:
+Sign in with the admin account to manage the bakery:
 
 | Email | Password |
 |-------|----------|
@@ -169,29 +168,29 @@ Sign in as admin to manage the bakery:
 A: Yes. Sign in is required for checkout and order history.
 
 **Q: Is payment real?**  
-A: UPI opens wallet apps for demo; COD is also available. Use test flow for academic demo.
+A: UPI opens your wallet apps; cash on delivery is also available. Configure your merchant UPI ID in the app for live payments.
 
 **Q: Does the shared link work for everyone?**  
-A: Only if the app uses a **public server URL** (e.g. Render). Local Wi‑Fi links work only on the same network.
+A: Yes, as long as the app was built with a public server URL (not a home Wi‑Fi IP). Links look like `https://your-server.com/p/...`.
 
 **Q: How do I update cake photos?**  
-A: Admin can set image URL on each product; seed script includes name-matched defaults.
+A: Sign in as admin, edit the product, and paste a new image URL. Default images come from the backend seed script.
 
 ---
 
-## 10. Privacy Notice
+## 10. Privacy
 
-The app stores account and order data on the server (MongoDB). Passwords are hashed. Share links expose only public product information (name, price, description, image).
-
----
-
-## 11. Version History
-
-| Version | Date | Changes |
-|---------|------|---------|
-| 1.0 | June 2026 | Initial release |
-| 3.0 | July 2026 | Sweet Delights branding, settings, share links, notifications, reviews, delivery addresses, admin images, guest browse |
+We store your name, email, phone, and order history on the server. Passwords are hashed. Shared product links only show public cake info (name, price, description, image).
 
 ---
 
-*For technical support, contact your project team or supervisor.*
+## 11. Changelog
+
+| Version | Notes |
+|---------|--------|
+| 1.0 | First release |
+| 3.0 | Branding, settings, share links, notifications, reviews, saved addresses, guest browse |
+
+---
+
+Questions or issues? Open an issue on GitHub or contact the maintainer.

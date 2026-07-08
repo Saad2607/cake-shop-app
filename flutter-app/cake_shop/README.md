@@ -1,83 +1,66 @@
-# Flutter App — Sweet Delights
+# Sweet Delights (Flutter)
 
-Mobile frontend for the Cake Online Shopping App.
+Android client for Sweet Delights. Talks to the Node API in `../../backend`.
 
-## Prerequisites
+## Requirements
 
-- Flutter SDK 3.2+
-- Running backend API (see `../../backend/README.md`)
+- Flutter 3.2+
+- Backend running (see [backend README](../../backend/README.md))
 
-## Setup
+## Run
 
 ```bash
 flutter pub get
-
-# Generate platform folders if missing:
-flutter create . --project-name cake_shop --org com.cakeshop
-
 flutter run
 ```
 
-## Configure API URL
+If platform folders are missing:
 
-**Release builds** use the cloud URL from `lib/config/api_config.dart`:
-
-```dart
-// Or at build time:
-// flutter build apk --release --dart-define=PRODUCTION_API_URL=https://YOUR-APP.onrender.com/api
+```bash
+flutter create . --project-name cake_shop --org com.cakeshop
 ```
 
-**Debug builds:** Account tab → **Server connection (dev)** (Wi‑Fi / USB / emulator / cloud).
+## API URL
 
-## Build release APK
+**Release builds** use the cloud URL from `lib/config/api_config.dart`, or pass it at build time:
 
 ```bash
 flutter build apk --release \
-  --dart-define=PRODUCTION_API_URL=https://YOUR-APP.onrender.com/api
+  --dart-define=PRODUCTION_API_URL=https://your-api.onrender.com/api
 ```
 
-## Project structure
+**Debug builds** — open **Account → Server connection (dev)** to pick Wi‑Fi, USB, emulator, or cloud.
+
+## Release APK
+
+```bash
+flutter build apk --release \
+  --dart-define=PRODUCTION_API_URL=https://your-api.onrender.com/api
+```
+
+The APK is at `build/app/outputs/flutter-apk/app-release.apk`.
+
+## Code layout
 
 ```
 lib/
-├── main.dart
-├── config/api_config.dart       # Production API & share URL
-├── constants/app_branding.dart  # "Sweet Delights"
+├── config/           API & share URL config
+├── constants/        App name and branding
 ├── models/
-├── services/                    # API, notifications, server settings
-├── providers/                   # Auth, cart, orders, wishlist, …
-├── screens/
-│   ├── home/                    # Main tabs
-│   ├── catalog/                 # Cake detail + share
-│   ├── profile/                 # Account, settings
-│   ├── admin/                   # Admin panel
-│   └── auth/
-├── widgets/
-│   ├── app_logo.dart            # Brand logo
-│   └── deep_link_handler.dart   # Open shared cake links
-└── utils/
-    ├── cake_share.dart          # Share image + product link
-    └── cake_visuals.dart        # Name-matched cake images
+├── providers/        State (auth, cart, orders, …)
+├── screens/          UI (home, cart, admin, auth, …)
+├── services/         HTTP client, notifications
+├── widgets/          Logo, cake cards, etc.
+└── utils/            Share links, images, helpers
 ```
 
-## Main features
+## Try it out
 
-- Guest browsing; sign-in required for checkout and orders
-- Share cake: photo + link (`/p/{id}` on your server)
-- Order notifications, wishlist, delivery addresses
-- Settings: notifications, profile, addresses, help
-- Admin: cakes, orders, image URL on products
+| | Email | Password |
+|---|--------|----------|
+| Customer | customer@test.com | test123 |
+| Admin | admin@cakeshop.com | admin123 |
 
-## Demo login
+## Icon & splash
 
-| Email | Password |
-|-------|----------|
-| customer@test.com | test123 |
-| admin@cakeshop.com | admin123 |
-
-## App icon & splash
-
-- Launcher: `android/app/src/main/res/drawable/ic_launcher_foreground.xml`
-- Brand widget: `lib/widgets/app_logo.dart`
-
-After icon changes, reinstall the app or run `flutter run` to refresh the launcher icon.
+Launcher icon assets are under `android/app/src/main/res/`. The in-app logo is `lib/widgets/app_logo.dart`. Reinstall the app after changing launcher icons.

@@ -4,7 +4,7 @@
 /// `flutter build apk --release --dart-define=PRODUCTION_API_URL=https://YOUR-APP.onrender.com/api`
 const String productionApiBaseUrl = String.fromEnvironment(
   'PRODUCTION_API_URL',
-  defaultValue: 'http://localhost:3000/api',
+  defaultValue: 'https://cake-shop-app-0r5r.onrender.com/api',
 );
 
 /// Ensures a consistent `/api` suffix for HTTP calls.

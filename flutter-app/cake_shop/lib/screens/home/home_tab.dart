@@ -16,6 +16,7 @@ import '../../widgets/cake_card_widget.dart';
 import '../../widgets/delivery_address_sheet.dart';
 import '../../widgets/delivery_eta_chip.dart';
 import '../../widgets/empty_state.dart';
+import '../../widgets/home_refresh_indicator.dart';
 import '../../widgets/promo_banner.dart';
 import '../../widgets/product_carousel_tile.dart';
 import '../../widgets/section_header.dart';
@@ -76,16 +77,12 @@ class _HomeTabState extends State<HomeTab> {
     if (!_gridEntranceDone && mounted) {
       setState(() => _gridEntranceDone = true);
     }
-    final provider = context.read<CakeProvider>();
-    final offset =
-        _scrollController.hasClients ? _scrollController.offset : 0.0;
-    await provider.loadCakes();
-    if (!mounted || !_scrollController.hasClients) return;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted || !_scrollController.hasClients) return;
-      final max = _scrollController.position.maxScrollExtent;
-      _scrollController.jumpTo(offset.clamp(0.0, max));
-    });
+    final auth = context.read<AuthProvider>();
+    await Future.wait([
+      context.read<CakeProvider>().loadCakes(),
+      context.read<PromoCatalogProvider>().loadActivePromos(),
+      if (auth.isLoggedIn) context.read<OrderProvider>().loadOrders(),
+    ]);
   }
 
   void _onSearchChanged(String value, CakeProvider provider) {
@@ -251,8 +248,8 @@ class _HomeTabState extends State<HomeTab> {
         slivers: [
           CupertinoSliverRefreshControl(
             onRefresh: _handleRefresh,
-            refreshTriggerPullDistance: 120,
-            refreshIndicatorExtent: 56,
+            refreshTriggerPullDistance: 130,
+            refreshIndicatorExtent: 72,
             builder: (
               context,
               refreshState,
@@ -260,52 +257,11 @@ class _HomeTabState extends State<HomeTab> {
               refreshTriggerPullDistance,
               refreshIndicatorExtent,
             ) {
-              final refreshing =
-                  refreshState == RefreshIndicatorMode.refresh;
-              final extent = refreshing
-                  ? refreshIndicatorExtent
-                  : pulledExtent.clamp(0.0, refreshIndicatorExtent);
-
-              if (extent <= 0) {
-                return const SizedBox.shrink();
-              }
-
-              const indicatorSize = 24.0;
-              final showIndicator =
-                  refreshing || extent >= indicatorSize + 12;
-
-              if (!showIndicator) {
-                return SizedBox(height: extent);
-              }
-
-              final progress =
-                  (pulledExtent / refreshTriggerPullDistance).clamp(0.0, 1.0);
-              final opacity = refreshing
-                  ? 1.0
-                  : ((extent - 12) / (refreshIndicatorExtent - 12))
-                      .clamp(0.0, 1.0);
-
-              return SizedBox(
-                height: extent,
-                child: Center(
-                  child: Opacity(
-                    opacity: opacity,
-                    child: SizedBox(
-                      width: indicatorSize,
-                      height: indicatorSize,
-                      child: refreshing
-                          ? const RefreshProgressIndicator(
-                              color: AppTheme.primary,
-                              strokeWidth: 2.5,
-                            )
-                          : RefreshProgressIndicator(
-                              value: progress,
-                              color: AppTheme.primary,
-                              strokeWidth: 2.5,
-                            ),
-                    ),
-                  ),
-                ),
+              return HomeRefreshIndicator(
+                refreshState: refreshState,
+                pulledExtent: pulledExtent,
+                refreshTriggerPullDistance: refreshTriggerPullDistance,
+                refreshIndicatorExtent: refreshIndicatorExtent,
               );
             },
           ),

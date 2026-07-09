@@ -9,7 +9,10 @@ import 'register_screen.dart';
 import 'forgot_password_screen.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  /// When true, pops back to the caller after login (e.g. cart checkout guard).
+  final bool popOnSuccess;
+
+  const LoginScreen({super.key, this.popOnSuccess = false});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -37,6 +40,10 @@ class _LoginScreenState extends State<LoginScreen> {
     if (success) {
       await context.read<CartProvider>().syncGuestCartAfterLogin();
       if (!mounted) return;
+      if (widget.popOnSuccess) {
+        Navigator.pop(context, true);
+        return;
+      }
       NavigationHelper.afterAuth(context, auth, welcome: true);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(

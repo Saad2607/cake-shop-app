@@ -22,7 +22,8 @@ class OrdersTab extends StatefulWidget {
 }
 
 class _OrdersTabState extends State<OrdersTab> {
-  int _filter = 0; // 0 active, 1 all
+  int _filter = 1;
+  bool _autoFilterApplied = false;
 
   List<Order> _filtered(List<Order> orders) {
     if (_filter == 0) {
@@ -33,12 +34,36 @@ class _OrdersTabState extends State<OrdersTab> {
     return orders;
   }
 
+  void _applyAutoFilter(List<Order> orders) {
+    if (_autoFilterApplied) return;
+    final hasActive = orders.any(
+      (o) => o.status != 'DELIVERED' && o.status != 'CANCELLED',
+    );
+    _filter = hasActive ? 0 : 1;
+    _autoFilterApplied = true;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final orderProvider = context.read<OrderProvider>();
+      if (orderProvider.orders.isEmpty) {
+        await orderProvider.loadOrders();
+      }
+      if (!mounted) return;
+      setState(() => _applyAutoFilter(orderProvider.orders));
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
     final orders = context.watch<OrderProvider>();
 
     if (!auth.isLoggedIn) {
+      _autoFilterApplied = false;
+      _filter = 1;
       return Scaffold(
         backgroundColor: AppTheme.background,
         appBar: const GradientHeader(title: 'My Orders'),
@@ -53,6 +78,12 @@ class _OrdersTabState extends State<OrdersTab> {
           ),
         ),
       );
+    }
+
+    if (!_autoFilterApplied && !orders.isLoading) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) setState(() => _applyAutoFilter(orders.orders));
+      });
     }
 
     final list = _filtered(orders.orders);

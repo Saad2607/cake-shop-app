@@ -40,7 +40,7 @@ orderSchema.methods.toPublicJSON = function () {
   return {
     id: this._id.toString(),
     orderNumber: this.orderNumber,
-    userId: this.userId.toString(),
+    userId: (this.userId?._id ?? this.userId)?.toString(),
     totalAmount: this.totalAmount,
     subtotalAmount: this.subtotalAmount ?? this.totalAmount,
     discountAmount: this.discountAmount ?? 0,

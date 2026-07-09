@@ -279,7 +279,6 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen>
                   const SizedBox(height: 10),
                   SizedBox(
                     width: double.infinity,
-                    height: 48,
                     child: OutlinedButton(
                       onPressed: () {
                         Navigator.pushAndRemoveUntil(
@@ -288,6 +287,15 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen>
                           (_) => false,
                         );
                       },
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppTheme.primary,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        minimumSize: const Size.fromHeight(52),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        side: const BorderSide(color: AppTheme.primary, width: 1.5),
+                      ),
                       child: const Text('Continue shopping'),
                     ),
                   ),

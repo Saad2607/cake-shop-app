@@ -4,6 +4,7 @@ import '../../providers/admin_provider.dart';
 import '../../theme/admin_theme.dart';
 import '../../utils/currency_formatter.dart';
 import '../../utils/order_status.dart';
+import '../../widgets/admin/admin_dashboard_charts.dart';
 import '../../widgets/admin/admin_kpi_card.dart';
 import '../../widgets/admin_order_card.dart';
 import '../../widgets/empty_state.dart';
@@ -95,7 +96,7 @@ class AdminDashboardTab extends StatelessWidget {
                   sublabel: '${dash.cakeCount} menu items',
                   icon: Icons.people_alt_rounded,
                   color: AdminTheme.online,
-                  onTap: () => onNavigate?.call(3),
+                  onTap: () => onNavigate?.call(4),
                 ),
               ],
             ),
@@ -118,12 +119,20 @@ class AdminDashboardTab extends StatelessWidget {
               ),
               const SizedBox(width: 10),
               AdminQuickAction(
+                icon: Icons.local_offer_rounded,
+                label: 'Offers',
+                onTap: () => onNavigate?.call(3),
+              ),
+              const SizedBox(width: 10),
+              AdminQuickAction(
                 icon: Icons.groups_rounded,
                 label: 'Customers',
-                onTap: () => onNavigate?.call(3),
+                onTap: () => onNavigate?.call(4),
               ),
             ],
           ),
+          const SizedBox(height: 24),
+          AdminDashboardCharts(dash: dash),
           const SizedBox(height: 24),
           Text('Order pipeline', style: AdminTheme.sectionTitle),
           const SizedBox(height: 12),

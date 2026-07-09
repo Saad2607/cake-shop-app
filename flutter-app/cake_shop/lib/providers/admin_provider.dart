@@ -3,6 +3,7 @@ import '../models/admin_customer.dart';
 import '../models/admin_dashboard.dart';
 import '../models/cake.dart';
 import '../models/order.dart';
+import '../models/promo_offer_model.dart';
 import '../services/api_service.dart';
 
 class AdminProvider extends ChangeNotifier {
@@ -12,7 +13,9 @@ class AdminProvider extends ChangeNotifier {
   List<Order> allOrders = [];
   List<Cake> products = [];
   List<AdminCustomer> customers = [];
+  List<PromoOfferModel> promos = [];
   bool isLoading = false;
+  bool promosLoading = false;
   String? error;
   String orderStatusFilter = 'ALL';
   String orderSearch = '';
@@ -51,6 +54,15 @@ class AdminProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Unfiltered fetch used only for new-order notification detection.
+  Future<List<Order>> fetchOrdersForNotifications() async {
+    try {
+      return await api.getAllOrdersAdmin();
+    } catch (_) {
+      return List<Order>.from(allOrders);
+    }
+  }
+
   Future<void> loadProducts() async {
     isLoading = true;
     error = null;
@@ -85,6 +97,7 @@ class AdminProvider extends ChangeNotifier {
       loadAllOrders(),
       loadProducts(),
       loadCustomers(),
+      loadPromos(),
     ]);
   }
 
@@ -142,5 +155,58 @@ class AdminProvider extends ChangeNotifier {
 
   Future<bool> toggleStock(Cake cake) async {
     return updateProduct(cake.id, {'inStock': !cake.inStock});
+  }
+
+  Future<void> loadPromos() async {
+    promosLoading = true;
+    error = null;
+    notifyListeners();
+    try {
+      final data = await api.getAllPromosAdmin();
+      promos = data
+          .map((e) => PromoOfferModel.fromJson(e as Map<String, dynamic>))
+          .toList();
+    } catch (e) {
+      error = e.toString().replaceFirst('Exception: ', '');
+      promos = [];
+    }
+    promosLoading = false;
+    notifyListeners();
+  }
+
+  Future<bool> createPromo(Map<String, dynamic> data) async {
+    try {
+      await api.createPromoAdmin(data);
+      await loadPromos();
+      return true;
+    } catch (e) {
+      error = e.toString().replaceFirst('Exception: ', '');
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> updatePromo(String id, Map<String, dynamic> data) async {
+    try {
+      await api.updatePromoAdmin(id, data);
+      await loadPromos();
+      return true;
+    } catch (e) {
+      error = e.toString().replaceFirst('Exception: ', '');
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> deletePromo(String id) async {
+    try {
+      await api.deletePromoAdmin(id);
+      await loadPromos();
+      return true;
+    } catch (e) {
+      error = e.toString().replaceFirst('Exception: ', '');
+      notifyListeners();
+      return false;
+    }
   }
 }

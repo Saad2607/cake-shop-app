@@ -77,6 +77,7 @@ class CartProvider extends ChangeNotifier {
   }
 
   Future<void> syncGuestCartAfterLogin() async {
+    _serverItems = [];
     if (_guestItems.isEmpty || !api.isLoggedIn) return;
     final pending = List<CartItem>.from(_guestItems);
     _guestItems.clear();
@@ -134,6 +135,13 @@ class CartProvider extends ChangeNotifier {
 
   void clearGuestCart() {
     _guestItems.clear();
+    total = 0;
+    notifyListeners();
+  }
+
+  void clearSession() {
+    _serverItems = [];
+    _guestItems = [];
     total = 0;
     notifyListeners();
   }

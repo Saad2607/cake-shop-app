@@ -23,11 +23,6 @@ class OrderDetailScreen extends StatelessWidget {
 
   const OrderDetailScreen({super.key, required this.order});
 
-  bool get _isActive =>
-      order.status != 'DELIVERED' && order.status != 'CANCELLED';
-
-  String get _etaLabel => DeliveryEta.forOrderStatus(order.status);
-
   @override
   Widget build(BuildContext context) {
     final orders = context.watch<OrderProvider>().orders;
@@ -102,10 +97,10 @@ class OrderDetailScreen extends StatelessWidget {
               children: [
                 Text('Items', style: AppTheme.titleMedium),
                 const SizedBox(height: 12),
-                if (order.items == null || order.items!.isEmpty)
+                if (liveOrder.items == null || liveOrder.items!.isEmpty)
                   Text('No item details', style: AppTheme.bodySmall)
                 else
-                  ...order.items!.map((item) => Padding(
+                  ...liveOrder.items!.map((item) => Padding(
                         padding: const EdgeInsets.only(bottom: 12),
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -155,7 +150,7 @@ class OrderDetailScreen extends StatelessWidget {
           _sectionCard(
             child: Column(
               children: [
-                _infoRow(Icons.location_on_outlined, 'Deliver to', order.deliveryAddress),
+                _infoRow(Icons.location_on_outlined, 'Deliver to', liveOrder.deliveryAddress),
                 _infoRow(
                   Icons.calendar_today_outlined,
                   'Delivery date',
@@ -164,7 +159,7 @@ class OrderDetailScreen extends StatelessWidget {
                 _infoRow(
                   Icons.payment_outlined,
                   'Payment',
-                  PaymentLabels.format(order.paymentMethod),
+                  PaymentLabels.format(liveOrder.paymentMethod),
                 ),
               ],
             ),
@@ -173,11 +168,11 @@ class OrderDetailScreen extends StatelessWidget {
           _sectionCard(
             child: Column(
               children: [
-                _billRow('Item total', CurrencyFormatter.format(order.subtotalAmount)),
-                if (order.discountAmount > 0)
+                _billRow('Item total', CurrencyFormatter.format(liveOrder.subtotalAmount)),
+                if (liveOrder.discountAmount > 0)
                   _billRow(
-                    'Discount${order.promoCode != null ? ' (${order.promoCode})' : ''}',
-                    '-${CurrencyFormatter.format(order.discountAmount)}',
+                    'Discount${liveOrder.promoCode != null ? ' (${liveOrder.promoCode})' : ''}',
+                    '-${CurrencyFormatter.format(liveOrder.discountAmount)}',
                     valueColor: AppTheme.success,
                   ),
                 _billRow('Delivery', 'FREE', valueColor: AppTheme.success),
@@ -187,14 +182,14 @@ class OrderDetailScreen extends StatelessWidget {
                 ),
                 _billRow(
                   'Total paid',
-                  CurrencyFormatter.format(order.totalAmount),
+                  CurrencyFormatter.format(liveOrder.totalAmount),
                   bold: true,
                 ),
               ],
             ),
           ),
           const SizedBox(height: 20),
-          if (order.status == 'DELIVERED' || order.status == 'CANCELLED')
+          if (liveOrder.status == 'DELIVERED' || liveOrder.status == 'CANCELLED')
             SizedBox(
               width: double.infinity,
               child: OutlinedButton.icon(
@@ -203,7 +198,7 @@ class OrderDetailScreen extends StatelessWidget {
                 label: const Text('Order again'),
               ),
             ),
-          if (order.status == 'PENDING') ...[
+          if (liveOrder.status == 'PENDING') ...[
             SizedBox(
               width: double.infinity,
               child: OutlinedButton.icon(
@@ -216,7 +211,7 @@ class OrderDetailScreen extends StatelessWidget {
               ),
             ),
           ],
-          if (_isActive) ...[
+          if (isActive) ...[
             const SizedBox(height: 10),
             SizedBox(
               width: double.infinity,

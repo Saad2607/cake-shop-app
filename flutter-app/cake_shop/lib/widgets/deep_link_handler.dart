@@ -8,8 +8,13 @@ import '../screens/catalog/cake_detail_screen.dart';
 /// Opens cake detail when the app is launched from a product link.
 class DeepLinkHandler extends StatefulWidget {
   final Widget child;
+  final GlobalKey<NavigatorState> navigatorKey;
 
-  const DeepLinkHandler({super.key, required this.child});
+  const DeepLinkHandler({
+    super.key,
+    required this.child,
+    required this.navigatorKey,
+  });
 
   @override
   State<DeepLinkHandler> createState() => _DeepLinkHandlerState();
@@ -41,9 +46,12 @@ class _DeepLinkHandlerState extends State<DeepLinkHandler> {
 
   void _openFromUri(Uri uri) {
     final cakeId = _cakeIdFromUri(uri);
-    if (cakeId == null || cakeId.isEmpty || !mounted) return;
+    if (cakeId == null || cakeId.isEmpty) return;
 
-    Navigator.of(context, rootNavigator: true).push(
+    final nav = widget.navigatorKey.currentState;
+    if (nav == null) return;
+
+    nav.push(
       MaterialPageRoute(builder: (_) => CakeDetailScreen(cakeId: cakeId)),
     );
   }

@@ -360,4 +360,48 @@ class ApiService {
     ));
     await _handleResponse(response);
   }
+
+  // Promos (public)
+  Future<List<dynamic>> getActivePromos() async {
+    final response = await _request(http.get(
+      Uri.parse('${_baseUrl}/promos'),
+      headers: _headers,
+    ));
+    return _handleListResponse(response);
+  }
+
+  // Promos (admin)
+  Future<List<dynamic>> getAllPromosAdmin() async {
+    final response = await _request(http.get(
+      Uri.parse('${_baseUrl}/admin/promos'),
+      headers: _headers,
+    ));
+    return _handleListResponse(response);
+  }
+
+  Future<Map<String, dynamic>> createPromoAdmin(Map<String, dynamic> body) async {
+    final response = await _request(http.post(
+      Uri.parse('${_baseUrl}/admin/promos'),
+      headers: _headers,
+      body: json.encode(body),
+    ));
+    return _handleResponse(response);
+  }
+
+  Future<Map<String, dynamic>> updatePromoAdmin(String id, Map<String, dynamic> body) async {
+    final response = await _request(http.put(
+      Uri.parse('${_baseUrl}/admin/promos/$id'),
+      headers: _headers,
+      body: json.encode(body),
+    ));
+    return _handleResponse(response);
+  }
+
+  Future<void> deletePromoAdmin(String id) async {
+    final response = await _request(http.delete(
+      Uri.parse('${_baseUrl}/admin/promos/$id'),
+      headers: _headers,
+    ));
+    await _handleResponse(response);
+  }
 }

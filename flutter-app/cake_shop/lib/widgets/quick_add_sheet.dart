@@ -26,25 +26,33 @@ class _QuickAddSheet extends StatefulWidget {
 }
 
 class _QuickAddSheetState extends State<_QuickAddSheet> {
-  late String _size;
-  late String _flavor;
+  String? _size;
+  String? _flavor;
   int _qty = 1;
 
   @override
   void initState() {
     super.initState();
-    _size = widget.cake.sizes.first;
-    _flavor = widget.cake.flavors.first;
+    if (widget.cake.sizes.isNotEmpty) {
+      _size = widget.cake.sizes.first;
+    }
+    if (widget.cake.flavors.isNotEmpty) {
+      _flavor = widget.cake.flavors.first;
+    }
   }
 
+  bool get _canAdd =>
+      widget.cake.sizes.isNotEmpty && widget.cake.flavors.isNotEmpty;
+
   Future<void> _add() async {
-    final price = CakePriceCalculator.priceForSize(widget.cake, _size);
+    if (!_canAdd || _size == null || _flavor == null) return;
+    final price = CakePriceCalculator.priceForSize(widget.cake, _size!);
     await context.read<CartProvider>().addItem(
           cakeId: widget.cake.id,
           cakeName: widget.cake.name,
           quantity: _qty,
-          selectedSize: _size,
-          selectedFlavor: _flavor,
+          selectedSize: _size!,
+          selectedFlavor: _flavor!,
           unitPrice: price,
         );
     if (!mounted) return;
@@ -71,7 +79,20 @@ class _QuickAddSheetState extends State<_QuickAddSheet> {
   @override
   Widget build(BuildContext context) {
     final cake = widget.cake;
-    final unitPrice = CakePriceCalculator.priceForSize(cake, _size);
+    if (!_canAdd) {
+      return Container(
+        padding: const EdgeInsets.all(24),
+        decoration: const BoxDecoration(
+          color: AppTheme.surface,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+        ),
+        child: const Text(
+          'This cake is not available to order right now.',
+          textAlign: TextAlign.center,
+        ),
+      );
+    }
+    final unitPrice = CakePriceCalculator.priceForSize(cake, _size!);
 
     return Container(
       decoration: BoxDecoration(

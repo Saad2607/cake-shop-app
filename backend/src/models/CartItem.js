@@ -14,9 +14,15 @@ const cartItemSchema = new mongoose.Schema(
 );
 
 cartItemSchema.methods.toPublicJSON = function () {
+  const cakeRef = this.cakeId;
+  const cakeId =
+    cakeRef && typeof cakeRef === 'object' && cakeRef._id
+      ? cakeRef._id.toString()
+      : cakeRef?.toString?.() ?? null;
+
   return {
     id: this._id.toString(),
-    cakeId: this.cakeId.toString(),
+    cakeId,
     quantity: this.quantity,
     selectedSize: this.selectedSize,
     selectedFlavor: this.selectedFlavor,

@@ -1,12 +1,22 @@
 const Order = require('../models/Order');
 const CartItem = require('../models/CartItem');
 const Cake = require('../models/Cake');
+const mongoose = require('mongoose');
+const crypto = require('crypto');
 const { clearCart } = require('./cartController');
 const { VALID_STATUSES, canTransition } = require('../utils/orderStatus');
-const { calculatePromo } = require('../utils/promoOffers');
+const { calculatePromo } = require('../services/promoService');
+const { priceForSize, validateCakeOptions } = require('../utils/cakePricing');
+const { isCastError } = require('../utils/errors');
 
 function generateOrderNumber() {
-  return `ORD-${Date.now()}`;
+  return `ORD-${Date.now()}-${crypto.randomBytes(2).toString('hex')}`;
+}
+
+function userIdString(userId) {
+  if (!userId) return '';
+  if (typeof userId === 'object' && userId._id) return userId._id.toString();
+  return userId.toString();
 }
 
 async function placeOrder(req, res) {
@@ -28,12 +38,17 @@ async function placeOrder(req, res) {
 
     for (const item of cartItems) {
       const cake = await Cake.findById(item.cakeId);
-      const cakeName = cake ? cake.name : 'Cake';
-      const lineTotal = item.unitPrice * item.quantity;
+      const validation = validateCakeOptions(cake, item.selectedSize, item.selectedFlavor);
+      if (!validation.ok) {
+        return res.status(400).json({ error: validation.error });
+      }
+
+      const unitPrice = priceForSize(cake, item.selectedSize);
+      const lineTotal = unitPrice * item.quantity;
       subtotal += lineTotal;
       orderItems.push({
         cakeId: item.cakeId,
-        cakeName,
+        cakeName: cake.name,
         quantity: item.quantity,
         size: item.selectedSize,
         flavor: item.selectedFlavor,
@@ -42,7 +57,7 @@ async function placeOrder(req, res) {
       });
     }
 
-    const pricing = calculatePromo(subtotal, promoCode);
+    const pricing = await calculatePromo(subtotal, promoCode);
     if (pricing.error) {
       return res.status(400).json({ error: pricing.error });
     }
@@ -80,26 +95,35 @@ async function getOrders(req, res) {
 
 async function getOrderById(req, res) {
   try {
+    if (!mongoose.isValidObjectId(req.params.id)) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
     const order = await Order.findById(req.params.id);
     if (!order) {
       return res.status(404).json({ error: 'Order not found' });
     }
-    if (order.userId.toString() !== req.user.id && req.user.role !== 'ADMIN') {
+    if (userIdString(order.userId) !== req.user.id && req.user.role !== 'ADMIN') {
       return res.status(403).json({ error: 'Access denied' });
     }
     res.json(order.toPublicJSON());
   } catch (error) {
+    if (isCastError(error)) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
     res.status(500).json({ error: 'Failed to fetch order' });
   }
 }
 
 async function cancelOrder(req, res) {
   try {
+    if (!mongoose.isValidObjectId(req.params.id)) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
     const order = await Order.findById(req.params.id);
     if (!order) {
       return res.status(404).json({ error: 'Order not found' });
     }
-    if (order.userId.toString() !== req.user.id) {
+    if (userIdString(order.userId) !== req.user.id) {
       return res.status(403).json({ error: 'Access denied' });
     }
     if (order.status !== 'PENDING') {
@@ -109,6 +133,9 @@ async function cancelOrder(req, res) {
     await order.save();
     res.json({ message: 'Order cancelled' });
   } catch (error) {
+    if (isCastError(error)) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
     res.status(500).json({ error: 'Failed to cancel order' });
   }
 }
@@ -118,6 +145,10 @@ async function updateOrderStatus(req, res) {
     const { status } = req.body;
     if (!VALID_STATUSES.includes(status)) {
       return res.status(400).json({ error: 'Invalid status' });
+    }
+
+    if (!mongoose.isValidObjectId(req.params.id)) {
+      return res.status(404).json({ error: 'Order not found' });
     }
 
     const order = await Order.findById(req.params.id);
@@ -135,6 +166,9 @@ async function updateOrderStatus(req, res) {
     await order.save();
     res.json({ message: 'Status updated', order: order.toPublicJSON() });
   } catch (error) {
+    if (isCastError(error)) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
     res.status(500).json({ error: 'Failed to update status' });
   }
 }
@@ -184,11 +218,15 @@ async function submitReview(req, res) {
       return res.status(400).json({ error: 'Rating must be between 1 and 5' });
     }
 
+    if (!mongoose.isValidObjectId(req.params.id)) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+
     const order = await Order.findById(req.params.id);
     if (!order) {
       return res.status(404).json({ error: 'Order not found' });
     }
-    if (order.userId.toString() !== req.user.id) {
+    if (userIdString(order.userId) !== req.user.id) {
       return res.status(403).json({ error: 'Access denied' });
     }
     if (order.status !== 'DELIVERED') {

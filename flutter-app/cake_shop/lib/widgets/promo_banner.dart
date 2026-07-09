@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../models/promo_offer_model.dart';
+import '../providers/promo_catalog_provider.dart';
 import '../providers/promo_provider.dart';
 import '../utils/promo_countdown.dart';
 import '../theme/app_theme.dart';
-import '../utils/promo_offers.dart';
 
 class PromoBanner extends StatefulWidget {
   /// Called when user taps "browse custom cakes" (or other category promos).
@@ -19,9 +20,9 @@ class _PromoBannerState extends State<PromoBanner> {
   final _controller = PageController();
   int _page = 0;
 
-  void _onTap(PromoOffer offer) {
+  void _onTap(PromoOfferModel offer) {
     switch (offer.action) {
-      case PromoAction.applyDiscount:
+      case PromoActionType.discount:
         context.read<PromoProvider>().apply(offer);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -29,7 +30,7 @@ class _PromoBannerState extends State<PromoBanner> {
             behavior: SnackBarBehavior.floating,
           ),
         );
-      case PromoAction.showInfo:
+      case PromoActionType.info:
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(offer.infoMessage ?? offer.subtitle),
@@ -37,7 +38,7 @@ class _PromoBannerState extends State<PromoBanner> {
             duration: const Duration(seconds: 4),
           ),
         );
-      case PromoAction.browseCategory:
+      case PromoActionType.browseCategory:
         final category = offer.category;
         if (category != null) {
           widget.onBrowseCategory?.call(category);
@@ -59,7 +60,17 @@ class _PromoBannerState extends State<PromoBanner> {
 
   @override
   Widget build(BuildContext context) {
-    final banners = PromoOffers.all;
+    final catalog = context.watch<PromoCatalogProvider>();
+    final banners = catalog.activePromos;
+
+    if (catalog.isLoading && banners.isEmpty) {
+      return const SizedBox(
+        height: 172,
+        child: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (banners.isEmpty) return const SizedBox.shrink();
 
     return Column(
       children: [
@@ -84,12 +95,12 @@ class _PromoBannerState extends State<PromoBanner> {
                         gradient: LinearGradient(
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
-                          colors: b.colors,
+                          colors: b.gradientColors,
                         ),
                         borderRadius: AppTheme.radiusLg,
                         boxShadow: [
                           BoxShadow(
-                            color: b.colors.first.withValues(alpha: 0.35),
+                            color: b.gradientColors.first.withValues(alpha: 0.35),
                             blurRadius: 20,
                             offset: const Offset(0, 8),
                           ),
@@ -113,7 +124,7 @@ class _PromoBannerState extends State<PromoBanner> {
                             right: 16,
                             bottom: 12,
                             child: Icon(
-                              b.icon,
+                              b.iconData,
                               size: 64,
                               color: Colors.white.withValues(alpha: 0.12),
                             ),
@@ -164,7 +175,7 @@ class _PromoBannerState extends State<PromoBanner> {
                                     height: 1.25,
                                   ),
                                 ),
-                                if (b.expiresAt != null) ...[
+                                if (b.expiresAtDate != null) ...[
                                   const SizedBox(height: 6),
                                   Container(
                                     padding: const EdgeInsets.symmetric(
@@ -176,7 +187,7 @@ class _PromoBannerState extends State<PromoBanner> {
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                     child: Text(
-                                      PromoCountdown.label(b.expiresAt!),
+                                      PromoCountdown.label(b.expiresAtDate!),
                                       style: AppTheme.labelBold.copyWith(
                                         color: b.accent,
                                         fontSize: 9,

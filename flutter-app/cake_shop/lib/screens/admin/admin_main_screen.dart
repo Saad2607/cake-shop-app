@@ -9,6 +9,7 @@ import 'admin_account_tab.dart';
 import 'admin_customers_tab.dart';
 import 'admin_dashboard_tab.dart';
 import 'admin_orders_tab.dart';
+import 'admin_promos_tab.dart';
 import 'admin_products_tab.dart';
 
 class AdminMainScreen extends StatefulWidget {
@@ -21,15 +22,25 @@ class AdminMainScreen extends StatefulWidget {
 class _AdminMainScreenState extends State<AdminMainScreen> {
   int _tab = 0;
 
-  static const _titles = ['Overview', 'Orders', 'Menu', 'Customers', 'Account'];
+  static const _titles = ['Overview', 'Orders', 'Menu', 'Offers', 'Customers', 'Account'];
 
-  bool get _isAccountTab => _tab == 4;
+  bool get _isAccountTab => _tab == 5;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<AdminProvider>().refreshAll();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final admin = context.read<AdminProvider>();
+      final notif = context.read<NotificationProvider>();
+      if (!notif.isInitialized) await notif.load();
+      await admin.refreshAll();
+      if (!mounted) return;
+      final orders = await admin.fetchOrdersForNotifications();
+      if (!notif.adminOrdersSeeded) {
+        await notif.seedAdminOrders(orders);
+      } else {
+        await notif.processAdminOrders(orders);
+      }
     });
   }
 
@@ -47,8 +58,10 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
       case 2:
         admin.loadProducts();
       case 3:
-        admin.loadCustomers();
+        admin.loadPromos();
       case 4:
+        admin.loadCustomers();
+      case 5:
         admin.loadDashboard();
         context.read<AuthProvider>().refreshProfile();
     }
@@ -83,6 +96,7 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
                 AdminDashboardTab(onNavigate: _loadTab),
                 const AdminOrdersTab(),
                 const AdminProductsTab(),
+                const AdminPromosTab(),
                 const AdminCustomersTab(),
                 const AdminAccountTab(),
               ],
@@ -129,6 +143,11 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
                 icon: Icon(Icons.restaurant_menu_outlined, size: 22),
                 selectedIcon: Icon(Icons.restaurant_menu_rounded, color: AdminTheme.accent, size: 22),
                 label: 'Menu',
+              ),
+              NavigationDestination(
+                icon: Icon(Icons.local_offer_outlined, size: 22),
+                selectedIcon: Icon(Icons.local_offer_rounded, color: AdminTheme.accent, size: 22),
+                label: 'Offers',
               ),
               NavigationDestination(
                 icon: Icon(Icons.people_outline_rounded, size: 22),

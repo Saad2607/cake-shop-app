@@ -403,7 +403,7 @@ class ProfileTab extends StatelessWidget {
     if (confirmed != true || !context.mounted) return;
 
     await auth.logout();
-    context.read<CartProvider>().clearGuestCart();
+    context.read<CartProvider>().clearSession();
     if (context.mounted) {
       Navigator.pushAndRemoveUntil(
         context,

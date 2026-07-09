@@ -25,6 +25,13 @@ class _CakeDetailScreenState extends State<CakeDetailScreen> {
   String? _selectedSize;
   String? _selectedFlavor;
   final _messageController = TextEditingController();
+  late final Future<Cake> _cakeFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _cakeFuture = context.read<ApiService>().getCakeById(widget.cakeId);
+  }
 
   @override
   void dispose() {
@@ -88,7 +95,7 @@ class _CakeDetailScreenState extends State<CakeDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<Cake>(
-      future: context.read<ApiService>().getCakeById(widget.cakeId),
+      future: _cakeFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Scaffold(

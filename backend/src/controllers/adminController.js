@@ -18,6 +18,7 @@ async function getDashboard(req, res) {
       outOfStockCount,
       statusBreakdown,
       recentOrders,
+      weeklyOrders,
     ] = await Promise.all([
       Order.countDocuments(),
       Order.countDocuments({ status: 'PENDING' }),
@@ -43,6 +44,7 @@ async function getDashboard(req, res) {
         .sort({ createdAt: -1 })
         .limit(5)
         .populate('userId', 'name email phone'),
+      buildWeeklyStats(),
     ]);
 
     const breakdown = {};
@@ -60,6 +62,7 @@ async function getDashboard(req, res) {
       cakeCount,
       outOfStockCount,
       statusBreakdown: breakdown,
+      weeklyStats: weeklyOrders,
       recentOrders: recentOrders.map((o) => ({
         ...o.toPublicJSON(),
         customerName: o.userId?.name || 'Unknown',
@@ -100,3 +103,41 @@ async function getCustomers(req, res) {
 }
 
 module.exports = { getDashboard, getCustomers };
+
+async function buildWeeklyStats() {
+  const stats = [];
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+
+  for (let i = 6; i >= 0; i--) {
+    const dayStart = new Date(now);
+    dayStart.setDate(dayStart.getDate() - i);
+    const dayEnd = new Date(dayStart);
+    dayEnd.setDate(dayEnd.getDate() + 1);
+
+    const [orderCount, revenueAgg] = await Promise.all([
+      Order.countDocuments({
+        createdAt: { $gte: dayStart, $lt: dayEnd },
+        status: { $ne: 'CANCELLED' },
+      }),
+      Order.aggregate([
+        {
+          $match: {
+            createdAt: { $gte: dayStart, $lt: dayEnd },
+            status: { $nin: ['CANCELLED'] },
+          },
+        },
+        { $group: { _id: null, total: { $sum: '$totalAmount' } } },
+      ]),
+    ]);
+
+    stats.push({
+      date: dayStart.getTime(),
+      label: dayStart.toLocaleDateString('en-IN', { weekday: 'short' }),
+      orders: orderCount,
+      revenue: revenueAgg[0]?.total || 0,
+    });
+  }
+
+  return stats;
+}

@@ -6,16 +6,19 @@ class OrderProvider extends ChangeNotifier {
   final ApiService api;
   List<Order> orders = [];
   bool isLoading = false;
+  String? lastError;
 
   OrderProvider(this.api);
 
   Future<void> loadOrders() async {
     isLoading = true;
+    lastError = null;
     notifyListeners();
     try {
       orders = await api.getOrders();
-    } catch (_) {
+    } catch (e) {
       orders = [];
+      lastError = e.toString().replaceFirst('Exception: ', '');
     }
     isLoading = false;
     notifyListeners();
@@ -27,6 +30,7 @@ class OrderProvider extends ChangeNotifier {
     required String paymentMethod,
     String? promoCode,
   }) async {
+    lastError = null;
     try {
       final order = await api.placeOrder(
         deliveryAddress: deliveryAddress,
@@ -36,27 +40,35 @@ class OrderProvider extends ChangeNotifier {
       );
       await loadOrders();
       return order;
-    } catch (_) {
+    } catch (e) {
+      lastError = e.toString().replaceFirst('Exception: ', '');
+      notifyListeners();
       return null;
     }
   }
 
   Future<bool> cancelOrder(String id) async {
+    lastError = null;
     try {
       await api.cancelOrder(id);
       await loadOrders();
       return true;
-    } catch (_) {
+    } catch (e) {
+      lastError = e.toString().replaceFirst('Exception: ', '');
+      notifyListeners();
       return false;
     }
   }
 
   Future<Order?> submitReview(String id, int rating, {String? comment}) async {
+    lastError = null;
     try {
       final updated = await api.submitOrderReview(id, rating, comment: comment);
       await loadOrders();
       return updated;
-    } catch (_) {
+    } catch (e) {
+      lastError = e.toString().replaceFirst('Exception: ', '');
+      notifyListeners();
       return null;
     }
   }

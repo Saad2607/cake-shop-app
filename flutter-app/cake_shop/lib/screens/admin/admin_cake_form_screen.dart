@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/cake.dart';
 import '../../providers/admin_provider.dart';
+import '../../providers/cake_provider.dart';
 import '../../theme/app_theme.dart';
 
 class AdminCakeFormScreen extends StatefulWidget {
@@ -89,6 +90,10 @@ class _AdminCakeFormScreenState extends State<AdminCakeFormScreen> {
     if (!mounted) return;
 
     if (ok) {
+      if (mounted) {
+        await context.read<CakeProvider>().loadCakes();
+      }
+      if (!mounted) return;
       Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(_isEdit ? 'Product updated' : 'Product added')),

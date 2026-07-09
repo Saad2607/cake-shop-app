@@ -33,11 +33,12 @@ class CakeVisuals {
   };
 
   static String? networkUrlFor(Cake cake) {
+    final url = cake.imageUrl.trim();
+    if (url.isNotEmpty) return url;
+
     final canonical = _canonicalByName[cake.name];
     if (canonical != null) return _img(canonical);
 
-    final url = cake.imageUrl.trim();
-    if (url.isEmpty) return null;
-    return url;
+    return null;
   }
 }

@@ -59,7 +59,10 @@ class _OrderNotificationListenerState extends State<OrderNotificationListener>
 
     _poll();
     _timer?.cancel();
-    _timer = Timer.periodic(const Duration(seconds: 30), (_) => _poll());
+    final interval = auth.user?.role == 'ADMIN'
+        ? const Duration(seconds: 15)
+        : const Duration(seconds: 30);
+    _timer = Timer.periodic(interval, (_) => _poll());
   }
 
   Future<void> _poll() async {
@@ -68,17 +71,20 @@ class _OrderNotificationListenerState extends State<OrderNotificationListener>
     if (!auth.isLoggedIn) return;
 
     final notifications = context.read<NotificationProvider>();
+    if (!notifications.isInitialized) {
+      await notifications.load();
+    }
     if (!notifications.enabled) return;
 
     if (auth.user?.role == 'ADMIN') {
       final admin = context.read<AdminProvider>();
-      await admin.loadAllOrders();
+      final orders = await admin.fetchOrdersForNotifications();
       if (!mounted) return;
 
       if (!notifications.adminOrdersSeeded) {
-        await notifications.seedAdminOrders(admin.allOrders);
+        await notifications.seedAdminOrders(orders);
       } else {
-        await notifications.processAdminOrders(admin.allOrders);
+        await notifications.processAdminOrders(orders);
       }
       return;
     }

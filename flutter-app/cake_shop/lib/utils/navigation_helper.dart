@@ -6,7 +6,6 @@ import '../providers/order_provider.dart';
 import '../screens/admin/admin_main_screen.dart';
 import '../screens/home/main_screen.dart';
 import '../services/notification_service.dart';
-import '../utils/app_snackbar.dart';
 
 /// Central navigation after auth events.
 class NavigationHelper {
@@ -40,31 +39,18 @@ class NavigationHelper {
       return;
     }
 
-    // Opened from Account / cart guard — pop login and stay on the current tab.
-    if (Navigator.canPop(context)) {
-      await NotificationService.instance.requestPermission();
-      if (!context.mounted) return;
-      await context.read<OrderProvider>().loadOrders();
-      if (!context.mounted) return;
-      final orders = context.read<OrderProvider>().orders;
-      final notifications = context.read<NotificationProvider>();
-      if (notifications.hasSnapshots) {
-        await notifications.processOrders(orders);
-      } else {
-        await notifications.seedStatuses(orders);
-      }
-      if (!context.mounted) return;
-      Navigator.pop(context);
-      if (welcome && context.mounted) {
-        final name = auth.user?.name;
-        AppSnackBar.success(
-          context,
-          name != null && name.isNotEmpty ? 'Welcome back, $name!' : 'Welcome back!',
-        );
-      }
-      return;
+    await NotificationService.instance.requestPermission();
+    if (!context.mounted) return;
+    await context.read<OrderProvider>().loadOrders();
+    if (!context.mounted) return;
+    final orders = context.read<OrderProvider>().orders;
+    final notifications = context.read<NotificationProvider>();
+    if (notifications.hasSnapshots) {
+      await notifications.processOrders(orders);
+    } else {
+      await notifications.seedStatuses(orders);
     }
-
+    if (!context.mounted) return;
     await afterCustomerAuth(context, welcome: welcome);
   }
 }

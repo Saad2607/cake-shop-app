@@ -1,9 +1,11 @@
 import 'dart:async';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../constants/app_branding.dart';
 import '../../providers/notification_provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/promo_catalog_provider.dart';
 import '../../providers/cake_provider.dart';
 import '../../providers/delivery_address_provider.dart';
 import '../../providers/order_provider.dart';
@@ -33,7 +35,9 @@ class HomeTab extends StatefulWidget {
 
 class _HomeTabState extends State<HomeTab> {
   final _searchController = TextEditingController();
+  final _scrollController = ScrollController();
   Timer? _searchDebounce;
+  bool _gridEntranceDone = false;
 
   static const _categories = [
     _Cat('ALL', 'All', Icons.grid_view_rounded),
@@ -47,8 +51,15 @@ class _HomeTabState extends State<HomeTab> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<CakeProvider>().loadCakes();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await Future.wait([
+        context.read<CakeProvider>().loadCakes(),
+        context.read<PromoCatalogProvider>().loadActivePromos(),
+      ]);
+      if (!mounted) return;
+      Future.delayed(const Duration(milliseconds: 750), () {
+        if (mounted) setState(() => _gridEntranceDone = true);
+      });
     });
     _searchController.addListener(() => setState(() {}));
   }
@@ -57,7 +68,24 @@ class _HomeTabState extends State<HomeTab> {
   void dispose() {
     _searchDebounce?.cancel();
     _searchController.dispose();
+    _scrollController.dispose();
     super.dispose();
+  }
+
+  Future<void> _handleRefresh() async {
+    if (!_gridEntranceDone && mounted) {
+      setState(() => _gridEntranceDone = true);
+    }
+    final provider = context.read<CakeProvider>();
+    final offset =
+        _scrollController.hasClients ? _scrollController.offset : 0.0;
+    await provider.loadCakes();
+    if (!mounted || !_scrollController.hasClients) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !_scrollController.hasClients) return;
+      final max = _scrollController.position.maxScrollExtent;
+      _scrollController.jumpTo(offset.clamp(0.0, max));
+    });
   }
 
   void _onSearchChanged(String value, CakeProvider provider) {
@@ -215,149 +243,199 @@ class _HomeTabState extends State<HomeTab> {
 
     return Scaffold(
       backgroundColor: AppTheme.background,
-      body: RefreshIndicator(
-        color: AppTheme.primary,
-        onRefresh: provider.loadCakes,
-        child: CustomScrollView(
-          physics: const AlwaysScrollableScrollPhysics(
-            parent: BouncingScrollPhysics(),
-          ),
-          slivers: [
-            SliverToBoxAdapter(child: _buildHeader(provider)),
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.only(top: 8),
-                child: PromoBanner(
-                  onBrowseCategory: provider.setCategory,
-                ),
-              ),
-            ),
-            if (provider.bestsellers.length >= 3)
-              SliverToBoxAdapter(child: _bestsellersRow(provider)),
-            SliverToBoxAdapter(child: _orderAgainSection(context)),
-            SliverToBoxAdapter(
-              child: SectionHeader(
-                title: provider.selectedCategory == 'ALL'
-                    ? 'Handcrafted for you'
-                    : _categories
-                        .firstWhere((c) => c.key == provider.selectedCategory)
-                        .label,
-                subtitle: provider.displayCakes.isNotEmpty && !provider.isLoading
-                    ? '${provider.displayCakes.length} artisan creations · baked fresh daily'
-                    : provider.isLoading && provider.cakes.isNotEmpty
-                        ? 'Refreshing…'
-                        : null,
-              ),
-            ),
-            if (provider.isLoading && provider.cakes.isEmpty)
-              SliverFillRemaining(
-                hasScrollBody: false,
+      body: CustomScrollView(
+        controller: _scrollController,
+        physics: const AlwaysScrollableScrollPhysics(
+          parent: BouncingScrollPhysics(),
+        ),
+        slivers: [
+          CupertinoSliverRefreshControl(
+            onRefresh: _handleRefresh,
+            refreshTriggerPullDistance: 120,
+            refreshIndicatorExtent: 56,
+            builder: (
+              context,
+              refreshState,
+              pulledExtent,
+              refreshTriggerPullDistance,
+              refreshIndicatorExtent,
+            ) {
+              final refreshing =
+                  refreshState == RefreshIndicatorMode.refresh;
+              final extent = refreshing
+                  ? refreshIndicatorExtent
+                  : pulledExtent.clamp(0.0, refreshIndicatorExtent);
+
+              if (extent <= 0) {
+                return const SizedBox.shrink();
+              }
+
+              const indicatorSize = 24.0;
+              final showIndicator =
+                  refreshing || extent >= indicatorSize + 12;
+
+              if (!showIndicator) {
+                return SizedBox(height: extent);
+              }
+
+              final progress =
+                  (pulledExtent / refreshTriggerPullDistance).clamp(0.0, 1.0);
+              final opacity = refreshing
+                  ? 1.0
+                  : ((extent - 12) / (refreshIndicatorExtent - 12))
+                      .clamp(0.0, 1.0);
+
+              return SizedBox(
+                height: extent,
                 child: Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      SizedBox(
-                        width: 36,
-                        height: 36,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2.5,
-                          color: AppTheme.primary.withValues(alpha: 0.7),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Curating sweet delights…',
-                        style: AppTheme.bodySmall,
-                      ),
-                    ],
-                  ),
-                ),
-              )
-            else if (provider.error != null && provider.cakes.isEmpty)
-              SliverFillRemaining(
-                hasScrollBody: false,
-                child: EmptyState(
-                  icon: Icons.wifi_off_rounded,
-                  title: 'Connection issue',
-                  subtitle: provider.error!,
-                  actionLabel: 'Try again',
-                  onAction: provider.loadCakes,
-                ),
-              )
-            else if (provider.displayCakes.isEmpty)
-              SliverFillRemaining(
-                hasScrollBody: false,
-                child: EmptyState(
-                  icon: Icons.search_off_rounded,
-                  title: 'No cakes found',
-                  subtitle: 'Try a different search or browse another category.',
-                  actionLabel: provider.searchQuery.isNotEmpty ? 'Clear search' : null,
-                  onAction: provider.searchQuery.isNotEmpty
-                      ? () {
-                          _searchController.clear();
-                          provider.setSearch('');
-                        }
-                      : null,
-                ),
-              )
-            else ...[
-              if (provider.isLoading)
-                const SliverToBoxAdapter(
-                  child: Padding(
-                    padding: EdgeInsets.fromLTRB(16, 0, 16, 12),
-                    child: LinearProgressIndicator(
-                      minHeight: 3,
-                      color: AppTheme.primary,
-                      backgroundColor: AppTheme.cardBorder,
+                  child: Opacity(
+                    opacity: opacity,
+                    child: SizedBox(
+                      width: indicatorSize,
+                      height: indicatorSize,
+                      child: refreshing
+                          ? const RefreshProgressIndicator(
+                              color: AppTheme.primary,
+                              strokeWidth: 2.5,
+                            )
+                          : RefreshProgressIndicator(
+                              value: progress,
+                              color: AppTheme.primary,
+                              strokeWidth: 2.5,
+                            ),
                     ),
                   ),
                 ),
-              SliverPadding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 110),
-                sliver: SliverGrid(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    childAspectRatio: 0.58,
-                    crossAxisSpacing: 14,
-                    mainAxisSpacing: 14,
-                  ),
-                  delegate: SliverChildBuilderDelegate(
-                    (context, i) {
-                      final cake = provider.displayCakes[i];
-                      return TweenAnimationBuilder<double>(
-                        tween: Tween(begin: 0, end: 1),
-                        duration: Duration(milliseconds: 350 + (i % 4) * 80),
-                        curve: Curves.easeOutCubic,
-                        builder: (context, value, child) => Opacity(
-                          opacity: value,
-                          child: Transform.translate(
-                            offset: Offset(0, 20 * (1 - value)),
-                            child: child,
-                          ),
-                        ),
-                        child: CakeCardWidget(
-                          cake: cake,
-                          onTap: () => Navigator.push(
-                            context,
-                            PageRouteBuilder(
-                              pageBuilder: (_, __, ___) =>
-                                  CakeDetailScreen(cakeId: cake.id),
-                              transitionsBuilder: (_, anim, __, child) =>
-                                  FadeTransition(opacity: anim, child: child),
-                              transitionDuration:
-                                  const Duration(milliseconds: 280),
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                    childCount: provider.displayCakes.length,
-                  ),
+              );
+            },
+          ),
+          SliverToBoxAdapter(child: _buildHeader(provider)),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: PromoBanner(
+                onBrowseCategory: provider.setCategory,
+              ),
+            ),
+          ),
+          if (provider.bestsellers.length >= 3)
+            SliverToBoxAdapter(child: _bestsellersRow(provider)),
+          SliverToBoxAdapter(child: _orderAgainSection(context)),
+          SliverToBoxAdapter(
+            child: SectionHeader(
+              title: provider.selectedCategory == 'ALL'
+                  ? 'Handcrafted for you'
+                  : _categories
+                      .firstWhere((c) => c.key == provider.selectedCategory)
+                      .label,
+              subtitle: provider.displayCakes.isNotEmpty &&
+                      !provider.isInitialLoading
+                  ? '${provider.displayCakes.length} artisan creations · baked fresh daily'
+                  : null,
+            ),
+          ),
+          if (provider.isInitialLoading)
+            SliverFillRemaining(
+              hasScrollBody: false,
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(
+                      width: 36,
+                      height: 36,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.5,
+                        color: AppTheme.primary.withValues(alpha: 0.7),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Curating sweet delights…',
+                      style: AppTheme.bodySmall,
+                    ),
+                  ],
                 ),
               ),
-            ],
+            )
+          else if (provider.error != null && provider.cakes.isEmpty)
+            SliverFillRemaining(
+              hasScrollBody: false,
+              child: EmptyState(
+                icon: Icons.wifi_off_rounded,
+                title: 'Connection issue',
+                subtitle: provider.error!,
+                actionLabel: 'Try again',
+                onAction: provider.loadCakes,
+              ),
+            )
+          else if (provider.displayCakes.isEmpty)
+            SliverFillRemaining(
+              hasScrollBody: false,
+              child: EmptyState(
+                icon: Icons.search_off_rounded,
+                title: 'No cakes found',
+                subtitle:
+                    'Try a different search or browse another category.',
+                actionLabel:
+                    provider.searchQuery.isNotEmpty ? 'Clear search' : null,
+                onAction: provider.searchQuery.isNotEmpty
+                    ? () {
+                        _searchController.clear();
+                        provider.setSearch('');
+                      }
+                    : null,
+              ),
+            )
+          else ...[
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 110),
+              sliver: SliverGrid(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  childAspectRatio: 0.58,
+                  crossAxisSpacing: 14,
+                  mainAxisSpacing: 14,
+                ),
+                delegate: SliverChildBuilderDelegate(
+                  (context, i) {
+                    final cake = provider.displayCakes[i];
+                    final card = CakeCardWidget(
+                      key: ValueKey(cake.id),
+                      cake: cake,
+                      onTap: () => Navigator.push(
+                        context,
+                        PageRouteBuilder(
+                          pageBuilder: (_, __, ___) =>
+                              CakeDetailScreen(cakeId: cake.id),
+                          transitionsBuilder: (_, anim, __, child) =>
+                              FadeTransition(opacity: anim, child: child),
+                          transitionDuration:
+                              const Duration(milliseconds: 280),
+                        ),
+                      ),
+                    );
+                    if (_gridEntranceDone) return card;
+                    return TweenAnimationBuilder<double>(
+                      tween: Tween(begin: 0, end: 1),
+                      duration: Duration(milliseconds: 350 + (i % 4) * 80),
+                      curve: Curves.easeOutCubic,
+                      builder: (context, value, child) => Opacity(
+                        opacity: value,
+                        child: Transform.translate(
+                          offset: Offset(0, 20 * (1 - value)),
+                          child: child,
+                        ),
+                      ),
+                      child: card,
+                    );
+                  },
+                  childCount: provider.displayCakes.length,
+                ),
+              ),
+            ),
           ],
-        ),
+        ],
       ),
     );
   }
@@ -624,6 +702,8 @@ class _HomeTabState extends State<HomeTab> {
           child: Stack(
             children: [
               ListView.separated(
+                primary: false,
+                physics: const ClampingScrollPhysics(),
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.fromLTRB(16, 0, 24, 0),
                 itemCount: _categories.length,
@@ -678,6 +758,8 @@ class _HomeTabState extends State<HomeTab> {
         SizedBox(
           height: 188,
           child: ListView.separated(
+            primary: false,
+            physics: const ClampingScrollPhysics(),
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
             itemCount: provider.bestsellers.length,

@@ -93,14 +93,18 @@ async function forgotPassword(req, res) {
     const user = await User.findOne({ email: normalizedEmail });
 
     if (!user) {
-      return res.status(404).json({ error: 'No account found with this email' });
+      return res.json({
+        message: 'If an account exists for this email, the password has been updated.',
+      });
     }
 
     const passwordHash = await bcrypt.hash(newPassword, 10);
     user.passwordHash = passwordHash;
     await user.save();
 
-    res.json({ message: 'Password updated successfully. You can sign in now.' });
+    res.json({
+      message: 'If an account exists for this email, the password has been updated.',
+    });
   } catch (error) {
     console.error('Forgot password error:', error);
     res.status(500).json({ error: 'Could not reset password' });

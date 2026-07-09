@@ -254,6 +254,31 @@ class _AdminOrderCardState extends State<AdminOrderCard> {
                             '${item.quantity}× ${item.size} · ${item.flavor}',
                             style: const TextStyle(fontSize: 11, color: AdminTheme.textSecondary),
                           ),
+                          if (item.customMessage != null &&
+                              item.customMessage!.trim().isNotEmpty) ...[
+                            const SizedBox(height: 4),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Icon(
+                                  Icons.message_outlined,
+                                  size: 13,
+                                  color: AdminTheme.accent,
+                                ),
+                                const SizedBox(width: 4),
+                                Expanded(
+                                  child: Text(
+                                    '"${item.customMessage!.trim()}"',
+                                    style: const TextStyle(
+                                      fontSize: 11,
+                                      fontStyle: FontStyle.italic,
+                                      color: AdminTheme.textPrimary,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ],
                       ),
                     ),

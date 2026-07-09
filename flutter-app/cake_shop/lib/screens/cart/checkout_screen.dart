@@ -15,7 +15,6 @@ import '../../widgets/delivery_address_sheet.dart';
 import '../../widgets/delivery_eta_chip.dart';
 import '../../widgets/gradient_header.dart';
 import '../../utils/promo_countdown.dart';
-import '../../utils/promo_offers.dart';
 import '../../widgets/upi_payment_sheet.dart';
 import '../orders/order_confirmation_screen.dart';
 
@@ -111,7 +110,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       return;
     }
 
-    final payable = promo.payableTotal(cartTotal);
     final paymentApiValue = _resolvePaymentMethod();
 
     if (_paymentMethod == 'UPI') {
@@ -122,54 +120,66 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       }
     }
 
-    if (PaymentLabels.requiresOnlinePayment(paymentApiValue)) {
-      final paid = await processOnlinePayment(
-        context,
-        amount: payable,
-        paymentMethod: paymentApiValue,
-        orderNote: 'Sweet Delights order',
-      );
-      if (!mounted || !paid) return;
+    if (cart.itemCount == 0) {
+      _showError('Your cart is empty');
+      return;
     }
 
     setState(() => _isPlacing = true);
     final slotLabel = _deliverySlots.firstWhere((s) => s.$1 == _deliverySlot).$2;
     final addressWithSlot =
         '${_addressController.text.trim()}\nDelivery slot: $slotLabel';
-    final order = await context.read<OrderProvider>().placeOrder(
-          deliveryAddress: addressWithSlot,
-          deliveryDate: _deliveryDate!.millisecondsSinceEpoch,
-          paymentMethod: paymentApiValue,
-          promoCode: promo.hasDiscount ? promo.appliedCode : null,
-        );
+    final orderProvider = context.read<OrderProvider>();
+    final order = await orderProvider.placeOrder(
+      deliveryAddress: addressWithSlot,
+      deliveryDate: _deliveryDate!.millisecondsSinceEpoch,
+      paymentMethod: paymentApiValue,
+      promoCode: promo.hasDiscount ? promo.appliedCode : null,
+    );
     setState(() => _isPlacing = false);
 
     if (!mounted) return;
 
-    if (order != null) {
-      await context.read<CartProvider>().loadCart();
-      context.read<PromoProvider>().clear();
-      await NotificationService.instance.showOrderPlaced(order.orderNumber);
-      if (mounted) {
-        await context.read<NotificationProvider>().incrementCustomerCount();
-        context.read<NotificationProvider>().recordOrder(order.id, order.status);
-      }
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) => OrderConfirmationScreen(
-            orderNumber: order.orderNumber,
-            total: order.totalAmount,
-            subtotal: order.discountAmount > 0 ? order.subtotalAmount : null,
-            discount: order.discountAmount > 0 ? order.discountAmount : null,
-            promoCode: order.promoCode,
-            paymentMethod: order.paymentMethod,
-          ),
-        ),
-      );
-    } else {
-      _showError('Failed to place order. Please try again.');
+    if (order == null) {
+      _showError(orderProvider.lastError ?? 'Failed to place order. Please try again.');
+      return;
     }
+
+    if (PaymentLabels.requiresOnlinePayment(paymentApiValue)) {
+      final paid = await processOnlinePayment(
+        context,
+        amount: order.totalAmount,
+        paymentMethod: paymentApiValue,
+        orderNote: 'Sweet Delights · ${order.orderNumber}',
+      );
+      if (!mounted) return;
+      if (!paid) {
+        _showError(
+          'Payment was not completed. Order ${order.orderNumber} is saved — you can pay on delivery or try again from Orders.',
+        );
+        return;
+      }
+    }
+
+    await context.read<CartProvider>().loadCart();
+    context.read<PromoProvider>().clear();
+    await NotificationService.instance.showOrderPlaced(order.orderNumber);
+    if (mounted) {
+      context.read<NotificationProvider>().recordOrder(order.id, order.status);
+    }
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (_) => OrderConfirmationScreen(
+          orderNumber: order.orderNumber,
+          total: order.totalAmount,
+          subtotal: order.discountAmount > 0 ? order.subtotalAmount : null,
+          discount: order.discountAmount > 0 ? order.discountAmount : null,
+          promoCode: order.promoCode,
+          paymentMethod: order.paymentMethod,
+        ),
+      ),
+    );
   }
 
   void _showError(String msg) {
@@ -669,7 +679,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   const Icon(Icons.timer_outlined, size: 16, color: AppTheme.primary),
                   const SizedBox(width: 6),
                   Text(
-                    PromoCountdown.label(promo.applied!.expiresAt!),
+                    PromoCountdown.label(promo.applied!.expiresAtDate!),
                     style: AppTheme.labelBold.copyWith(
                       fontSize: 11,
                       color: const Color(0xFF6B5030),

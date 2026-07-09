@@ -9,6 +9,7 @@ const bcrypt = require('bcryptjs');
 const { connectDatabase } = require('../src/config/database');
 const User = require('../src/models/User');
 const Cake = require('../src/models/Cake');
+const Promo = require('../src/models/Promo');
 
 const CAKES = [
   {
@@ -289,26 +290,35 @@ async function seed() {
   await connectDatabase();
 
   console.log('Seeding users...');
-  const existingCustomer = await User.findOne({ email: 'customer@test.com' });
-
-  if (!existingCustomer) {
-    await User.create({
+  const demoUsers = [
+    {
       name: 'Demo Customer',
       email: 'customer@test.com',
       phone: '+919876543210',
-      passwordHash: await bcrypt.hash('test123', 10),
+      password: 'test123',
       role: 'CUSTOMER',
-    });
-    await User.create({
+    },
+    {
       name: 'Admin User',
       email: 'admin@cakeshop.com',
       phone: '+911234567890',
-      passwordHash: await bcrypt.hash('admin123', 10),
+      password: 'admin123',
       role: 'ADMIN',
-    });
-    console.log('Users created.');
-  } else {
-    console.log('Users already exist, skipping.');
+    },
+  ];
+
+  for (const user of demoUsers) {
+    const existing = await User.findOne({ email: user.email });
+    if (!existing) {
+      await User.create({
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        passwordHash: await bcrypt.hash(user.password, 10),
+        role: user.role,
+      });
+      console.log(`Created user: ${user.email}`);
+    }
   }
 
   console.log('Seeding cakes (prices in INR)...');
@@ -321,6 +331,62 @@ async function seed() {
   }
   const total = await Cake.countDocuments();
   console.log(`${CAKES.length} products in seed file · ${total} total in database.`);
+
+  console.log('Seeding promos...');
+  const PROMOS = [
+    {
+      title: 'First order delight',
+      subtitle: '50% off · Code SWEET50 · Min ₹999',
+      tapHint: 'Tap to apply SWEET50',
+      action: 'DISCOUNT',
+      code: 'SWEET50',
+      discountPercent: 0.5,
+      minOrder: 999,
+      colorStart: '#4A1530',
+      colorEnd: '#8B2D52',
+      accentColor: '#C9A962',
+      icon: 'local_offer',
+      expiresAt: new Date('2026-07-10T23:59:59.000Z').getTime(),
+      active: true,
+      sortOrder: 0,
+    },
+    {
+      title: 'Same-day magic',
+      subtitle: 'Order before 2 PM for evening delivery',
+      tapHint: 'Tap for delivery info',
+      action: 'INFO',
+      infoMessage: 'Place your order before 2 PM for same-day delivery (2–4 hrs).',
+      colorStart: '#3D2B1F',
+      colorEnd: '#7A5C3E',
+      accentColor: '#E8C98A',
+      icon: 'delivery_dining',
+      active: true,
+      sortOrder: 1,
+    },
+    {
+      title: 'Custom photo cakes',
+      subtitle: 'Turn memories into edible art',
+      tapHint: 'Tap to browse custom cakes',
+      action: 'BROWSE_CATEGORY',
+      category: 'CUSTOM',
+      colorStart: '#5C1A3D',
+      colorEnd: '#B8365E',
+      accentColor: '#F2C4D0',
+      icon: 'camera_alt',
+      active: true,
+      sortOrder: 2,
+    },
+  ];
+
+  for (const promo of PROMOS) {
+    const key = promo.code ? { code: promo.code } : { title: promo.title };
+    await Promo.findOneAndUpdate(key, promo, {
+      upsert: true,
+      new: true,
+      setDefaultsOnInsert: true,
+    });
+  }
+  console.log(`${PROMOS.length} promos seeded.`);
 
   console.log('Seed complete!');
   process.exit(0);

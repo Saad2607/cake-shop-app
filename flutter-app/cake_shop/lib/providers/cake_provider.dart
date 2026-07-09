@@ -47,17 +47,26 @@ class CakeProvider extends ChangeNotifier {
     return list.where((c) => c.inStock).take(8).toList();
   }
 
+  /// True only while loading with no cached cakes (first load / empty state).
+  bool get isInitialLoading => isLoading && cakes.isEmpty;
+
   Future<void> loadCakes() async {
-    isLoading = true;
-    error = null;
-    notifyListeners();
+    final hadData = cakes.isNotEmpty;
+    if (!hadData) {
+      isLoading = true;
+      error = null;
+      notifyListeners();
+    }
     try {
       cakes = await api.getCakes(
         category: selectedCategory,
         search: searchQuery.isEmpty ? null : searchQuery,
       );
+      error = null;
     } catch (e) {
-      error = e.toString().replaceFirst('Exception: ', '');
+      if (!hadData) {
+        error = e.toString().replaceFirst('Exception: ', '');
+      }
     }
     isLoading = false;
     notifyListeners();

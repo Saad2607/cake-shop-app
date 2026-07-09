@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'dart:async';
+import 'package:flutter/material.dart';import 'package:provider/provider.dart';
 import '../../providers/admin_provider.dart';
+import '../../providers/notification_provider.dart';
 import '../../theme/admin_theme.dart';
 import '../../utils/order_status.dart';
 import '../../widgets/admin_order_card.dart';
@@ -15,19 +16,32 @@ class AdminOrdersTab extends StatefulWidget {
 
 class _AdminOrdersTabState extends State<AdminOrdersTab> {
   final _searchController = TextEditingController();
+  Timer? _searchDebounce;
 
   static const _filters = ['ALL', 'PENDING', 'CONFIRMED', 'BAKING', 'READY', 'DELIVERED', 'CANCELLED'];
 
   @override
   void initState() {
     super.initState();
-    _searchController.addListener(() => setState(() {}));
+    _searchController.addListener(_onSearchChanged);
   }
 
   @override
   void dispose() {
+    _searchDebounce?.cancel();
     _searchController.dispose();
     super.dispose();
+  }
+
+  void _onSearchChanged() {
+    setState(() {});
+    _searchDebounce?.cancel();
+    _searchDebounce = Timer(const Duration(milliseconds: 350), () {
+      if (!mounted) return;
+      context.read<AdminProvider>().loadAllOrders(
+            search: _searchController.text.trim(),
+          );
+    });
   }
 
   @override
@@ -50,6 +64,7 @@ class _AdminOrdersTabState extends State<AdminOrdersTab> {
                   ? IconButton(
                       icon: const Icon(Icons.close_rounded, size: 20),
                       onPressed: () {
+                        _searchDebounce?.cancel();
                         _searchController.clear();
                         admin.loadAllOrders(search: '');
                       },
@@ -71,7 +86,6 @@ class _AdminOrdersTabState extends State<AdminOrdersTab> {
                 borderSide: const BorderSide(color: AdminTheme.accent, width: 1.5),
               ),
             ),
-            onSubmitted: (v) => admin.loadAllOrders(search: v),
           ),
         ),
         SizedBox(
@@ -122,7 +136,17 @@ class _AdminOrdersTabState extends State<AdminOrdersTab> {
                     )
                   : RefreshIndicator(
                       color: AdminTheme.accent,
-                      onRefresh: () => admin.loadAllOrders(),
+                      onRefresh: () async {
+                        await admin.loadAllOrders();
+                        if (!context.mounted) return;
+                        final notif = context.read<NotificationProvider>();
+                        final orders = await admin.fetchOrdersForNotifications();
+                        if (!notif.adminOrdersSeeded) {
+                          await notif.seedAdminOrders(orders);
+                        } else {
+                          await notif.processAdminOrders(orders);
+                        }
+                      },
                       child: ListView.builder(
                         padding: const EdgeInsets.all(16),
                         itemCount: admin.allOrders.length,

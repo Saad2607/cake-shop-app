@@ -83,8 +83,12 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<void> refreshProfile() async {
-    user = await api.getProfile();
-    notifyListeners();
+    try {
+      user = await api.getProfile();
+      notifyListeners();
+    } catch (_) {
+      await logout();
+    }
   }
 
   Future<void> updateProfile(String name, String phone) async {

@@ -21,9 +21,9 @@ class AuthGuard {
 
     if (!context.mounted) return false;
     if (result == 'login') {
-      await Navigator.push(
+      await Navigator.push<bool>(
         context,
-        MaterialPageRoute(builder: (_) => const LoginScreen()),
+        MaterialPageRoute(builder: (_) => const LoginScreen(popOnSuccess: true)),
       );
       return context.read<AuthProvider>().isLoggedIn;
     }

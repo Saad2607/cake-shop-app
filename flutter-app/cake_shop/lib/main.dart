@@ -16,6 +16,7 @@ import 'providers/notification_provider.dart';
 
 import 'providers/order_provider.dart';
 
+import 'providers/promo_catalog_provider.dart';
 import 'providers/promo_provider.dart';
 
 import 'providers/wishlist_provider.dart';
@@ -49,12 +50,12 @@ void main() async {
     apiService: apiService,
     serverSettings: serverSettings,
   ));
-
 }
 
-
-
 class CakeShopApp extends StatelessWidget {
+  static final GlobalKey<NavigatorState> navigatorKey =
+      GlobalKey<NavigatorState>();
+
   final ApiService apiService;
   final ServerSettingsService serverSettings;
 
@@ -64,64 +65,47 @@ class CakeShopApp extends StatelessWidget {
     required this.serverSettings,
   });
 
-
-
   @override
-
   Widget build(BuildContext context) {
-
     return MultiProvider(
-
       providers: [
-
         Provider<ApiService>.value(value: apiService),
-
         ChangeNotifierProvider<ServerSettingsService>.value(
           value: serverSettings,
         ),
-
         ChangeNotifierProvider(create: (_) => AuthProvider(apiService)),
-
         ChangeNotifierProvider(create: (_) => CakeProvider(apiService)),
-
         ChangeNotifierProvider(create: (_) => CartProvider(apiService)),
-
         ChangeNotifierProvider(create: (_) => DeliveryAddressProvider()..load()),
-
         ChangeNotifierProvider(create: (_) => OrderProvider(apiService)),
-
-        ChangeNotifierProvider(create: (_) => PromoProvider()),
-
-        ChangeNotifierProvider(create: (_) => WishlistProvider()..load()),
-
-        ChangeNotifierProvider(create: (_) => AdminProvider(apiService)),
-
-        ChangeNotifierProvider(create: (_) => NotificationProvider()..load()),
-
-      ],
-
-      child: DeepLinkHandler(
-        child: OrderNotificationListener(
-          child: MaterialApp(
-
-          title: kAppName,
-
-          debugShowCheckedModeBanner: false,
-
-          theme: AppTheme.lightTheme,
-
-          home: const AppBootstrap(),
-
-          ),
-
+        ChangeNotifierProvider(
+          create: (_) => PromoCatalogProvider(apiService)..loadActivePromos(),
         ),
-
+        ChangeNotifierProxyProvider<PromoCatalogProvider, PromoProvider>(
+          create: (ctx) => PromoProvider(ctx.read<PromoCatalogProvider>()),
+          update: (_, catalog, promo) => promo ?? PromoProvider(catalog),
+        ),
+        ChangeNotifierProvider(create: (_) => WishlistProvider()..load()),
+        ChangeNotifierProvider(create: (_) => AdminProvider(apiService)),
+        ChangeNotifierProvider(create: (_) => NotificationProvider()..load()),
+      ],
+      child: OrderNotificationListener(
+        child: MaterialApp(
+          navigatorKey: navigatorKey,
+          title: kAppName,
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.lightTheme,
+          home: const AppBootstrap(),
+          builder: (context, child) {
+            return DeepLinkHandler(
+              navigatorKey: navigatorKey,
+              child: child ?? const SizedBox.shrink(),
+            );
+          },
+        ),
       ),
-
     );
-
   }
-
 }
 
 

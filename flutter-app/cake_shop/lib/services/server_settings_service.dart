@@ -20,9 +20,10 @@ class ServerSettingsService extends ChangeNotifier {
   static const _hostKey = 'server_wifi_host';
 
   static const int port = 3000;
+  static const String defaultLocalIp = '192.168.1.17';
 
   ServerConnectionMode _mode = ServerConnectionMode.production;
-  String _wifiHost = '';
+  String _wifiHost = defaultLocalIp;
 
   ServerConnectionMode get mode => _mode;
   String get wifiHost => _wifiHost;
@@ -100,7 +101,10 @@ class ServerSettingsService extends ChangeNotifier {
     } else {
       _mode = ServerConnectionMode.production;
     }
-    _wifiHost = prefs.getString(_hostKey) ?? '';
+    final savedHost = prefs.getString(_hostKey);
+    _wifiHost = (savedHost != null && savedHost.trim().isNotEmpty)
+        ? savedHost.trim()
+        : defaultLocalIp;
     notifyListeners();
   }
 
@@ -116,7 +120,7 @@ class ServerSettingsService extends ChangeNotifier {
   Future<void> setWifiHost(String host) async {
     if (kReleaseMode) return;
 
-    _wifiHost = host.trim();
+    _wifiHost = host.trim().isEmpty ? defaultLocalIp : host.trim();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_hostKey, _wifiHost);
     notifyListeners();

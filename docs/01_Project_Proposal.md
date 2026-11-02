@@ -1,194 +1,204 @@
 # Project Proposal
 
-## Cake Online Shopping Android App
+## Sweet Delights — Cake Online Shopping App
 
-**Product name:** Sweet Delights
+**Course:** Software Engineering  
+**Department:** [Your Department Name]  
+**Institution:** [Your College Name]  
+**Academic Year:** 2025–2026  
+**Submission Date:** June 2026
 
 ---
 
 ## 1. Project Title
 
-**Cake Online Shopping Android App**
+**Sweet Delights — Cake Online Shopping Android Application**
+
+A mobile app where customers can browse cakes, add to cart, place orders, and track delivery. Bakery staff can manage menu, orders, and offers from the same app using an admin account.
 
 ---
 
-## 2. Team Members
+## 2. Team Details
 
-| # | Name | Student ID | Role |
-|---|------|------------|------|
-| 1 | [Member 1 Name] | [ID] | Project Manager / Developer |
-| 2 | [Member 2 Name] | [ID] | System Analyst / Developer |
-| 3 | [Member 3 Name] | [ID] | UI/UX Designer / Developer |
-| 4 | [Member 4 Name] | [ID] | QA Engineer / Developer |
+| # | Name | Roll No. | Role |
+|---|------|----------|------|
+| 1 | [Member 1] | [ID] | Team Lead / Backend |
+| 2 | [Member 2] | [ID] | Flutter / UI |
+| 3 | [Member 3] | [ID] | Documentation / Testing |
+| 4 | [Member 4] | [ID] | Admin module / DB |
 
-**Supervisor:** [Supervisor Name]  
-**Institution:** [University Name]  
-**Department:** Computer Science / Software Engineering  
-**Date:** June 2026
+**Guide / Supervisor:** [Supervisor Name]
 
 ---
 
 ## 3. Abstract
 
-The Cake Online Shopping Android App is a mobile e-commerce solution designed to connect customers with bakeries for ordering custom and ready-made cakes. The application provides an intuitive interface for browsing products, managing a shopping cart, placing orders, and tracking delivery status. This project demonstrates the complete software development lifecycle including requirements analysis, system design, implementation, testing, and documentation.
+Most small bakeries still take orders on phone call. Customers cannot see full menu, prices, or order status easily. Our project **Sweet Delights** solves this by giving a proper mobile app for cake ordering.
+
+We built a **Flutter Android app** connected to a **Node.js REST API** and **MongoDB** database. Customers can browse without login, add cakes to cart, apply promo codes, pay via COD or UPI, and track orders. Admin can add cakes, update order status, manage offers, and see basic sales charts.
+
+This project covers the full **SDLC** — planning, requirements, design, coding, testing, and documentation — as required in our Software Engineering subject.
 
 ---
 
 ## 4. Problem Statement
 
-Traditional cake ordering relies on phone calls or in-person visits, which leads to:
+When ordering cakes in the traditional way:
 
-- **Limited visibility** — Customers cannot easily compare options, prices, or designs
-- **Order errors** — Miscommunication over phone regarding customization details
-- **Inconvenience** — No 24/7 ordering; customers must visit during business hours
-- **No order history** — Difficult to reorder favorite cakes or track past purchases
-- **Small bakery reach** — Local bakeries lack digital presence to attract customers
+- Customer has to call the shop and explain size, flavour, message again and again  
+- No proper menu with photos and prices at night or on holidays  
+- Shop owner writes orders on paper — easy to miss or confuse  
+- Customer does not know when cake is ready or out for delivery  
+- Re-ordering the same cake next year is difficult  
 
-There is a need for a dedicated mobile platform that simplifies cake discovery, customization, and ordering while giving bakeries a digital storefront.
+We wanted a simple digital system that a local bakery could actually use, not just a UI mockup.
 
 ---
 
 ## 5. Objectives
 
-### Primary Objectives
-1. Develop a user-friendly Android application for browsing and ordering cakes online
-2. Implement secure user authentication and profile management
-3. Provide shopping cart and checkout functionality
-4. Enable order placement with customization options (size, flavor, message)
-5. Allow users to view order history and track order status
+### Main objectives
+1. Build an Android app for browsing and ordering cakes  
+2. User registration and login with secure password storage  
+3. Shopping cart with size, flavour, and custom message  
+4. Checkout with address and delivery date  
+5. Order history and status tracking (Pending → Delivered)  
+6. Admin panel for products and orders  
 
-### Secondary Objectives
-1. Implement search and filter capabilities for the product catalog
-2. Design an admin module for product and order management
-3. Integrate local SQLite database for offline-capable data storage
-4. Follow Material Design guidelines for modern UI/UX
-5. Produce complete software engineering documentation
+### Extra objectives (we added during development)
+7. Promo banners and discount codes on home screen  
+8. Admin dashboard with charts  
+9. Share cake link on WhatsApp  
+10. Wishlist and saved addresses on device  
 
 ---
 
 ## 6. Scope
 
-### In Scope
-- Android mobile application (customer-facing)
-- User registration, login, and profile
-- Product catalog with categories and details
-- Shopping cart and checkout flow
-- Order management (place, view history, track status)
-- Local database (Room/SQLite)
-- Software documentation (SRS, SDD, UML, test plan, report)
+### In scope
+- Flutter mobile app (customer + admin in same APK)  
+- Node.js + Express backend  
+- MongoDB database  
+- JWT authentication  
+- REST API  
+- Documentation (SRS, design, UML, test plan, report)  
+- Manual testing + demo APK  
 
-### Out of Scope (Future Work)
-- iOS application
-- Real payment gateway integration (Stripe/PayPal)
-- GPS-based delivery tracking
-- Push notifications (FCM)
-- Multi-vendor marketplace with separate bakery accounts
-- Web admin dashboard
+### Out of scope (for this semester)
+- iOS app  
+- Real payment gateway (Razorpay live keys)  
+- Live GPS driver tracking  
+- SMS / email OTP (basic forgot password only)  
+- Multi-bakery marketplace (only one shop)  
 
 ---
 
 ## 7. Target Users
 
-| User Type | Description |
-|-----------|-------------|
-| **Customer** | End users who browse cakes, place orders, and manage accounts |
-| **Administrator** | Bakery staff who manage products, orders, and inventory |
-| **Guest** | Unregistered users who can browse catalog (limited features) |
+| User | Who | What they do |
+|------|-----|--------------|
+| Guest | Anyone | Browse cakes, search, view promos |
+| Customer | Registered user | Cart, checkout, orders, profile |
+| Admin | Bakery owner/staff | Menu, orders, offers, dashboard |
 
 ---
 
-## 8. Expected Deliverables
+## 8. Deliverables
 
-1. **Android Application (APK)** — Functional cake shopping app
-2. **Software Requirements Specification (SRS)**
-3. **System Design Document (SDD)**
-4. **Database Design** — ER diagram and schema
-5. **UML Diagrams** — Use case, class, sequence, activity
-6. **Test Plan & Test Cases**
-7. **User Manual**
-8. **Project Report** — Final documentation for submission
-9. **Presentation** — Demo and defense slides
-10. **Source Code** — Version-controlled repository
+1. Working Flutter APK  
+2. Backend source code (`backend/`)  
+3. MongoDB schema + seed script  
+4. All documents in `docs/` folder  
+5. Git repository with commit history  
+6. Presentation slides for viva  
+7. User manual for demo  
 
 ---
 
-## 9. Methodology
+## 9. SDLC Methodology
 
-**Software Development Life Cycle (SDLC):** Iterative / Agile-inspired
+We followed a **modified waterfall with iterations**:
 
-| Phase | Activities |
-|-------|------------|
-| **Planning** | Proposal, feasibility study, timeline |
-| **Analysis** | Requirements gathering, SRS |
-| **Design** | Architecture, UML, database, UI wireframes |
-| **Implementation** | Android development, database setup |
-| **Testing** | Unit, integration, system, UAT |
-| **Deployment** | APK build, installation guide |
-| **Maintenance** | Bug fixes, documentation updates |
+| Phase | What we did | Output |
+|-------|-------------|--------|
+| **Planning** | Topic selection, proposal, feasibility | This document |
+| **Requirements** | Discussed features with guide, wrote SRS | `02_SRS_...md` |
+| **Design** | Architecture, DB, UML diagrams | `03_`, `04_`, `05_` |
+| **Implementation** | Flutter + Node coding | `flutter-app/`, `backend/` |
+| **Testing** | Manual test cases, bug fixing | `06_Test_Plan_...md` |
+| **Deployment** | Local + optional Render cloud | `SETUP.md` |
+| **Maintenance** | Bug fixes after internal demo | Git commits |
+
+We did not use heavy Agile tools (Jira etc.) because team size is small, but we had weekly meetings and updated tasks on WhatsApp / Google Sheet.
 
 ---
 
 ## 10. Tools & Technologies
 
-| Category | Tool / Technology |
-|----------|-------------------|
-| IDE | Android Studio |
-| Language | Kotlin |
-| UI | XML, Material Design 3 |
-| Database | SQLite via Room ORM |
-| Version Control | Git, GitHub |
-| Documentation | Markdown, Draw.io / Lucidchart |
-| Diagramming | Mermaid, PlantUML |
-| Testing | JUnit, Espresso |
+| Part | Technology |
+|------|------------|
+| Mobile app | Flutter 3.2+, Dart |
+| State management | Provider |
+| Backend | Node.js 18+, Express |
+| Database | MongoDB + Mongoose |
+| Auth | JWT + bcrypt |
+| IDE | VS Code, Android Studio |
+| API testing | Postman, Thunder Client |
+| Version control | Git, GitHub |
+| Docs | Markdown |
+| Diagrams | Mermaid (in markdown files) |
+| Charts (admin) | fl_chart package |
+
+*Note: Early proposal mentioned Kotlin/Room. During implementation we switched to Flutter + API for faster UI and proper client–server architecture. Guide approved this change.*
 
 ---
 
-## 11. Project Schedule (Gantt Overview)
+## 11. Timeline (14 weeks)
 
-```
-Week  1-2  : Requirements & Proposal
-Week  3-4  : System Design & UML
-Week  5-6  : Core App (Auth, Catalog)
-Week  7-8  : Cart, Checkout, Orders
-Week  9-10 : Admin, Polish, Integration
-Week 11-12 : Testing & Bug Fixes
-Week 13-14 : Documentation & Presentation
-```
+| Week | Work |
+|------|------|
+| 1–2 | Proposal, feasibility, SRS draft |
+| 3–4 | System design, database, UML |
+| 5–6 | Backend API + auth + cakes |
+| 7–8 | Flutter home, cart, checkout |
+| 9–10 | Orders, admin panel, promos |
+| 11–12 | Testing, bug fixes, polish |
+| 13–14 | Final report, PPT, viva prep |
 
 ---
 
-## 12. Budget Estimate (Academic Project)
+## 12. Budget
+
+Academic project — almost zero cost:
 
 | Item | Cost |
 |------|------|
-| Development tools | Free (Android Studio, Git) |
-| Cloud hosting (optional) | $0–$25/month |
-| Google Play Developer (optional) | $25 one-time |
-| **Total** | **$0–$50** |
+| Software | Free |
+| MongoDB Atlas free tier | ₹0 |
+| Render free hosting (optional) | ₹0 |
+| Play Store (optional) | $25 one-time |
 
 ---
 
-## 13. Risks & Mitigation
+## 13. Risks
 
-| Risk | Impact | Mitigation |
-|------|--------|------------|
-| Scope creep | High | Strict scope document, change control |
-| Team member unavailability | Medium | Task distribution, documentation |
-| Android compatibility issues | Medium | Test on multiple API levels |
-| Database design changes | Low | Early schema review with supervisor |
-| Timeline delays | Medium | Weekly milestones, buffer weeks |
+| Risk | What we did |
+|------|-------------|
+| Team member busy in exams | Divided modules clearly |
+| API not connecting on phone | Added Server Settings screen in dev mode |
+| Scope too big | Cut iOS, real payment gateway |
+| MongoDB not installed | Used Atlas cloud |
 
 ---
 
 ## 14. Success Criteria
 
-- [ ] App installs and runs on Android 7.0+ (API 24)
-- [ ] Users can register, login, and browse cakes
-- [ ] Cart and checkout flow completes successfully
-- [ ] Orders are saved and visible in order history
-- [ ] All required documentation is complete and reviewed
-- [ ] Test cases pass with ≥ 90% success rate
-- [ ] Project demo successfully presented to supervisor
+- [x] App runs on Android emulator and real phone  
+- [x] Customer can place order end-to-end  
+- [x] Admin can update order status  
+- [x] Documentation complete in `docs/`  
+- [x] Test cases executed and recorded  
+- [ ] Viva demo completed successfully  
 
 ---
 
@@ -197,9 +207,8 @@ Week 13-14 : Documentation & Presentation
 | Role | Name | Signature | Date |
 |------|------|-----------|------|
 | Team Lead | | | |
-| Supervisor | | | |
-| Department Head | | | |
+| Guide | | | |
 
 ---
 
-*Document Version: 1.0 | Last Updated: June 2026*
+*Version 2.0 | Updated to match Flutter + Node.js + MongoDB implementation*

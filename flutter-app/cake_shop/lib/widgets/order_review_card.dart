@@ -28,23 +28,30 @@ class _OrderReviewCardState extends State<OrderReviewCard> {
     if (order.rating != null) {
       return Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
-          color: AppTheme.surface,
+          color: Colors.white,
           borderRadius: AppTheme.radiusLg,
-          border: Border.all(color: AppTheme.cardBorder),
+          border: Border.all(color: Colors.white, width: 1.2),
+          boxShadow: [AppTheme.softShadow],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Your rating', style: AppTheme.titleMedium),
-            const SizedBox(height: 8),
+            Row(
+              children: [
+                const Icon(Icons.star_rounded, color: AppTheme.gold, size: 20),
+                const SizedBox(width: 8),
+                Text('Your Experience Rating', style: AppTheme.titleMedium),
+              ],
+            ),
+            const SizedBox(height: 10),
             Row(
               children: List.generate(5, (i) {
                 return Icon(
                   i < order.rating! ? Icons.star_rounded : Icons.star_outline_rounded,
                   color: AppTheme.gold,
-                  size: 24,
+                  size: 26,
                 );
               }),
             ),
@@ -59,19 +66,26 @@ class _OrderReviewCardState extends State<OrderReviewCard> {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: AppTheme.goldLight.withValues(alpha: 0.35),
+        color: AppTheme.goldLight.withValues(alpha: 0.45),
         borderRadius: AppTheme.radiusLg,
         border: Border.all(color: AppTheme.gold.withValues(alpha: 0.35)),
+        boxShadow: [AppTheme.softShadow],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Rate your order', style: AppTheme.titleMedium),
+          Row(
+            children: [
+              const Icon(Icons.rate_review_outlined, color: AppTheme.primary, size: 20),
+              const SizedBox(width: 8),
+              Text('Rate your confection', style: AppTheme.titleMedium),
+            ],
+          ),
           const SizedBox(height: 4),
           Text(
-            'How was your cake from Sweet Delights?',
+            'How was your sweet delight experience?',
             style: AppTheme.bodySmall,
           ),
           const SizedBox(height: 12),
@@ -80,21 +94,40 @@ class _OrderReviewCardState extends State<OrderReviewCard> {
               final star = i + 1;
               return IconButton(
                 padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+                constraints: const BoxConstraints(minWidth: 38, minHeight: 38),
                 onPressed: () => setState(() => _rating = star),
                 icon: Icon(
                   star <= _rating ? Icons.star_rounded : Icons.star_outline_rounded,
                   color: AppTheme.gold,
-                  size: 30,
+                  size: 32,
                 ),
               );
             }),
           ),
-          const SizedBox(height: 8),
-          SizedBox(
+          const SizedBox(height: 10),
+          Container(
             width: double.infinity,
+            decoration: BoxDecoration(
+              gradient: _rating > 0 && !_submitting ? AppTheme.ctaGradient : null,
+              color: _rating == 0 || _submitting ? AppTheme.cardBorder : null,
+              borderRadius: AppTheme.radiusMd,
+              boxShadow: _rating > 0 && !_submitting
+                  ? [
+                      BoxShadow(
+                        color: AppTheme.primary.withValues(alpha: 0.3),
+                        blurRadius: 10,
+                        offset: const Offset(0, 3),
+                      ),
+                    ]
+                  : null,
+            ),
             child: ElevatedButton(
               onPressed: _rating == 0 || _submitting ? null : _submit,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.transparent,
+                shadowColor: Colors.transparent,
+                foregroundColor: Colors.white,
+              ),
               child: _submitting
                   ? const SizedBox(
                       height: 20,

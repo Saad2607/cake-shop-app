@@ -47,25 +47,25 @@ class PromoOfferModel {
 
   factory PromoOfferModel.fromJson(Map<String, dynamic> json) {
     return PromoOfferModel(
-      id: json['id'] as String,
-      title: json['title'] as String,
+      id: (json['id'] ?? json['_id'])?.toString() ?? '',
+      title: json['title'] as String? ?? '',
       subtitle: json['subtitle'] as String? ?? '',
       tapHint: json['tapHint'] as String? ?? 'Tap for details',
-      action: _actionFromApi(json['action'] as String),
-      code: json['code'] as String?,
+      action: _actionFromApi(json['action'] as String? ?? 'INFO'),
+      code: json['code']?.toString(),
       discountPercent: (json['discountPercent'] as num?)?.toDouble(),
       minOrder: (json['minOrder'] as num?)?.toDouble(),
-      category: json['category'] as String?,
-      infoMessage: json['infoMessage'] as String?,
+      category: json['category']?.toString(),
+      infoMessage: json['infoMessage']?.toString(),
       colorStart: json['colorStart'] as String? ?? '#4A1530',
       colorEnd: json['colorEnd'] as String? ?? '#8B2D52',
       accentColor: json['accentColor'] as String? ?? '#C9A962',
       icon: json['icon'] as String? ?? 'local_offer',
-      expiresAt: json['expiresAt'] as int?,
+      expiresAt: (json['expiresAt'] as num?)?.toInt(),
       active: json['active'] as bool? ?? true,
       sortOrder: (json['sortOrder'] as num?)?.toInt() ?? 0,
       useCount: (json['useCount'] as num?)?.toInt() ?? 0,
-      totalDiscount: (json['totalDiscount'] as num?)?.toDouble() ?? 0,
+      totalDiscount: (json['totalDiscount'] as num?)?.toDouble() ?? 0.0,
     );
   }
 
@@ -126,8 +126,17 @@ class PromoOfferModel {
   }
 
   static Color _hex(String hex) {
-    final h = hex.replaceFirst('#', '');
-    return Color(int.parse('FF$h', radix: 16));
+    try {
+      final h = hex.replaceFirst('#', '').trim();
+      if (h.length == 6) {
+        return Color(int.parse('FF$h', radix: 16));
+      } else if (h.length == 8) {
+        return Color(int.parse(h, radix: 16));
+      }
+      return const Color(0xFF4A1530);
+    } catch (_) {
+      return const Color(0xFF4A1530);
+    }
   }
 
   static IconData _iconFromName(String name) {
@@ -161,10 +170,10 @@ class WeeklyStat {
 
   factory WeeklyStat.fromJson(Map<String, dynamic> json) {
     return WeeklyStat(
-      date: json['date'] as int,
-      label: json['label'] as String,
-      orders: (json['orders'] as num).toInt(),
-      revenue: (json['revenue'] as num).toDouble(),
+      date: (json['date'] as num?)?.toInt() ?? 0,
+      label: json['label'] as String? ?? '',
+      orders: (json['orders'] as num?)?.toInt() ?? 0,
+      revenue: (json['revenue'] as num?)?.toDouble() ?? 0.0,
     );
   }
 }

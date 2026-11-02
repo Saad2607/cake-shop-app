@@ -40,7 +40,9 @@ class DeliveryEta {
       case 'BAKING':
         return 'Baking now · ~1–2 hours left';
       case 'READY':
-        return 'Out for delivery · ~30 minutes';
+        return 'Cake packed & ready for pickup';
+      case 'OUT_FOR_DELIVERY':
+        return 'Out for delivery · arriving in ~20–30 mins';
       case 'DELIVERED':
         return 'Delivered successfully';
       case 'CANCELLED':
@@ -57,11 +59,13 @@ class DeliveryEta {
       case 'CONFIRMED':
         return 'Kitchen confirmed · ETA 2–3 hrs';
       case 'BAKING':
-        return 'Freshly baking · ETA 1–2 hrs';
+        return 'Freshly baking in the oven · ETA 1–2 hrs';
       case 'READY':
-        return 'Picked up for delivery · ETA 30 min';
+        return 'Boxed with candles & ready for rider pickup';
+      case 'OUT_FOR_DELIVERY':
+        return 'Delivery partner on the way · ETA 20–30 min';
       case 'DELIVERED':
-        return 'Enjoy your cake!';
+        return 'Enjoy your delicious celebration cake!';
       default:
         return '';
     }

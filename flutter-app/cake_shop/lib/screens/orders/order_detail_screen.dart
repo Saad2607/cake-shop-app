@@ -15,6 +15,7 @@ import '../../widgets/cancel_order_dialog.dart';
 import '../../widgets/gradient_header.dart';
 import '../../widgets/order_progress_tracker.dart';
 import '../../widgets/order_review_card.dart';
+import '../../widgets/order_tracking_map.dart';
 import '../../utils/reorder_helper.dart';
 import '../home/main_screen.dart';
 
@@ -50,6 +51,22 @@ class OrderDetailScreen extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
         children: [
           if (isActive) _liveTrackingCard(statusColor, liveOrder),
+          if (liveOrder.status == 'OUT_FOR_DELIVERY' || liveOrder.status == 'READY') ...[
+            OrderTrackingMap(
+              status: liveOrder.status,
+              orderNumber: liveOrder.orderNumber,
+              deliveryAddress: liveOrder.deliveryAddress,
+              riderName: liveOrder.deliveryPartnerName,
+              riderPhone: liveOrder.deliveryPartnerPhone,
+              deliveryOtp: liveOrder.deliveryOtp,
+            ),
+            const SizedBox(height: 12),
+          ],
+          if (liveOrder.status == 'OUT_FOR_DELIVERY' &&
+              (liveOrder.deliveryOtp != null && liveOrder.deliveryOtp!.isNotEmpty)) ...[
+            _deliveryOtpCard(liveOrder.deliveryOtp!),
+            const SizedBox(height: 12),
+          ],
           _sectionCard(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -232,6 +249,88 @@ class OrderDetailScreen extends StatelessWidget {
     );
   }
 
+  Widget _deliveryOtpCard(String otp) {
+    final digits = otp.split('');
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFF1B5E20), Color(0xFF2E7D32)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: AppTheme.radiusLg,
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF2E7D32).withValues(alpha: 0.3),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.verified_user_rounded, color: Colors.white, size: 20),
+              const SizedBox(width: 8),
+              Text(
+                'DOORSTEP DELIVERY PIN',
+                style: AppTheme.labelBold.copyWith(
+                  color: Colors.white,
+                  letterSpacing: 1.2,
+                  fontSize: 12,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: digits.map((d) {
+              return Container(
+                margin: const EdgeInsets.symmetric(horizontal: 5),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.15),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Text(
+                  d,
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w900,
+                    color: Color(0xFF1B5E20),
+                    letterSpacing: 2,
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+          const SizedBox(height: 10),
+          const Text(
+            'Share this 4-digit PIN with your delivery partner when they arrive at your door to confirm handover.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Colors.white70,
+              fontSize: 11.5,
+              height: 1.35,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _liveTrackingCard(Color statusColor, Order liveOrder) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -250,7 +349,7 @@ class OrderDetailScreen extends StatelessWidget {
         children: [
           Container(
             padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: AppTheme.surface,
               shape: BoxShape.circle,
             ),

@@ -23,4 +23,11 @@ function adminMiddleware(req, res, next) {
   next();
 }
 
-module.exports = { authMiddleware, adminMiddleware };
+function riderMiddleware(req, res, next) {
+  if (req.user?.role !== 'RIDER' && req.user?.role !== 'ADMIN') {
+    return res.status(403).json({ error: 'Rider or Admin access required' });
+  }
+  next();
+}
+
+module.exports = { authMiddleware, adminMiddleware, riderMiddleware };

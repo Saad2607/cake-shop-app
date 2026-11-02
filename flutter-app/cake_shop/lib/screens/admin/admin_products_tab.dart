@@ -196,6 +196,24 @@ class _ProductCard extends StatelessWidget {
                 ],
               ),
             ),
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Switch.adaptive(
+                  value: cake.inStock,
+                  activeColor: AdminTheme.online,
+                  onChanged: (_) => admin.toggleStock(cake),
+                ),
+                Text(
+                  cake.inStock ? 'In Stock' : 'Sold Out',
+                  style: TextStyle(
+                    fontSize: 9.5,
+                    fontWeight: FontWeight.w700,
+                    color: cake.inStock ? AdminTheme.online : const Color(0xFFDC2626),
+                  ),
+                ),
+              ],
+            ),
             PopupMenuButton<String>(
               icon: const Icon(Icons.more_vert_rounded, color: AdminTheme.textSecondary),
               onSelected: (action) async {

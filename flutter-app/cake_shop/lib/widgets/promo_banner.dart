@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/promo_offer_model.dart';
@@ -65,8 +66,8 @@ class _PromoBannerState extends State<PromoBanner> {
 
     if (catalog.isLoading && banners.isEmpty) {
       return const SizedBox(
-        height: 172,
-        child: Center(child: CircularProgressIndicator()),
+        height: 176,
+        child: Center(child: CircularProgressIndicator(color: AppTheme.primary)),
       );
     }
 
@@ -75,7 +76,7 @@ class _PromoBannerState extends State<PromoBanner> {
     return Column(
       children: [
         SizedBox(
-          height: 172,
+          height: 176,
           child: PageView.builder(
             controller: _controller,
             padEnds: true,
@@ -98,6 +99,10 @@ class _PromoBannerState extends State<PromoBanner> {
                           colors: b.gradientColors,
                         ),
                         borderRadius: AppTheme.radiusLg,
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.28),
+                          width: 1.2,
+                        ),
                         boxShadow: [
                           BoxShadow(
                             color: b.gradientColors.first.withValues(alpha: 0.35),
@@ -108,6 +113,28 @@ class _PromoBannerState extends State<PromoBanner> {
                       ),
                       child: Stack(
                         children: [
+                          // Specular curved glass arc
+                          Positioned(
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            height: 60,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                borderRadius: const BorderRadius.vertical(
+                                  top: Radius.circular(24),
+                                ),
+                                gradient: LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: [
+                                    Colors.white.withValues(alpha: 0.22),
+                                    Colors.white.withValues(alpha: 0.0),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
                           Positioned(
                             right: -20,
                             top: -20,
@@ -116,7 +143,7 @@ class _PromoBannerState extends State<PromoBanner> {
                               height: 120,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: Colors.white.withValues(alpha: 0.06),
+                                color: Colors.white.withValues(alpha: 0.08),
                               ),
                             ),
                           ),
@@ -125,32 +152,41 @@ class _PromoBannerState extends State<PromoBanner> {
                             bottom: 12,
                             child: Icon(
                               b.iconData,
-                              size: 64,
-                              color: Colors.white.withValues(alpha: 0.12),
+                              size: 72,
+                              color: Colors.white.withValues(alpha: 0.14),
                             ),
                           ),
                           Padding(
-                            padding: const EdgeInsets.fromLTRB(18, 16, 18, 14),
+                            padding: const EdgeInsets.fromLTRB(20, 18, 20, 16),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisAlignment: MainAxisAlignment.center,
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                    vertical: 2,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: b.accent.withValues(alpha: 0.25),
-                                    borderRadius: BorderRadius.circular(6),
-                                  ),
-                                  child: Text(
-                                    b.code != null ? 'OFFER' : 'INFO',
-                                    style: AppTheme.labelBold.copyWith(
-                                      color: b.accent,
-                                      fontSize: 9,
-                                      letterSpacing: 1.2,
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(20),
+                                  child: BackdropFilter(
+                                    filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 10,
+                                        vertical: 3,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white.withValues(alpha: 0.22),
+                                        borderRadius: BorderRadius.circular(20),
+                                        border: Border.all(
+                                          color: Colors.white.withValues(alpha: 0.35),
+                                        ),
+                                      ),
+                                      child: Text(
+                                        b.code != null ? 'PROMO' : 'SPOTLIGHT',
+                                        style: AppTheme.labelBold.copyWith(
+                                          color: Colors.white,
+                                          fontSize: 9,
+                                          letterSpacing: 1.2,
+                                        ),
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -161,7 +197,8 @@ class _PromoBannerState extends State<PromoBanner> {
                                   overflow: TextOverflow.ellipsis,
                                   style: AppTheme.displayMedium.copyWith(
                                     color: Colors.white,
-                                    fontSize: 19,
+                                    fontSize: 20,
+                                    letterSpacing: -0.2,
                                   ),
                                 ),
                                 const SizedBox(height: 4),
@@ -170,20 +207,20 @@ class _PromoBannerState extends State<PromoBanner> {
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
                                   style: AppTheme.bodySmall.copyWith(
-                                    color: Colors.white.withValues(alpha: 0.8),
-                                    fontSize: 11,
-                                    height: 1.25,
+                                    color: Colors.white.withValues(alpha: 0.85),
+                                    fontSize: 12,
+                                    height: 1.3,
                                   ),
                                 ),
                                 if (b.expiresAtDate != null) ...[
-                                  const SizedBox(height: 6),
+                                  const SizedBox(height: 8),
                                   Container(
                                     padding: const EdgeInsets.symmetric(
                                       horizontal: 8,
                                       vertical: 3,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: Colors.black.withValues(alpha: 0.18),
+                                      color: Colors.black.withValues(alpha: 0.22),
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                     child: Text(
@@ -201,7 +238,7 @@ class _PromoBannerState extends State<PromoBanner> {
                                     Icon(
                                       Icons.touch_app_rounded,
                                       size: 13,
-                                      color: Colors.white.withValues(alpha: 0.7),
+                                      color: Colors.white.withValues(alpha: 0.8),
                                     ),
                                     const SizedBox(width: 4),
                                     Expanded(
@@ -210,7 +247,7 @@ class _PromoBannerState extends State<PromoBanner> {
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                         style: AppTheme.labelBold.copyWith(
-                                          color: Colors.white.withValues(alpha: 0.75),
+                                          color: Colors.white.withValues(alpha: 0.85),
                                           fontSize: 9,
                                         ),
                                       ),
@@ -229,7 +266,7 @@ class _PromoBannerState extends State<PromoBanner> {
             },
           ),
         ),
-        const SizedBox(height: 14),
+        const SizedBox(height: 12),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: List.generate(banners.length, (i) {
@@ -237,7 +274,7 @@ class _PromoBannerState extends State<PromoBanner> {
             return AnimatedContainer(
               duration: const Duration(milliseconds: 250),
               margin: const EdgeInsets.symmetric(horizontal: 3),
-              width: active ? 22 : 6,
+              width: active ? 24 : 6,
               height: 6,
               decoration: BoxDecoration(
                 gradient: active ? AppTheme.ctaGradient : null,

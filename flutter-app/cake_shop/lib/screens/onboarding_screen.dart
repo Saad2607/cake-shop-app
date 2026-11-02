@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
 import '../services/onboarding_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/app_logo.dart';
 import '../utils/app_router.dart';
-import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 
 class OnboardingScreen extends StatefulWidget {
@@ -20,24 +21,24 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   static const _slides = [
     _Slide(
       useBrandLogo: true,
-      title: 'Browse handcrafted cakes',
+      title: 'Handcrafted Artisan Cakes',
       subtitle:
-          'Explore birthday, wedding, cupcakes & more.',
-      colors: [Color(0xFFF2C4D0), Color(0xFFFFF5F7)],
+          'Discover premium tiered cakes, rich cupcakes, and custom-baked celebration creations made with love.',
+      colors: [Color(0xFFFFF0F4), Color(0xFFFBE6EB)],
     ),
     _Slide(
       icon: Icons.delivery_dining_rounded,
-      title: 'Express delivery to your door',
+      title: 'Express Doorstep Delivery',
       subtitle:
-          'Set your address, pick a date, and get fresh cakes delivered in 2–4 hours.',
-      colors: [Color(0xFFE8F5EE), Color(0xFFF5EDD8)],
+          'Set your delivery address, pick a scheduled slot, and enjoy chilled, fresh delivery in 2–4 hours.',
+      colors: [Color(0xFFEAF5EE), Color(0xFFF7F1E4)],
     ),
     _Slide(
       icon: Icons.account_balance_wallet_rounded,
-      title: 'UPI & easy checkout',
+      title: 'Seamless Payments',
       subtitle:
-          'Pay with PhonePe, Google Pay, Paytm or UPI ID. Cash on delivery is also available — sign in only when you order.',
-      colors: [Color(0xFFF5EDD8), Color(0xFFF2C4D0)],
+          'Pay instantly with Google Pay, PhonePe, Paytm, Cards or Cash on Delivery. Order effortlessly whenever you crave sweetness.',
+      colors: [Color(0xFFFBF2E9), Color(0xFFF8DCE2)],
     ),
   ];
 
@@ -71,11 +72,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           children: [
             Align(
               alignment: Alignment.centerRight,
-              child: TextButton(
-                onPressed: _finish,
-                child: Text(
-                  'Skip',
-                  style: AppTheme.titleMedium.copyWith(color: AppTheme.textMuted),
+              child: Padding(
+                padding: const EdgeInsets.only(right: 16, top: 8),
+                child: TextButton(
+                  onPressed: _finish,
+                  child: Text(
+                    'Skip',
+                    style: AppTheme.titleMedium.copyWith(
+                      color: AppTheme.textMuted,
+                      fontSize: 14,
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -92,31 +99,32 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               children: List.generate(
                 _slides.length,
                 (i) => AnimatedContainer(
-                  duration: const Duration(milliseconds: 250),
+                  duration: const Duration(milliseconds: 260),
                   margin: const EdgeInsets.symmetric(horizontal: 4),
-                  width: _page == i ? 22 : 8,
-                  height: 8,
+                  width: _page == i ? 26 : 8,
+                  height: 7,
                   decoration: BoxDecoration(
-                    color: _page == i ? AppTheme.primary : AppTheme.cardBorder,
+                    gradient: _page == i ? AppTheme.ctaGradient : null,
+                    color: _page == i ? null : AppTheme.cardBorder,
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
               ),
             ),
-            const SizedBox(height: 28),
+            const SizedBox(height: 32),
             Padding(
-              padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+              padding: const EdgeInsets.fromLTRB(24, 0, 24, 28),
               child: SizedBox(
                 width: double.infinity,
-                child: DecoratedBox(
+                child: Container(
                   decoration: BoxDecoration(
                     gradient: AppTheme.ctaGradient,
                     borderRadius: AppTheme.radiusMd,
                     boxShadow: [
                       BoxShadow(
-                        color: AppTheme.primary.withValues(alpha: 0.25),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
+                        color: AppTheme.primary.withValues(alpha: 0.32),
+                        blurRadius: 16,
+                        offset: const Offset(0, 5),
                       ),
                     ],
                   ),
@@ -181,8 +189,8 @@ class _OnboardingPage extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            width: 160,
-            height: 160,
+            width: 170,
+            height: 170,
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
@@ -190,23 +198,30 @@ class _OnboardingPage extends StatelessWidget {
                 colors: slide.colors,
               ),
               shape: BoxShape.circle,
+              border: Border.all(
+                color: Colors.white.withValues(alpha: 0.9),
+                width: 2,
+              ),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.primary.withValues(alpha: 0.12),
-                  blurRadius: 28,
+                  color: AppTheme.primary.withValues(alpha: 0.16),
+                  blurRadius: 32,
                   offset: const Offset(0, 12),
                 ),
               ],
             ),
             child: slide.useBrandLogo
-                ? const AppLogo(size: 88, showCircleBackground: true)
-                : Icon(slide.icon, size: 72, color: AppTheme.primary),
+                ? const AppLogo(size: 96, showCircleBackground: true)
+                : Icon(slide.icon, size: 76, color: AppTheme.primary),
           ),
-          const SizedBox(height: 40),
+          const SizedBox(height: 44),
           Text(
             slide.title,
             textAlign: TextAlign.center,
-            style: AppTheme.displayMedium.copyWith(fontSize: 26),
+            style: AppTheme.displayMedium.copyWith(
+              fontSize: 26,
+              letterSpacing: -0.4,
+            ),
           ),
           const SizedBox(height: 14),
           Text(
@@ -214,7 +229,7 @@ class _OnboardingPage extends StatelessWidget {
             textAlign: TextAlign.center,
             style: AppTheme.bodyMedium.copyWith(
               color: AppTheme.textMuted,
-              height: 1.5,
+              height: 1.55,
             ),
           ),
         ],

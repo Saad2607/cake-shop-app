@@ -6,6 +6,8 @@ import '../../theme/app_theme.dart';
 import '../../utils/app_snackbar.dart';
 import '../../utils/currency_formatter.dart';
 import '../../utils/payment_labels.dart';
+import '../../widgets/glass/glass_card.dart';
+import '../../widgets/glass/primary_button.dart';
 import '../home/main_screen.dart';
 
 class OrderConfirmationScreen extends StatefulWidget {
@@ -67,15 +69,15 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen>
         children: [
           SafeArea(
             child: Padding(
-              padding: const EdgeInsets.all(28),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
               child: Column(
                 children: [
                   const Spacer(),
                   ScaleTransition(
                     scale: _scale,
                     child: Container(
-                      width: 110,
-                      height: 110,
+                      width: 104,
+                      height: 104,
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [
@@ -84,9 +86,13 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen>
                           ],
                         ),
                         shape: BoxShape.circle,
+                        border: Border.all(
+                          color: Colors.white,
+                          width: 3,
+                        ),
                         boxShadow: [
                           BoxShadow(
-                            color: AppTheme.success.withValues(alpha: 0.2),
+                            color: AppTheme.success.withValues(alpha: 0.25),
                             blurRadius: 28,
                             offset: const Offset(0, 10),
                           ),
@@ -95,35 +101,31 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen>
                       child: const Icon(
                         Icons.check_rounded,
                         color: AppTheme.success,
-                        size: 56,
+                        size: 54,
                       ),
                     ),
                   ),
-                  const SizedBox(height: 28),
+                  const SizedBox(height: 24),
                   Text(
-                    'Order confirmed!',
-                    style: AppTheme.displayLarge.copyWith(fontSize: 30),
+                    'Order Confirmed!',
+                    style: AppTheme.displayLarge.copyWith(fontSize: 28),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 8),
                   Text(
-                    'Time to celebrate — your cake is on its way!',
+                    'Time to celebrate — your handcrafted cake is in the works!',
                     textAlign: TextAlign.center,
-                    style: AppTheme.bodyMedium.copyWith(color: AppTheme.textMuted),
-                  ),
-                  const SizedBox(height: 32),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(22),
-                    decoration: BoxDecoration(
-                      color: AppTheme.surface,
-                      borderRadius: AppTheme.radiusLg,
-                      border: Border.all(color: AppTheme.cardBorder),
-                      boxShadow: [AppTheme.softShadow],
+                    style: AppTheme.bodyMedium.copyWith(
+                      color: AppTheme.textMuted,
+                      height: 1.4,
                     ),
+                  ),
+                  const SizedBox(height: 28),
+                  GlassCard(
+                    padding: const EdgeInsets.all(20),
                     child: Column(
                       children: [
-                        Text('Order number', style: AppTheme.bodySmall),
+                        Text('ORDER NUMBER', style: AppTheme.labelBold.copyWith(fontSize: 10, color: AppTheme.primary)),
                         const SizedBox(height: 6),
                         Text(
                           widget.orderNumber,
@@ -132,74 +134,77 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen>
                             fontSize: 22,
                           ),
                         ),
-                        const SizedBox(height: 6),
+                        const SizedBox(height: 4),
                         TextButton.icon(
                           onPressed: () {
                             Clipboard.setData(ClipboardData(text: widget.orderNumber));
                             AppSnackBar.success(context, 'Order number copied');
                           },
-                          icon: const Icon(Icons.copy_rounded, size: 16),
+                          icon: const Icon(Icons.copy_rounded, size: 15),
                           label: const Text('Copy order number'),
                           style: TextButton.styleFrom(
                             foregroundColor: AppTheme.textMuted,
                             padding: EdgeInsets.zero,
+                            visualDensity: VisualDensity.compact,
                           ),
                         ),
                         const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 18),
+                          padding: EdgeInsets.symmetric(vertical: 14),
                           child: Divider(height: 1, color: AppTheme.cardBorder),
                         ),
                         if (widget.discount != null && widget.discount! > 0) ...[
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text('Subtotal', style: AppTheme.bodyMedium.copyWith(color: AppTheme.textMuted)),
+                              Text('Subtotal', style: AppTheme.bodyMedium.copyWith(color: AppTheme.textMuted, fontSize: 13)),
                               Text(
                                 CurrencyFormatter.format(widget.subtotal ?? widget.total),
                                 style: AppTheme.bodyMedium.copyWith(
                                   decoration: TextDecoration.lineThrough,
                                   color: AppTheme.textMuted,
+                                  fontSize: 13,
                                 ),
                               ),
                             ],
                           ),
-                          const SizedBox(height: 8),
+                          const SizedBox(height: 6),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
                                 'Promo${widget.promoCode != null ? ' (${widget.promoCode})' : ''}',
-                                style: AppTheme.bodyMedium.copyWith(color: AppTheme.success),
+                                style: AppTheme.bodyMedium.copyWith(color: AppTheme.success, fontSize: 13),
                               ),
                               Text(
                                 '-${CurrencyFormatter.format(widget.discount!)}',
-                                style: AppTheme.bodyMedium.copyWith(color: AppTheme.success),
+                                style: AppTheme.bodyMedium.copyWith(color: AppTheme.success, fontSize: 13),
                               ),
                             ],
                           ),
-                          const SizedBox(height: 8),
+                          const SizedBox(height: 6),
                         ],
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text('Total paid', style: AppTheme.titleMedium),
+                            Text('Total Paid', style: AppTheme.titleMedium),
                             Text(
                               CurrencyFormatter.format(widget.total),
                               style: AppTheme.titleLarge.copyWith(
                                 color: AppTheme.primary,
+                                fontSize: 18,
                               ),
                             ),
                           ],
                         ),
                         if (widget.paymentMethod != null) ...[
-                          const SizedBox(height: 10),
+                          const SizedBox(height: 8),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text('Paid via', style: AppTheme.bodyMedium.copyWith(color: AppTheme.textMuted)),
+                              Text('Paid via', style: AppTheme.bodyMedium.copyWith(color: AppTheme.textMuted, fontSize: 13)),
                               Text(
                                 PaymentLabels.format(widget.paymentMethod!),
-                                style: AppTheme.titleMedium.copyWith(fontSize: 14),
+                                style: AppTheme.titleMedium.copyWith(fontSize: 13),
                               ),
                             ],
                           ),
@@ -207,10 +212,11 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen>
                         const SizedBox(height: 14),
                         Container(
                           width: double.infinity,
-                          padding: const EdgeInsets.all(12),
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                           decoration: BoxDecoration(
                             color: AppTheme.successLight,
                             borderRadius: AppTheme.radiusSm,
+                            border: Border.all(color: AppTheme.success.withValues(alpha: 0.2)),
                           ),
                           child: Row(
                             children: [
@@ -225,7 +231,8 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen>
                                   'Estimated delivery in 2–4 hours',
                                   style: AppTheme.bodySmall.copyWith(
                                     color: AppTheme.success,
-                                    fontWeight: FontWeight.w600,
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 11,
                                   ),
                                 ),
                               ),
@@ -236,45 +243,18 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen>
                     ),
                   ),
                   const Spacer(),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 52,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        gradient: AppTheme.ctaGradient,
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppTheme.primary.withValues(alpha: 0.25),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: Material(
-                        color: Colors.transparent,
-                        child: InkWell(
-                          onTap: () {
-                            Navigator.pushAndRemoveUntil(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => const MainScreen(initialTab: 2),
-                              ),
-                              (_) => false,
-                            );
-                          },
-                          borderRadius: BorderRadius.circular(16),
-                          child: Center(
-                            child: Text(
-                              'Track my order',
-                              style: AppTheme.titleMedium.copyWith(
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
+                  PrimaryButton(
+                    label: 'Track My Order',
+                    icon: Icons.local_shipping_outlined,
+                    onPressed: () {
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const MainScreen(initialTab: 2),
                         ),
-                      ),
-                    ),
+                        (_) => false,
+                      );
+                    },
                   ),
                   const SizedBox(height: 10),
                   SizedBox(
@@ -290,13 +270,13 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen>
                       style: OutlinedButton.styleFrom(
                         foregroundColor: AppTheme.primary,
                         padding: const EdgeInsets.symmetric(vertical: 14),
-                        minimumSize: const Size.fromHeight(52),
+                        minimumSize: const Size.fromHeight(50),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
                         ),
                         side: const BorderSide(color: AppTheme.primary, width: 1.5),
                       ),
-                      child: const Text('Continue shopping'),
+                      child: const Text('Continue Shopping'),
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -316,7 +296,7 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen>
             colors: const [
               AppTheme.primary,
               AppTheme.gold,
-              AppTheme.primaryLight,
+              AppTheme.roseAccent,
               AppTheme.success,
               Colors.white,
             ],

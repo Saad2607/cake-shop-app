@@ -15,7 +15,14 @@ import '../auth/login_screen.dart';
 import 'order_detail_screen.dart';
 
 class OrdersTab extends StatefulWidget {
-  const OrdersTab({super.key});
+  final bool showBack;
+  final VoidCallback? onBack;
+
+  const OrdersTab({
+    super.key,
+    this.showBack = false,
+    this.onBack,
+  });
 
   @override
   State<OrdersTab> createState() => _OrdersTabState();
@@ -66,7 +73,11 @@ class _OrdersTabState extends State<OrdersTab> {
       _filter = 1;
       return Scaffold(
         backgroundColor: AppTheme.background,
-        appBar: const GradientHeader(title: 'My Orders'),
+        appBar: GradientHeader(
+          title: 'My Orders',
+          showBack: widget.showBack || widget.onBack != null,
+          onBack: widget.onBack,
+        ),
         body: EmptyState(
           icon: Icons.receipt_long_outlined,
           title: 'Sign in to view orders',
@@ -90,7 +101,12 @@ class _OrdersTabState extends State<OrdersTab> {
 
     return Scaffold(
       backgroundColor: AppTheme.background,
-      appBar: const GradientHeader(title: 'My Orders', subtitle: 'Track your deliveries'),
+      appBar: GradientHeader(
+        title: 'My Orders',
+        subtitle: 'Track your deliveries & order history',
+        showBack: widget.showBack || widget.onBack != null,
+        onBack: widget.onBack,
+      ),
       body: Column(
         children: [
           Padding(
@@ -120,7 +136,7 @@ class _OrdersTabState extends State<OrdersTab> {
                         color: AppTheme.primary,
                         onRefresh: orders.loadOrders,
                         child: ListView.builder(
-                          padding: const EdgeInsets.all(16),
+                          padding: const EdgeInsets.fromLTRB(16, 12, 16, 120),
                           itemCount: list.length,
                           itemBuilder: (context, i) => _OrderCard(order: list[i]),
                         ),
@@ -133,17 +149,37 @@ class _OrdersTabState extends State<OrdersTab> {
 
   Widget _filterChip(String label, int index) {
     final selected = _filter == index;
-    return FilterChip(
-      label: Text(label),
-      selected: selected,
-      onSelected: (_) => setState(() => _filter = index),
-      selectedColor: AppTheme.primaryLight.withValues(alpha: 0.5),
-      checkmarkColor: AppTheme.primary,
-      labelStyle: TextStyle(
-        fontWeight: FontWeight.w600,
-        color: selected ? AppTheme.primary : AppTheme.textMuted,
+    return GestureDetector(
+      onTap: () => setState(() => _filter = index),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          gradient: selected ? AppTheme.ctaGradient : null,
+          color: selected ? null : Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: selected ? Colors.transparent : AppTheme.cardBorder,
+            width: 1.2,
+          ),
+          boxShadow: selected
+              ? [
+                  BoxShadow(
+                    color: AppTheme.primary.withValues(alpha: 0.25),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+              : [AppTheme.softShadow],
+        ),
+        child: Text(
+          label,
+          style: AppTheme.labelBold.copyWith(
+            color: selected ? Colors.white : AppTheme.textDark,
+            fontSize: 11,
+          ),
+        ),
       ),
-      side: BorderSide(color: selected ? AppTheme.primary : AppTheme.cardBorder),
     );
   }
 }
@@ -156,7 +192,7 @@ class _OrderCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final statusColor = AppTheme.orderStatusColor(order.status);
-    final date = DateFormat('dd MMM yyyy, HH:mm')
+    final date = DateFormat('dd MMM yyyy, hh:mm a')
         .format(DateTime.fromMillisecondsSinceEpoch(order.createdAt));
     final itemPreview = order.items?.isNotEmpty == true
         ? order.items!.map((e) => e.cakeName).take(2).join(', ')
@@ -165,9 +201,19 @@ class _OrderCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
       decoration: BoxDecoration(
-        color: AppTheme.surface,
+        color: Colors.white,
         borderRadius: AppTheme.radiusLg,
-        boxShadow: [AppTheme.softShadow],
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.95),
+          width: 1.2,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF2B1D19).withValues(alpha: 0.04),
+            blurRadius: 18,
+            offset: const Offset(0, 5),
+          ),
+        ],
       ),
       child: Material(
         color: Colors.transparent,
@@ -185,25 +231,25 @@ class _OrderCard extends StatelessWidget {
                 Row(
                   children: [
                     Expanded(
-                      child: Text(order.orderNumber, style: AppTheme.titleLarge),
+                      child: Text(order.orderNumber, style: AppTheme.titleLarge.copyWith(fontSize: 16)),
                     ),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
                         color: statusColor.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(10),
                       ),
                       child: Text(
                         OrderStatusFlow.label(order.status),
                         style: TextStyle(
                           color: statusColor,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w700,
                           fontSize: 11,
                         ),
                       ),
                     ),
-                    const SizedBox(width: 4),
-                    Icon(Icons.chevron_right_rounded, color: AppTheme.textMuted.withValues(alpha: 0.5)),
+                    const SizedBox(width: 6),
+                    const Icon(Icons.arrow_forward_ios_rounded, color: AppTheme.textMuted, size: 13),
                   ],
                 ),
                 const SizedBox(height: 6),
@@ -234,7 +280,7 @@ class _OrderCard extends StatelessWidget {
                           Text(
                             CurrencyFormatter.format(order.subtotalAmount),
                             style: TextStyle(
-                              fontSize: 12,
+                              fontSize: 11,
                               color: Colors.grey.shade500,
                               decoration: TextDecoration.lineThrough,
                             ),
@@ -254,7 +300,7 @@ class _OrderCard extends StatelessWidget {
                       style: TextStyle(
                         color: AppTheme.primary.withValues(alpha: 0.85),
                         fontSize: 12,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ],
@@ -267,4 +313,3 @@ class _OrderCard extends StatelessWidget {
     );
   }
 }
-

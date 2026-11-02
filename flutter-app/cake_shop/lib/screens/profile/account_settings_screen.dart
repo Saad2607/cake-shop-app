@@ -7,6 +7,7 @@ import '../../theme/app_theme.dart';
 import '../../utils/app_snackbar.dart';
 import '../../widgets/delivery_address_sheet.dart';
 import '../../widgets/edit_profile_sheet.dart';
+import '../../widgets/glass/glass_card.dart';
 import 'help_support_screen.dart';
 import 'server_settings_screen.dart';
 
@@ -22,48 +23,50 @@ class AccountSettingsScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppTheme.background,
       appBar: AppBar(
-        title: const Text('Settings'),
+        title: Text('Settings', style: AppTheme.displayMedium.copyWith(fontSize: 20)),
         backgroundColor: AppTheme.background,
         foregroundColor: AppTheme.textDark,
         elevation: 0,
       ),
       body: ListView(
-        padding: const EdgeInsets.all(20),
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         children: [
           _notificationTile(context),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           _tile(
             context,
             icon: Icons.edit_outlined,
-            title: 'Edit profile',
-            subtitle: 'Name and phone number',
+            title: 'Edit Profile',
+            subtitle: 'Update your name and phone number',
             onTap: () => _editProfile(context, user.name, user.phone),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           _tile(
             context,
             icon: Icons.location_on_outlined,
-            title: 'Delivery addresses',
-            subtitle: 'Home, office and other saved places',
+            title: 'Delivery Addresses',
+            subtitle: 'Home, office and other saved locations',
             onTap: () => showDeliveryAddressSheet(context),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           _tile(
             context,
             icon: Icons.help_outline_rounded,
-            title: 'Help & support',
-            subtitle: 'FAQs, call us, report issues',
+            title: 'Help & Support',
+            subtitle: 'FAQs, call customer care, report issues',
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const HelpSupportScreen()),
             ),
           ),
           if (kDebugMode) ...[
-            const SizedBox(height: 8),
+            const SizedBox(height: 10),
             _tile(
               context,
               icon: Icons.dns_outlined,
               title: 'Server connection (dev)',
+              subtitle: 'Configure local / remote API endpoint',
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const ServerSettingsScreen()),
@@ -78,21 +81,24 @@ class AccountSettingsScreen extends StatelessWidget {
   Widget _notificationTile(BuildContext context) {
     final notif = context.watch<NotificationProvider>();
 
-    return Container(
-      decoration: BoxDecoration(
-        color: AppTheme.surface,
-        borderRadius: AppTheme.radiusLg,
-        border: Border.all(color: AppTheme.cardBorder),
-      ),
+    return GlassCard(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       child: SwitchListTile(
         value: notif.enabled,
         activeColor: AppTheme.primary,
         onChanged: notif.setEnabled,
-        secondary: const Icon(Icons.notifications_active_rounded, color: AppTheme.primary),
-        title: Text('Order notifications', style: AppTheme.titleMedium),
+        secondary: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: AppTheme.primaryLight.withValues(alpha: 0.4),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: const Icon(Icons.notifications_active_rounded, color: AppTheme.primary, size: 20),
+        ),
+        title: Text('Order Notifications', style: AppTheme.titleMedium.copyWith(fontSize: 14)),
         subtitle: Text(
-          'Alerts when your cake is baking, ready & delivered',
-          style: AppTheme.bodySmall.copyWith(fontSize: 11),
+          'Alerts when your cake is baking, ready & out for delivery',
+          style: AppTheme.bodySmall.copyWith(fontSize: 11, color: AppTheme.textMuted),
         ),
       ),
     );
@@ -105,32 +111,32 @@ class AccountSettingsScreen extends StatelessWidget {
     String? subtitle,
     required VoidCallback onTap,
   }) {
-    return Material(
-      color: AppTheme.surface,
-      borderRadius: AppTheme.radiusLg,
-      child: InkWell(
-        borderRadius: AppTheme.radiusLg,
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          child: Row(
-            children: [
-              Icon(icon, color: AppTheme.primary),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(title, style: AppTheme.titleMedium.copyWith(fontSize: 15)),
-                    if (subtitle != null)
-                      Text(subtitle, style: AppTheme.bodySmall.copyWith(fontSize: 11)),
-                  ],
-                ),
-              ),
-              Icon(Icons.chevron_right, color: AppTheme.textMuted.withValues(alpha: 0.5)),
-            ],
+    return GlassCard(
+      onTap: onTap,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: AppTheme.primaryLight.withValues(alpha: 0.4),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, color: AppTheme.primary, size: 20),
           ),
-        ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: AppTheme.titleMedium.copyWith(fontSize: 14)),
+                if (subtitle != null)
+                  Text(subtitle, style: AppTheme.bodySmall.copyWith(fontSize: 11, color: AppTheme.textMuted)),
+              ],
+            ),
+          ),
+          Icon(Icons.chevron_right_rounded, color: AppTheme.textMuted.withValues(alpha: 0.5)),
+        ],
       ),
     );
   }

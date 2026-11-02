@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../services/upi_payment_service.dart';
@@ -120,96 +121,126 @@ class _UpiPaymentDialogState extends State<_UpiPaymentDialog>
     return Dialog(
       backgroundColor: Colors.transparent,
       insetPadding: const EdgeInsets.symmetric(horizontal: 28),
-      child: Container(
-        padding: const EdgeInsets.fromLTRB(24, 28, 24, 20),
-        decoration: BoxDecoration(
-          color: AppTheme.surface,
-          borderRadius: AppTheme.radiusLg,
-          boxShadow: [AppTheme.softShadow],
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (_awaitingConfirm) ...[
-              const Icon(Icons.help_outline_rounded, color: AppTheme.primary, size: 48),
-              const SizedBox(height: 16),
-              Text('Payment complete?', style: AppTheme.titleLarge),
-              const SizedBox(height: 8),
-              Text(
-                'Confirm only if you paid ${CurrencyFormatter.format(widget.amount)} in $_openedWith.',
-                textAlign: TextAlign.center,
-                style: AppTheme.bodySmall.copyWith(height: 1.45),
-              ),
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () => Navigator.pop(context, true),
-                  child: const Text('Yes, payment done'),
-                ),
-              ),
-              const SizedBox(height: 8),
-              TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: const Text('No, go back'),
-              ),
-            ] else if (_launchError != null) ...[
-              const Icon(Icons.error_outline_rounded, color: AppTheme.secondary, size: 48),
-              const SizedBox(height: 16),
-              Text('UPI app not found', style: AppTheme.titleLarge),
-              const SizedBox(height: 8),
-              Text(
-                _launchError!,
-                textAlign: TextAlign.center,
-                style: AppTheme.bodySmall.copyWith(height: 1.45),
-              ),
-              const SizedBox(height: 20),
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton(
-                  onPressed: _openUpiApp,
-                  child: const Text('Try again'),
-                ),
-              ),
-              const SizedBox(height: 8),
-              TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: const Text('Cancel'),
-              ),
-            ] else ...[
-              const SizedBox(
-                width: 36,
-                height: 36,
-                child: CircularProgressIndicator(strokeWidth: 2.5, color: AppTheme.primary),
-              ),
-              const SizedBox(height: 20),
-              Text(
-                _launching ? 'Opening $appLabel…' : 'Complete payment in $appLabel',
-                style: AppTheme.titleLarge,
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                _launching
-                    ? 'You will be redirected to pay ${CurrencyFormatter.format(widget.amount)}'
-                    : 'Return here after paying to confirm your order',
-                textAlign: TextAlign.center,
-                style: AppTheme.bodySmall.copyWith(height: 1.45),
-              ),
-              if (_launched) ...[
-                const SizedBox(height: 20),
-                TextButton(
-                  onPressed: () => setState(() => _awaitingConfirm = true),
-                  child: const Text('I have completed payment'),
-                ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(28),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+          child: Container(
+            padding: const EdgeInsets.fromLTRB(24, 28, 24, 20),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.94),
+              borderRadius: BorderRadius.circular(28),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.9), width: 1.4),
+              boxShadow: [AppTheme.softShadow],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (_awaitingConfirm) ...[
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: AppTheme.primaryLight.withValues(alpha: 0.5),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.help_outline_rounded, color: AppTheme.primary, size: 40),
+                  ),
+                  const SizedBox(height: 18),
+                  Text('Payment complete?', style: AppTheme.titleLarge),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Confirm only if you paid ${CurrencyFormatter.format(widget.amount)} in $_openedWith.',
+                    textAlign: TextAlign.center,
+                    style: AppTheme.bodySmall.copyWith(height: 1.45),
+                  ),
+                  const SizedBox(height: 24),
+                  Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      gradient: AppTheme.ctaGradient,
+                      borderRadius: AppTheme.radiusMd,
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppTheme.primary.withValues(alpha: 0.3),
+                          blurRadius: 10,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.pop(context, true),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        shadowColor: Colors.transparent,
+                        foregroundColor: Colors.white,
+                      ),
+                      child: const Text('Yes, payment done'),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  TextButton(
+                    onPressed: () => Navigator.pop(context, false),
+                    child: const Text('No, go back'),
+                  ),
+                ] else if (_launchError != null) ...[
+                  const Icon(Icons.error_outline_rounded, color: AppTheme.secondary, size: 48),
+                  const SizedBox(height: 16),
+                  Text('UPI app not found', style: AppTheme.titleLarge),
+                  const SizedBox(height: 8),
+                  Text(
+                    _launchError!,
+                    textAlign: TextAlign.center,
+                    style: AppTheme.bodySmall.copyWith(height: 1.45),
+                  ),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton(
+                      onPressed: _openUpiApp,
+                      child: const Text('Try again'),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  TextButton(
+                    onPressed: () => Navigator.pop(context, false),
+                    child: const Text('Cancel'),
+                  ),
+                ] else ...[
+                  const SizedBox(
+                    width: 38,
+                    height: 38,
+                    child: CircularProgressIndicator(strokeWidth: 2.5, color: AppTheme.primary),
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    _launching ? 'Opening $appLabel…' : 'Complete payment in $appLabel',
+                    style: AppTheme.titleLarge,
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    _launching
+                        ? 'You will be redirected to pay ${CurrencyFormatter.format(widget.amount)}'
+                        : 'Return here after paying to confirm your order',
+                    textAlign: TextAlign.center,
+                    style: AppTheme.bodySmall.copyWith(height: 1.45),
+                  ),
+                  if (_launched) ...[
+                    const SizedBox(height: 20),
+                    TextButton(
+                      onPressed: () => setState(() => _awaitingConfirm = true),
+                      child: const Text('I have completed payment'),
+                    ),
+                  ],
+                  const SizedBox(height: 8),
+                  TextButton(
+                    onPressed: () => Navigator.pop(context, false),
+                    child: const Text('Cancel'),
+                  ),
+                ],
               ],
-              const SizedBox(height: 8),
-              TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: const Text('Cancel'),
-              ),
-            ],
-          ],
+            ),
+          ),
         ),
       ),
     );
@@ -289,69 +320,133 @@ class _CardMockSheetState extends State<_CardMockSheet> {
   @override
   Widget build(BuildContext context) {
     final bottom = MediaQuery.paddingOf(context).bottom;
-    return Container(
-      decoration: const BoxDecoration(
-        color: AppTheme.surface,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      padding: EdgeInsets.fromLTRB(24, 12, 24, 20 + bottom),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 40,
-            height: 4,
-            decoration: BoxDecoration(
-              color: AppTheme.cardBorder,
-              borderRadius: BorderRadius.circular(2),
+    return ClipRRect(
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.95),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+            border: Border.all(
+              color: Colors.white.withValues(alpha: 0.9),
+              width: 1.4,
             ),
           ),
-          const SizedBox(height: 20),
-          Icon(
-            _success ? Icons.check_circle_rounded : Icons.credit_card_rounded,
-            color: _success ? AppTheme.success : AppTheme.primary,
-            size: _success ? 56 : 32,
-          ),
-          const SizedBox(height: 16),
-          Text(
-            _success ? 'Payment successful' : 'Card payment',
-            style: AppTheme.titleLarge,
-          ),
-          const SizedBox(height: 20),
-          Text(
-            CurrencyFormatter.format(widget.amount),
-            style: AppTheme.displayMedium.copyWith(color: AppTheme.primary, fontSize: 28),
-          ),
-          if (!_success) ...[
-            const SizedBox(height: 16),
-            const TextField(
-              decoration: InputDecoration(
-                labelText: 'Card number',
-                hintText: '4242 4242 4242 4242',
-                prefixIcon: Icon(Icons.credit_card_outlined),
+          padding: EdgeInsets.fromLTRB(24, 14, 24, 20 + bottom),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Center(
+                child: Container(
+                  width: 44,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: AppTheme.textMuted.withValues(alpha: 0.25),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
               ),
-              keyboardType: TextInputType.number,
-            ),
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _processing ? null : _pay,
-                child: _processing
-                    ? const SizedBox(
-                        height: 22,
-                        width: 22,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                      )
-                    : Text('Pay ${CurrencyFormatter.format(widget.amount)}'),
-              ),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel'),
-            ),
-          ],
-        ],
+              const SizedBox(height: 20),
+              if (_success) ...[
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: AppTheme.successLight,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.check_rounded, color: AppTheme.success, size: 40),
+                ),
+                const SizedBox(height: 16),
+                Text('Payment approved', style: AppTheme.titleLarge),
+                const SizedBox(height: 6),
+                Text(
+                  'Paid ${CurrencyFormatter.format(widget.amount)}',
+                  style: AppTheme.bodySmall,
+                ),
+                const SizedBox(height: 24),
+              ] else if (_processing) ...[
+                const SizedBox(
+                  width: 38,
+                  height: 38,
+                  child: CircularProgressIndicator(strokeWidth: 2.5, color: AppTheme.primary),
+                ),
+                const SizedBox(height: 20),
+                Text('Processing card payment…', style: AppTheme.titleLarge),
+                const SizedBox(height: 6),
+                Text(
+                  CurrencyFormatter.format(widget.amount),
+                  style: AppTheme.displayMedium.copyWith(color: AppTheme.primary, fontSize: 24),
+                ),
+                const SizedBox(height: 24),
+              ] else ...[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('Debit / Credit card', style: AppTheme.titleLarge),
+                    Text(
+                      CurrencyFormatter.format(widget.amount),
+                      style: AppTheme.titleLarge.copyWith(color: AppTheme.primary),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: AppTheme.background,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: AppTheme.cardBorder),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.credit_card_rounded, color: AppTheme.primary, size: 28),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('•••• •••• •••• 4242', style: AppTheme.titleMedium),
+                            Text('Demo checkout · Tap to pay', style: AppTheme.bodySmall),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
+                Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    gradient: AppTheme.ctaGradient,
+                    borderRadius: AppTheme.radiusMd,
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppTheme.primary.withValues(alpha: 0.3),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: ElevatedButton(
+                    onPressed: _pay,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      shadowColor: Colors.transparent,
+                      foregroundColor: Colors.white,
+                    ),
+                    child: Text('Pay ${CurrencyFormatter.format(widget.amount)}'),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                TextButton(
+                  onPressed: () => Navigator.pop(context, false),
+                  child: const Text('Cancel'),
+                ),
+              ],
+            ],
+          ),
+        ),
       ),
     );
   }

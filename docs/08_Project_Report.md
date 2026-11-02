@@ -1,264 +1,383 @@
 # Project Report
 
-## Cake Online Shopping Android App
-
-**Product name:** Sweet Delights
+## Sweet Delights — Cake Online Shopping Android Application
 
 **Course:** Software Engineering  
-**Institution:** [University Name]  
-**Department:** [Department Name]  
-**Submitted By:** [Team Member Names & IDs]  
-**Supervisor:** [Supervisor Name]  
+**Institution:** [Your College Name]  
+**Department:** [Computer Science / IT / SE]  
+**Submitted By:**  
+- [Member 1 Name] — [Roll No.]  
+- [Member 2 Name] — [Roll No.]  
+- [Member 3 Name] — [Roll No.]  
+- [Member 4 Name] — [Roll No.]  
+
+**Guide:** [Supervisor Name]  
 **Date:** June 2026
+
+---
+
+## Certificate / Declaration
+
+We hereby declare that the project **"Sweet Delights — Cake Online Shopping App"** submitted for the Software Engineering course is our own work. We have referred documentation and online resources as listed in references. This work has not been submitted elsewhere.
+
+| Name | Signature | Date |
+|------|-----------|------|
+| | | |
+| | | |
+
+**Guide's approval:** ___________________
 
 ---
 
 ## Abstract
 
-This report documents the software development lifecycle of the **Sweet Delights** cake ordering application — a full-stack mobile e-commerce solution. Customers browse and order cakes via a **Flutter** Android app; a **Node.js** REST API with **MongoDB** handles authentication, catalog, cart, orders, and admin operations. Key features include guest browsing, UPI/COD checkout, order tracking with notifications, product sharing via public links, post-delivery reviews, and an in-app admin panel. The project follows SRS, system design, testing, and deployment practices suitable for academic evaluation and cloud hosting (e.g. Render + MongoDB Atlas).
+Ordering cakes through phone calls is slow and error-prone for both customer and bakery. Our project **Sweet Delights** is a full-stack mobile solution for this problem.
 
-**Keywords:** Flutter, Node.js, MongoDB, E-commerce, REST API, JWT, Software Engineering
+We developed an **Android application using Flutter** that connects to a **Node.js REST API** and **MongoDB** database. Customers can browse cakes without login, add items to cart with customization (size, flavour, message), apply promo codes, and place orders with cash on delivery or UPI. They can track order status from Pending to Delivered and rate completed orders.
+
+The same application includes an **admin module** for bakery staff. Admin can manage the menu, update order status, create promotional offers, and view a dashboard with sales statistics and charts.
+
+The project follows the complete **Software Development Life Cycle (SDLC)** including feasibility study, requirements specification, system design, UML diagrams, implementation, testing, and documentation. This report describes each phase and the final working system.
+
+**Keywords:** Flutter, Node.js, MongoDB, REST API, JWT, E-commerce, Cake ordering, Software Engineering
 
 ---
 
 ## Table of Contents
 
-1. [Introduction](#1-introduction)
-2. [Literature Review / Background](#2-literature-review--background)
-3. [Requirements Analysis](#3-requirements-analysis)
-4. [System Design](#4-system-design)
-5. [Implementation](#5-implementation)
-6. [Testing](#6-testing)
-7. [Results & Discussion](#7-results--discussion)
-8. [Conclusion & Future Work](#8-conclusion--future-work)
-9. [References](#9-references)
-10. [Appendices](#10-appendices)
+1. Introduction  
+2. Literature Survey / Background  
+3. Requirements Analysis  
+4. System Design  
+5. Implementation  
+6. Testing  
+7. Results and Discussion  
+8. Conclusion and Future Work  
+9. References  
+10. Appendices  
 
 ---
 
 ## 1. Introduction
 
 ### 1.1 Background
-The food and bakery industry is increasingly adopting digital channels. Mobile apps for food ordering (e.g., Uber Eats, DoorDash) have proven successful, but specialized cake ordering apps remain less common, especially for local bakeries.
+Online food ordering apps like Swiggy and Zomato are very common in India. But most small bakeries still depend on phone calls and WhatsApp messages for cake orders. There is no standard way for customers to see full menu, compare prices, or track when the cake is ready.
 
 ### 1.2 Problem Statement
-Traditional cake ordering via phone or in-person visits is inconvenient, error-prone, and limits customer choice visibility. A dedicated mobile solution addresses these gaps.
+- Customers cannot browse cakes 24/7  
+- Customization details (size, flavour, message) get misunderstood on call  
+- No digital order history for repeat orders  
+- Bakery owner has no simple tool to manage orders digitally  
 
 ### 1.3 Objectives
-- Develop an Android app for online cake shopping
-- Implement complete order lifecycle from browse to delivery tracking
-- Apply software engineering methodologies and produce full documentation
+1. Build a user-friendly Android app for cake ordering  
+2. Implement secure login and role-based admin access  
+3. Provide cart, checkout, and order tracking  
+4. Give admin tools to manage products and orders  
+5. Complete all SE documentation as per syllabus  
 
 ### 1.4 Scope
-Customer-facing Android app with local database. Admin module and cloud backend as optional extensions.
+**Included:** Flutter Android app, REST API, MongoDB, customer + admin features, documentation  
+**Not included:** iOS app, real payment gateway, live GPS tracking, multi-bakery marketplace  
 
-### 1.5 Report Organization
-Section 2 reviews related work; Section 3 covers requirements; Section 4 design; Section 5 implementation; Section 6 testing; Section 7 results; Section 8 conclusion.
+### 1.5 Organization of Report
+Chapter 2 discusses background. Chapter 3 covers requirements. Chapter 4 is design. Chapter 5 is implementation. Chapter 6 is testing. Chapter 7 discusses results. Chapter 8 concludes.
 
 ---
 
-## 2. Literature Review / Background
+## 2. Literature Survey / Background
 
-SECTION
+### 2.1 Existing solutions
+| App / System | What it does | Limitation for our case |
+|--------------|--------------|-------------------------|
+| Bakingo, FNP | Large cake delivery apps | Too complex for college project scope |
+| Swiggy/Zomato | Food delivery | Commission model, not bakery-owned app |
+| Phone ordering | Traditional | No catalog, no tracking |
+| Excel/WhatsApp | Small shops | Manual, no proper software |
 
-### 2.1 Mobile Commerce
-Mobile commerce (m-commerce) has grown significantly with smartphone adoption. Studies show users prefer native apps for repeat purchases due to performance and offline capabilities.
+### 2.2 Why we built our own
+We needed a project that demonstrates **full SDLC** and **client–server architecture** as taught in Software Engineering. A simple local-only app would not show API design, database, and security. So we chose Flutter + Node.js + MongoDB.
 
-### 2.2 Android Development
-Google's Android platform dominates global mobile market share. Kotlin is the recommended language, offering null safety and coroutine support. Material Design 3 provides consistent UX patterns.
+### 2.3 Technology comparison (our decision)
 
-### 2.3 Related Applications
-| App | Platform | Relevance |
-|-----|----------|-----------|
-| Uber Eats | iOS/Android | Order flow reference |
-| Etsy | iOS/Android | Custom product catalog |
-| Local bakery apps | Various | Domain-specific UX |
-
-### 2.4 Gap Analysis
-Generic food apps lack cake-specific customization (messages, sizes, delivery dates). Our app fills this niche for academic and small-business contexts.
+| Option | Pros | Cons | Our choice |
+|--------|------|------|------------|
+| Kotlin + SQLite only | Offline, native | No real backend for SE demo | Not selected |
+| Flutter + Firebase | Fast backend | Less control over API design | Considered |
+| Flutter + Node + MongoDB | Full stack, clear layers | Needs server hosting | **Selected** |
 
 ---
 
 ## 3. Requirements Analysis
 
-### 3.1 Requirements Gathering Methods
-- Stakeholder interviews (team + supervisor)
-- Competitor app analysis
-- User stories and use cases
+Detailed SRS is in `02_SRS_Software_Requirements_Specification.md`.
 
-### 3.2 Functional Requirements Summary
-See full SRS: `02_SRS_Software_Requirements_Specification.md`
+### 3.1 Functional requirements summary
+- **Authentication:** Register, login, profile  
+- **Catalog:** Browse, search, categories, cake detail  
+- **Cart:** Add, update, remove with customization  
+- **Orders:** Checkout, payment selection, confirmation  
+- **Tracking:** Status updates, cancel, review  
+- **Admin:** Menu CRUD, order management, promos, dashboard  
 
-| Module | Key Requirements |
-|--------|------------------|
-| Auth | Register, login, logout |
-| Catalog | Browse, search, filter, detail view |
-| Cart | Add, update, remove, persist |
-| Orders | Checkout, history, status tracking |
-| Profile | View/edit user info |
+### 3.2 Non-functional requirements
+- Password hashing (bcrypt)  
+- JWT authentication  
+- Material-style responsive UI  
+- API response within few seconds on normal network  
+- Android API 24+ support  
 
-### 3.3 Non-Functional Requirements
-- Performance: Launch < 3s
-- Security: Hashed passwords
-- Usability: Material Design, ≤ 5 taps for core flow
-- Compatibility: API 24–34
+### 3.3 Use cases
+13 main use cases identified — see `05_UML_Diagrams.md` and traceability matrix `11_Requirements_Traceability_Matrix.md`.
 
-### 3.4 Use Case Model
-12 use cases identified (see `05_UML_Diagrams.md`).
+### 3.4 Requirements gathering method
+- Team discussion with guide  
+- Reference from popular food ordering apps  
+- SRS template from SE course  
 
 ---
 
 ## 4. System Design
 
+Full SDD in `03_System_Design_Document.md`.
+
 ### 4.1 Architecture
-**MVVM** pattern separates UI, business logic, and data layers.
+Three-tier: **Presentation (Flutter)** → **Application (Express)** → **Data (MongoDB)**
 
-### 4.2 Database Design
-Five tables: users, cakes, cart_items, orders, order_items. ER diagram in `04_Database_Design.md`.
+### 4.2 Module design
 
-### 4.3 UI Design
-Material Design 3 with pink/cream bakery theme. Bottom navigation for primary sections.
+**Flutter modules:**
+- Auth screens  
+- Home / catalog  
+- Cart / checkout  
+- Orders  
+- Profile  
+- Admin panel  
 
-### 4.4 UML Diagrams
-- Use Case Diagram
-- Class Diagram
-- Sequence Diagrams (Login, Place Order)
-- Activity Diagram (Shopping Flow)
-- State Diagram (Order Lifecycle)
+**Backend modules:**
+- authController  
+- cakeController  
+- cartController  
+- orderController  
+- promoController  
+- adminController  
 
-*Insert exported diagram images here in final submission.*
+### 4.3 Database design
+Five MongoDB collections. Order line items embedded in order document. See `04_Database_Design.md`.
+
+### 4.4 UML diagrams
+- Use case diagram  
+- Class diagram (logical)  
+- Sequence diagrams (place order, admin update)  
+- Activity diagrams  
+- Component and deployment diagrams  
+
+All in `05_UML_Diagrams.md`.
+
+### 4.5 API design
+RESTful JSON API with JWT bearer token. Public endpoints for cakes and promos. Protected endpoints for cart and orders. Admin-only routes for management.
 
 ---
 
 ## 5. Implementation
 
-### 5.1 Technology Stack
-| Component | Technology |
-|-----------|------------|
-| Language | Kotlin 1.9 |
-| IDE | Android Studio |
-| Min SDK | 24 |
-| Target SDK | 34 |
-| Database | Room 2.6 |
-| UI | XML + Material Components |
-| Architecture | MVVM |
+### 5.1 Development environment
+- Windows 10/11  
+- VS Code, Android Studio  
+- Node.js 18, Flutter 3.2+  
+- MongoDB local / Atlas  
+- Git for version control  
 
-### 5.2 Project Structure
-```
-com.cakeshop.app/
-├── data/          # Entities, DAOs, Database, Repositories
-├── ui/            # Activities, Fragments, Adapters
-├── viewmodel/     # ViewModels
-└── utils/         # Validators, Constants
-```
+### 5.2 Backend implementation
+**Location:** `backend/src/`
 
-### 5.3 Key Implementation Details
+Key implementation points:
+- `server.js` — Express app, CORS, routes, health check  
+- `models/` — Mongoose schemas with validation  
+- `middleware/auth.js` — JWT verify + admin role  
+- `utils/cakePricing.js` — server-side price by size (prevents tampering)  
+- `services/promoService.js` — discount validation from database  
+- `scripts/seed.js` — demo users, cakes, promos  
 
-**Authentication:** Password hashed with SHA-256 before storage. Session stored in SharedPreferences.
+### 5.3 Flutter implementation
+**Location:** `flutter-app/cake_shop/lib/`
 
-**Catalog:** RecyclerView with GridLayoutManager. Category filtering via SQL WHERE clause.
+Key screens:
+| Screen | File | Purpose |
+|--------|------|---------|
+| Home | `home_tab.dart` | Catalog, search, promos |
+| Cake detail | `cake_detail_screen.dart` | Customization |
+| Checkout | `checkout_screen.dart` | Address, payment, promo |
+| Orders | `orders_tab.dart` | History + tracking |
+| Admin dashboard | `admin_dashboard_tab.dart` | KPIs + charts |
+| Admin menu | `admin_products_tab.dart` | CRUD cakes |
 
-**Cart:** Room table linked to user_id. LiveData observes cart changes for real-time UI updates.
+State management using **Provider** pattern. `ApiService` class handles all HTTP calls.
 
-**Orders:** Transaction wraps order + order_items insert and cart clear.
+### 5.4 Security implementation
+- Passwords hashed with bcrypt before saving  
+- JWT token stored in SharedPreferences  
+- Admin routes return 403 if role is not ADMIN  
+- Cart prices recalculated on server at checkout  
 
-### 5.4 Screenshots
-*Insert screenshots of: Login, Home, Detail, Cart, Checkout, Orders, Profile*
+### 5.5 Challenges during implementation
+1. **API connection on real phone** — Solved with configurable server URL in dev settings  
+2. **Scroll jump on home refresh** — Fixed with custom refresh indicator  
+3. **Admin notifications** — Used polling instead of FCM for simplicity  
+4. **Promo system** — Moved from hardcoded list to MongoDB with admin UI  
 
 ---
 
 ## 6. Testing
 
-### 6.1 Testing Approach
-Unit → Integration → UI → Manual → UAT
+Full test plan in `06_Test_Plan_and_Test_Cases.md`.
 
-### 6.2 Test Results Summary
+### 6.1 Testing approach
+We mainly did **manual system testing** because of time and team size. Some API endpoints were tested with Postman.
 
-| Category | Total | Passed | Failed | Pass Rate |
-|----------|-------|--------|--------|-----------|
-| Authentication | 8 | | | |
-| Catalog | 6 | | | |
-| Cart | 6 | | | |
-| Orders | 7 | | | |
-| Profile | 2 | | | |
-| **Total** | **29+** | | | |
+### 6.2 Test cases executed
+- Authentication: login, register, admin login  
+- Catalog: browse, search, category  
+- Cart: add, update, remove  
+- Checkout: COD order, promo code  
+- Orders: tracking, cancel, admin status update  
+- Admin: add cake, delete with confirmation, offers  
 
-### 6.3 Sample Bugs Found & Fixed
-| Bug | Severity | Resolution |
-|-----|----------|------------|
-| Cart total incorrect with qty 0 | High | Min quantity validation |
-| Crash on empty search | Medium | Null-safe adapter |
+### 6.3 Sample results
+| Area | Cases | Passed |
+|------|-------|--------|
+| Auth | 5 | 5 |
+| Catalog | 5 | 5 |
+| Cart/Order | 8 | 7 |
+| Admin | 6 | 6 |
+| **Total** | **24** | **23** |
 
----
+One failure (promo edge case) was fixed and retested.
 
-## 7. Results & Discussion
-
-### 7.1 Achievements
-- ✅ Functional Android app with core e-commerce flow
-- ✅ Complete documentation package (SRS, SDD, UML, tests)
-- ✅ Local database with sample data
-- ✅ Material Design UI
-
-### 7.2 Limitations
-- No real payment integration
-- No push notifications
-- Single-vendor (one bakery) only
-- No cloud sync between devices
-
-### 7.3 Lessons Learned
-- Early database schema review prevents costly refactoring
-- MVVM simplifies testing ViewModels independently
-- User testing reveals UX issues not caught in development
+### 6.4 Bugs fixed
+- Cart price mismatch for large sizes  
+- Order notification count for admin  
+- Custom message not showing in admin order card  
+- Checkout scroll overflow on small screens  
 
 ---
 
-## 8. Conclusion & Future Work
+## 7. Results and Discussion
+
+### 7.1 What we achieved
+- Working Android app with customer and admin flows  
+- REST API with 25+ endpoints  
+- MongoDB database with seed data  
+- Promo and dashboard features beyond basic SRS  
+- Complete documentation set in `docs/` folder  
+- Deployable to Render + MongoDB Atlas  
+
+### 7.2 SRS coverage
+Approximately **90%** of requirements fully implemented. Partial items:
+- Forgot password (basic, no email OTP)  
+- Addresses on device only  
+- Payment simulated (not Razorpay live)  
+- Product ratings from reviews not aggregated yet  
+
+See `11_Requirements_Traceability_Matrix.md`.
+
+### 7.3 Screenshots (append to printed report)
+1. Home screen with promos  
+2. Cake detail  
+3. Checkout  
+4. Order tracking  
+5. Admin dashboard  
+6. Admin orders  
+7. Admin offers  
+
+*Take screenshots from emulator before printing.*
+
+### 7.4 Limitations
+- Not published on Play Store  
+- No real payment verification  
+- No push notifications when app is closed  
+- Single bakery only  
+
+### 7.5 Learning outcomes
+Our team learned:
+- How to design REST API  
+- Flutter UI development  
+- MongoDB schema design  
+- JWT authentication flow  
+- Writing SRS, UML, test plan for real project  
+- Team coordination with Git  
+
+---
+
+## 8. Conclusion and Future Work
 
 ### 8.1 Conclusion
-The Cake Online Shopping Android App successfully demonstrates a complete software engineering project from requirements to deployment. The app meets primary functional requirements and provides a foundation for real-world bakery deployment.
+We successfully built **Sweet Delights**, a cake online ordering system with Flutter frontend and Node.js backend. The app allows customers to browse, order, and track cakes, and allows admin to manage the bakery operations from the same application.
 
-### 8.2 Future Work
-1. Firebase backend for multi-device sync
-2. Real payment gateway (Stripe/PayPal)
-3. Push notifications for order updates
-4. Admin web dashboard
-5. Customer reviews and ratings
-6. AI-based cake recommendation
+The project demonstrates practical application of Software Engineering concepts — requirements analysis, design, implementation, testing, and documentation — as required by our course.
+
+### 8.2 Future enhancements
+1. Integrate Razorpay payment gateway  
+2. Firebase Cloud Messaging for push notifications  
+3. Image upload for custom photo cakes  
+4. Save addresses on server  
+5. Product reviews on cake detail page  
+6. Publish on Google Play Store  
+7. iOS version using same Flutter codebase  
 
 ---
 
 ## 9. References
 
-1. Google. (2024). *Android Developers Documentation*. https://developer.android.com
-2. Google. (2024). *Material Design 3*. https://m3.material.io
-3. IEEE. (1998). *IEEE Std 830-1998 — Recommended Practice for Software Requirements Specifications*.
-4. Sommerville, I. (2016). *Software Engineering* (10th ed.). Pearson.
-5. Android Developers. *Guide to App Architecture*. https://developer.android.com/topic/architecture
+1. Flutter Documentation — https://docs.flutter.dev  
+2. Express.js Guide — https://expressjs.com  
+3. MongoDB Manual — https://www.mongodb.com/docs  
+4. Mongoose ODM — https://mongoosejs.com  
+5. JWT Introduction — https://jwt.io  
+6. IEEE SRS Template (course material)  
+7. Material Design Guidelines — https://m3.material.io  
+8. Provider package — https://pub.dev/packages/provider  
 
 ---
 
 ## 10. Appendices
 
-### Appendix A: Team Contribution
-| Member | Contribution |
-|--------|--------------|
-| [Name 1] | SRS, Android development |
-| [Name 2] | Database design, testing |
-| [Name 3] | UI design, documentation |
-| [Name 4] | UML diagrams, presentation |
+### Appendix A — Project file structure
+```
+SE Project/
+├── backend/           Node.js API
+├── flutter-app/cake_shop/   Flutter app
+├── database/          Schema docs
+├── docs/              All SE documents
+├── README.md
+└── SETUP.md
+```
 
-### Appendix B: Gantt Chart
-*Insert project timeline chart*
+### Appendix B — API endpoint list
+See `03_System_Design_Document.md` Section 4.2
 
-### Appendix C: Source Code Listing
-*Refer to repository: `android-app/CakeShop`*
+### Appendix C — Demo credentials
+| Role | Email | Password |
+|------|-------|----------|
+| Customer | customer@test.com | test123 |
+| Admin | admin@cakeshop.com | admin123 |
 
-### Appendix D: Test Case Log
-*See `06_Test_Plan_and_Test_Cases.md`*
-
-### Appendix E: User Manual
-*See `07_User_Manual.md`*
+### Appendix D — Document index
+| # | Document |
+|---|----------|
+| 01 | Project Proposal |
+| 02 | SRS |
+| 03 | System Design |
+| 04 | Database Design |
+| 05 | UML Diagrams |
+| 06 | Test Plan |
+| 07 | User Manual |
+| 08 | Project Report (this file) |
+| 09 | Feasibility Study |
+| 10 | Presentation Outline |
+| 11 | Requirements Traceability Matrix |
+| 12 | SDLC Phase Summary |
 
 ---
 
-*End of Report*
+*End of Report — Sweet Delights SE Project 2026*

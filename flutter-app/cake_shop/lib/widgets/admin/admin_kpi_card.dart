@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../theme/admin_theme.dart';
+import '../glass/glass_card.dart';
 
 class AdminKpiCard extends StatelessWidget {
   final String label;
@@ -8,6 +9,7 @@ class AdminKpiCard extends StatelessWidget {
   final IconData icon;
   final Color color;
   final VoidCallback? onTap;
+  final double? width;
 
   const AdminKpiCard({
     super.key,
@@ -17,63 +19,68 @@ class AdminKpiCard extends StatelessWidget {
     required this.icon,
     required this.color,
     this.onTap,
+    this.width,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: AdminTheme.surface,
+    return GlassCard(
+      onTap: onTap,
       borderRadius: AdminTheme.radiusMd,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: AdminTheme.radiusMd,
-        child: Ink(
-          width: 148,
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            borderRadius: AdminTheme.radiusMd,
-            border: Border.all(color: AdminTheme.border),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Icon(icon, size: 18, color: color),
-                  const Spacer(),
-                  if (onTap != null)
-                    const Icon(Icons.chevron_right_rounded, size: 18, color: AdminTheme.textSecondary),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Text(
-                value,
-                style: AdminTheme.kpiValue.copyWith(fontSize: 20),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+      border: Border.all(
+        color: color.withValues(alpha: 0.22),
+        width: 1,
+      ),
+      child: SizedBox(
+        width: width,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(7),
+                  decoration: BoxDecoration(
+                    color: color.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(icon, size: 18, color: color),
+                ),
+                const Spacer(),
+                if (onTap != null)
+                  const Icon(Icons.chevron_right_rounded, size: 18, color: AdminTheme.textSecondary),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Text(
+              value,
+              style: AdminTheme.kpiValue.copyWith(fontSize: 20),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 2),
+            Text(
+              label,
+              style: AdminTheme.kpiLabel.copyWith(fontWeight: FontWeight.w600),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            if (sublabel != null) ...[
               const SizedBox(height: 2),
               Text(
-                label,
-                style: AdminTheme.kpiLabel,
+                sublabel!,
+                style: AdminTheme.kpiLabel.copyWith(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w500,
+                  color: AdminTheme.textSecondary.withValues(alpha: 0.8),
+                ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
-              if (sublabel != null) ...[
-                const SizedBox(height: 2),
-                Text(
-                  sublabel!,
-                  style: AdminTheme.kpiLabel.copyWith(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w500,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
             ],
-          ),
+          ],
         ),
       ),
     );
@@ -95,30 +102,33 @@ class AdminQuickAction extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: Material(
-        color: AdminTheme.surface,
+      child: GlassCard(
+        onTap: onTap,
         borderRadius: AdminTheme.radiusMd,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: AdminTheme.radiusMd,
-          child: Ink(
-            padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
-            decoration: BoxDecoration(
-              borderRadius: AdminTheme.radiusMd,
-              border: Border.all(color: AdminTheme.border),
+        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 6),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(9),
+              decoration: BoxDecoration(
+                color: AdminTheme.accent.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: AdminTheme.accent, size: 20),
             ),
-            child: Column(
-              children: [
-                Icon(icon, color: AdminTheme.accent, size: 24),
-                const SizedBox(height: 6),
-                Text(
-                  label,
-                  textAlign: TextAlign.center,
-                  style: AdminTheme.kpiLabel.copyWith(fontSize: 11),
-                ),
-              ],
+            const SizedBox(height: 8),
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AdminTheme.kpiLabel.copyWith(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );
@@ -143,44 +153,50 @@ class AdminAlertBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: color.withValues(alpha: 0.08),
+    return GlassCard(
+      onTap: onTap,
       borderRadius: AdminTheme.radiusMd,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: AdminTheme.radiusMd,
-        child: Ink(
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            borderRadius: AdminTheme.radiusMd,
-            border: Border.all(color: color.withValues(alpha: 0.25)),
+      color: color.withValues(alpha: 0.08),
+      border: Border.all(color: color.withValues(alpha: 0.3)),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.16),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: color, size: 18),
           ),
-          child: Row(
-            children: [
-              Icon(icon, color: color, size: 22),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  message,
-                  style: AdminTheme.kpiLabel.copyWith(
-                    color: color.withValues(alpha: 0.95),
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                  ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              message,
+              style: AdminTheme.kpiLabel.copyWith(
+                color: color.withValues(alpha: 0.95),
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          if (actionLabel != null)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.14),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                actionLabel!,
+                style: TextStyle(
+                  color: color,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 11,
                 ),
               ),
-              if (actionLabel != null)
-                Text(
-                  actionLabel!,
-                  style: TextStyle(
-                    color: color,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 12,
-                  ),
-                ),
-            ],
-          ),
-        ),
+            ),
+        ],
       ),
     );
   }

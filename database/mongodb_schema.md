@@ -163,7 +163,7 @@ npm install
 npm run seed
 ```
 
-Creates demo users and 7 sample cakes.
+Creates demo users, 24 cakes, and 3 promo offers.
 
 ---
 
@@ -174,3 +174,4 @@ Located in `backend/src/models/`:
 - `Cake.js`
 - `CartItem.js`
 - `Order.js`
+- `Promo.js`

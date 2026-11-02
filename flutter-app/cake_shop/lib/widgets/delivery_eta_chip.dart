@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../utils/delivery_eta.dart';
@@ -20,26 +21,32 @@ class DeliveryEtaChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (light) {
-      return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.18),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.25)),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.bolt_rounded, color: AppTheme.gold, size: 14),
-            const SizedBox(width: 4),
-            Text(
-              label,
-              style: AppTheme.labelBold.copyWith(
-                color: Colors.white,
-                fontSize: 10,
-              ),
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.18),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
             ),
-          ],
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.bolt_rounded, color: AppTheme.gold, size: 14),
+                const SizedBox(width: 4),
+                Text(
+                  label,
+                  style: AppTheme.labelBold.copyWith(
+                    color: Colors.white,
+                    fontSize: 10,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       );
     }
@@ -47,9 +54,10 @@ class DeliveryEtaChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: AppTheme.goldLight,
-        borderRadius: BorderRadius.circular(12),
+        color: AppTheme.goldLight.withValues(alpha: 0.7),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(color: AppTheme.gold.withValues(alpha: 0.35)),
+        boxShadow: [AppTheme.softShadow],
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

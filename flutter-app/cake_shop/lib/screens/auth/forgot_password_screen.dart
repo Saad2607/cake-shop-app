@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../constants/app_branding.dart';
 import '../../providers/auth_provider.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/glass/glass_card.dart';
+import '../../widgets/glass/primary_button.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -66,6 +67,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       SnackBar(
         content: Text(message),
         behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
     );
   }
@@ -77,14 +79,15 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     return Scaffold(
       backgroundColor: AppTheme.background,
       appBar: AppBar(
-        title: const Text('Forgot password'),
+        title: Text('Reset Password', style: AppTheme.displayMedium.copyWith(fontSize: 20)),
         backgroundColor: AppTheme.background,
         foregroundColor: AppTheme.textDark,
         elevation: 0,
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -93,18 +96,35 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 decoration: BoxDecoration(
                   gradient: AppTheme.headerGradient,
                   borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppTheme.primary.withValues(alpha: 0.2),
+                      blurRadius: 16,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
                 ),
                 child: Column(
                   children: [
-                    const Icon(Icons.lock_reset_rounded, color: Colors.white, size: 48),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.25),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.lock_reset_rounded, color: Colors.white, size: 36),
+                    ),
                     const SizedBox(height: 12),
                     Text(
-                      'Reset your password',
-                      style: AppTheme.titleLarge.copyWith(color: Colors.white),
+                      'Forgot Password?',
+                      style: AppTheme.displayMedium.copyWith(
+                        color: Colors.white,
+                        fontSize: 22,
+                      ),
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      'Enter your $kAppName account email and choose a new password.',
+                      'Enter your registered email and set a new password for your Sweet Delights account.',
                       textAlign: TextAlign.center,
                       style: AppTheme.bodySmall.copyWith(
                         color: Colors.white.withValues(alpha: 0.9),
@@ -114,70 +134,108 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   ],
                 ),
               ),
-              const SizedBox(height: 28),
-              TextField(
-                controller: _emailController,
-                keyboardType: TextInputType.emailAddress,
-                decoration: const InputDecoration(
-                  labelText: 'Registered email',
-                  prefixIcon: Icon(Icons.email_outlined),
-                ),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: _passwordController,
-                obscureText: _obscurePassword,
-                decoration: InputDecoration(
-                  labelText: 'New password',
-                  prefixIcon: const Icon(Icons.lock_outline),
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _obscurePassword
-                          ? Icons.visibility_off_outlined
-                          : Icons.visibility_outlined,
-                    ),
-                    onPressed: () =>
-                        setState(() => _obscurePassword = !_obscurePassword),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: _confirmController,
-                obscureText: _obscureConfirm,
-                decoration: InputDecoration(
-                  labelText: 'Confirm new password',
-                  prefixIcon: const Icon(Icons.lock_outline),
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _obscureConfirm
-                          ? Icons.visibility_off_outlined
-                          : Icons.visibility_outlined,
-                    ),
-                    onPressed: () =>
-                        setState(() => _obscureConfirm = !_obscureConfirm),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 28),
-              ElevatedButton(
-                onPressed: auth.isLoading ? null : _resetPassword,
-                child: auth.isLoading
-                    ? const SizedBox(
-                        height: 22,
-                        width: 22,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
+              const SizedBox(height: 20),
+              GlassCard(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    TextField(
+                      controller: _emailController,
+                      keyboardType: TextInputType.emailAddress,
+                      decoration: InputDecoration(
+                        labelText: 'Registered email',
+                        prefixIcon: const Icon(Icons.email_outlined, color: AppTheme.primary),
+                        filled: true,
+                        fillColor: Colors.white.withValues(alpha: 0.7),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: AppTheme.cardBorder),
                         ),
-                      )
-                    : const Text('Update password'),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                'Works for both customer and admin accounts.',
-                textAlign: TextAlign.center,
-                style: AppTheme.bodySmall.copyWith(color: AppTheme.textMuted),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: AppTheme.cardBorder),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: AppTheme.primary, width: 1.5),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    TextField(
+                      controller: _passwordController,
+                      obscureText: _obscurePassword,
+                      decoration: InputDecoration(
+                        labelText: 'New password',
+                        prefixIcon: const Icon(Icons.lock_outline, color: AppTheme.primary),
+                        filled: true,
+                        fillColor: Colors.white.withValues(alpha: 0.7),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: AppTheme.cardBorder),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: AppTheme.cardBorder),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: AppTheme.primary, width: 1.5),
+                        ),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscurePassword
+                                ? Icons.visibility_off_outlined
+                                : Icons.visibility_outlined,
+                            color: AppTheme.textMuted,
+                          ),
+                          onPressed: () =>
+                              setState(() => _obscurePassword = !_obscurePassword),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    TextField(
+                      controller: _confirmController,
+                      obscureText: _obscureConfirm,
+                      decoration: InputDecoration(
+                        labelText: 'Confirm new password',
+                        prefixIcon: const Icon(Icons.lock_outline, color: AppTheme.primary),
+                        filled: true,
+                        fillColor: Colors.white.withValues(alpha: 0.7),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: AppTheme.cardBorder),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: AppTheme.cardBorder),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: AppTheme.primary, width: 1.5),
+                        ),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscureConfirm
+                                ? Icons.visibility_off_outlined
+                                : Icons.visibility_outlined,
+                            color: AppTheme.textMuted,
+                          ),
+                          onPressed: () =>
+                              setState(() => _obscureConfirm = !_obscureConfirm),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    PrimaryButton(
+                      label: 'Update Password',
+                      isLoading: auth.isLoading,
+                      onPressed: auth.isLoading ? null : _resetPassword,
+                    ),
+                  ],
+                ),
               ),
             ],
           ),

@@ -1,11 +1,13 @@
 const express = require('express');
+const User = require('../models/User');
 const authController = require('../controllers/authController');
 const cakeController = require('../controllers/cakeController');
 const cartController = require('../controllers/cartController');
 const orderController = require('../controllers/orderController');
 const adminController = require('../controllers/adminController');
 const promoController = require('../controllers/promoController');
-const { authMiddleware, adminMiddleware } = require('../middleware/auth');
+const riderController = require('../controllers/riderController');
+const { authMiddleware, adminMiddleware, riderMiddleware } = require('../middleware/auth');
 const { registerRules, loginRules, forgotPasswordRules } = require('../utils/validators');
 
 const router = express.Router();
@@ -46,10 +48,25 @@ router.patch('/orders/:id/review', authMiddleware, orderController.submitReview)
 router.get('/admin/dashboard', authMiddleware, adminMiddleware, adminController.getDashboard);
 router.get('/admin/customers', authMiddleware, adminMiddleware, adminController.getCustomers);
 router.get('/admin/orders', authMiddleware, adminMiddleware, orderController.getAllOrders);
+router.get('/admin/riders', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const riders = await User.find({ role: 'RIDER' }).select('_id name email phone');
+    res.json(riders.map((r) => ({ id: r._id.toString(), name: r.name, email: r.email, phone: r.phone })));
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch riders' });
+  }
+});
 router.patch('/admin/orders/:id/status', authMiddleware, adminMiddleware, orderController.updateOrderStatus);
 router.get('/admin/promos', authMiddleware, adminMiddleware, promoController.getAllPromosAdmin);
 router.post('/admin/promos', authMiddleware, adminMiddleware, promoController.createPromo);
 router.put('/admin/promos/:id', authMiddleware, adminMiddleware, promoController.updatePromo);
 router.delete('/admin/promos/:id', authMiddleware, adminMiddleware, promoController.deletePromo);
+
+// Rider (Delivery Partner)
+router.get('/rider/orders/available', authMiddleware, riderMiddleware, riderController.getAvailablePickups);
+router.get('/rider/orders/active', authMiddleware, riderMiddleware, riderController.getActiveDeliveries);
+router.get('/rider/orders/history', authMiddleware, riderMiddleware, riderController.getDeliveryHistory);
+router.patch('/rider/orders/:id/pickup', authMiddleware, riderMiddleware, riderController.pickupOrder);
+router.patch('/rider/orders/:id/deliver', authMiddleware, riderMiddleware, riderController.completeDelivery);
 
 module.exports = router;

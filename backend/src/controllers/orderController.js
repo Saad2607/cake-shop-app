@@ -1,4 +1,5 @@
 const Order = require('../models/Order');
+const User = require('../models/User');
 const CartItem = require('../models/CartItem');
 const Cake = require('../models/Cake');
 const mongoose = require('mongoose');
@@ -11,6 +12,10 @@ const { isCastError } = require('../utils/errors');
 
 function generateOrderNumber() {
   return `ORD-${Date.now()}-${crypto.randomBytes(2).toString('hex')}`;
+}
+
+function generateDeliveryOtp() {
+  return Math.floor(1000 + Math.random() * 9000).toString();
 }
 
 function userIdString(userId) {
@@ -74,6 +79,7 @@ async function placeOrder(req, res) {
       deliveryDate,
       paymentMethod,
       items: orderItems,
+      deliveryOtp: generateDeliveryOtp(),
     });
 
     await clearCart(userId);
@@ -102,7 +108,7 @@ async function getOrderById(req, res) {
     if (!order) {
       return res.status(404).json({ error: 'Order not found' });
     }
-    if (userIdString(order.userId) !== req.user.id && req.user.role !== 'ADMIN') {
+    if (userIdString(order.userId) !== req.user.id && req.user.role !== 'ADMIN' && req.user.role !== 'RIDER') {
       return res.status(403).json({ error: 'Access denied' });
     }
     res.json(order.toPublicJSON());
@@ -123,7 +129,7 @@ async function cancelOrder(req, res) {
     if (!order) {
       return res.status(404).json({ error: 'Order not found' });
     }
-    if (userIdString(order.userId) !== req.user.id) {
+    if (userIdString(order.userId) !== req.user.id && req.user.role !== 'ADMIN') {
       return res.status(403).json({ error: 'Access denied' });
     }
     if (order.status !== 'PENDING') {
@@ -142,7 +148,7 @@ async function cancelOrder(req, res) {
 
 async function updateOrderStatus(req, res) {
   try {
-    const { status } = req.body;
+    const { status, deliveryPartnerId } = req.body;
     if (!VALID_STATUSES.includes(status)) {
       return res.status(400).json({ error: 'Invalid status' });
     }
@@ -163,6 +169,26 @@ async function updateOrderStatus(req, res) {
     }
 
     order.status = status;
+    if (status === 'OUT_FOR_DELIVERY') {
+      if (!order.deliveryOtp) {
+        order.deliveryOtp = generateDeliveryOtp();
+      }
+      if (deliveryPartnerId && mongoose.isValidObjectId(deliveryPartnerId)) {
+        const assigned = await User.findById(deliveryPartnerId);
+        if (assigned) {
+          order.deliveryPartnerId = assigned._id;
+          order.deliveryPartnerName = assigned.name;
+          order.deliveryPartnerPhone = assigned.phone;
+        }
+      } else if (!order.deliveryPartnerId) {
+        const defaultRider = await User.findOne({ role: 'RIDER' });
+        if (defaultRider) {
+          order.deliveryPartnerId = defaultRider._id;
+          order.deliveryPartnerName = defaultRider.name;
+          order.deliveryPartnerPhone = defaultRider.phone;
+        }
+      }
+    }
     await order.save();
     res.json({ message: 'Status updated', order: order.toPublicJSON() });
   } catch (error) {

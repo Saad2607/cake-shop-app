@@ -1,175 +1,155 @@
 # Feasibility Study
 
-## Cake Online Shopping Android App
+## Sweet Delights — Cake Online Shopping App
+
+**Course:** Software Engineering  
+**Date:** June 2026
 
 ---
 
-## 1. Introduction
+## 1. Purpose
 
-This feasibility study evaluates whether the Cake Online Shopping Android App project is viable from technical, economic, operational, and schedule perspectives. The study supports the go/no-go decision before full development begins.
+Before starting full development, our group checked whether this project is **technically possible**, **affordable**, **usable in real life**, and **finishable in one semester**. This document is that check.
 
 ---
 
 ## 2. Technical Feasibility
 
-### 2.1 Technology Availability
+### 2.1 Can we build it with available tech?
 
-| Requirement | Available Solution | Feasible? |
-|-------------|-------------------|-----------|
-| Mobile platform | Android SDK, Kotlin | ✅ Yes |
-| Local database | Room (SQLite) | ✅ Yes |
-| UI framework | Material Design 3 | ✅ Yes |
-| Image handling | Glide, Coil | ✅ Yes |
-| Authentication | Local + Firebase Auth (optional) | ✅ Yes |
-| Backend API | Retrofit + REST (optional) | ✅ Yes |
+| Need | Our choice | Available? |
+|------|------------|------------|
+| Mobile app | Flutter | Yes — free, good docs |
+| Backend API | Node.js + Express | Yes — we studied JavaScript in earlier sem |
+| Database | MongoDB | Yes — NoSQL, easy with Node |
+| Login security | JWT + bcrypt | Yes — standard approach |
+| Images | URL links (Unsplash) | Yes — no own server needed for images |
+| Admin panel | Same Flutter app | Yes — role-based routing |
 
-### 2.2 Team Skills
+**Result:** Technically feasible.
 
-| Skill | Required Level | Team Capability |
-|-------|----------------|-----------------|
-| Kotlin / Java | Intermediate | Assumed for SE students |
-| Android Studio | Basic–Intermediate | Learnable in 2–3 weeks |
-| SQL / Database | Basic | Covered in curriculum |
-| UI/UX Design | Basic | Templates + Material guidelines |
-| Git | Basic | Standard tooling |
+### 2.2 Team skills
 
-### 2.3 Hardware & Software Requirements
+We are SE/CS students with basic knowledge of:
+- Programming (C/Java/Python from earlier courses)  
+- Some HTML/CSS/JS  
+- Database concepts from DBMS subject  
+- Flutter was new for most of us but tutorials helped  
 
-**Development:**
-- PC/Laptop: 8 GB RAM minimum, 16 GB recommended
-- Android Studio + SDK
-- Android emulator or physical device (API 24+)
+One member focused more on backend, two on Flutter UI, one on docs and testing.
 
-**End User:**
-- Android phone/tablet, Android 7.0+
-- Internet connection (for sync; offline browse possible with local DB)
+### 2.3 Hardware / software needed
 
-### 2.4 Technical Risks
+**For development:**
+- Laptop with 8 GB RAM (16 GB better for emulator)  
+- Android Studio or VS Code  
+- Node.js installed  
+- MongoDB local OR free Atlas account  
 
-| Risk | Severity | Mitigation |
-|------|----------|------------|
-| Learning curve for Android | Medium | Use official docs, tutorials |
-| Device fragmentation | Low | Target API 24+, test on 2–3 devices |
-| Performance with images | Low | Glide caching, compressed assets |
+**For users:**
+- Android phone version 7.0+ (API 24)  
+- Internet for API calls  
 
-**Conclusion:** ✅ **Technically feasible** — All required technologies are mature, free, and well-documented.
+### 2.4 Technical risks
+
+| Risk | Level | Plan |
+|------|-------|------|
+| Learning Flutter | Medium | YouTube + official docs |
+| Phone not reaching localhost API | Medium | Wi-Fi IP / USB debugging settings in app |
+| MongoDB connection fail | Low | Atlas cloud backup |
 
 ---
 
 ## 3. Economic Feasibility
 
-### 3.1 Development Costs
+### 3.1 Cost to build (student project)
 
-| Item | Cost (USD) |
-|------|------------|
-| Android Studio | Free |
-| Git / GitHub | Free |
-| Emulator | Free |
-| Learning resources | Free (official docs, YouTube) |
-| Optional Firebase Spark plan | Free tier sufficient |
-| Google Play registration | $25 (optional, one-time) |
-| **Total (minimum)** | **$0** |
+| Item | Cost |
+|------|------|
+| Flutter | Free |
+| Node.js, MongoDB tools | Free |
+| GitHub | Free |
+| MongoDB Atlas M0 | Free |
+| Render.com hosting | Free tier |
+| **Total** | **₹0** |
 
-### 3.2 Operational Costs (Post-Launch)
+### 3.2 If bakery uses it later
 
-| Item | Monthly Cost |
-|------|--------------|
-| App hosting (if backend added) | $0–$20 |
-| Firebase (free tier) | $0 |
-| Domain (optional) | $10–$15/year |
+They would need:
+- Domain name (~₹500–1000/year) — optional  
+- Cloud server if traffic grows (~₹500–2000/month)  
+- Payment gateway charges (2% per transaction) — future  
 
-### 3.3 Return on Investment (Business Context)
+For college demo, cost is zero.
 
-For a real bakery:
-- Increased orders without extra storefront staff
-- Reduced phone order errors
-- Customer data for marketing
-- Break-even possible within months for small bakeries
+### 3.3 Benefit
 
-For **academic project:** Primary ROI is learning and grades, not revenue.
+- Saves shop owner time on phone orders  
+- Customer convenience  
+- Good learning for our team  
+- Portfolio project for placements  
 
-**Conclusion:** ✅ **Economically feasible** — Zero to minimal cost for academic delivery.
+**Result:** Economically feasible for academic use.
 
 ---
 
 ## 4. Operational Feasibility
 
-### 4.1 User Acceptance
+### 4.1 Will a bakery actually use it?
 
-| Stakeholder | Acceptance Factors |
-|-------------|-------------------|
-| Customers | Familiar e-commerce patterns (Amazon-style browse/cart) |
-| Bakery staff | Simple admin screens for product/order updates |
-| Supervisor | Complete SDLC documentation |
+| Question | Answer |
+|----------|--------|
+| Is UI simple enough? | Yes — similar to Swiggy/Zomato style |
+| Can admin update orders without training? | Yes — tap status in Orders tab |
+| Can admin add new cake? | Yes — form with name, price, image URL |
+| Needs full-time IT person? | No — basic smartphone skills enough |
 
-### 4.2 Organizational Fit
+### 4.2 Limitations for real shop
 
-- Aligns with Software Engineering course objectives
-- Demonstrates mobile development, DB design, testing, documentation
-- Can be extended for final year project or startup prototype
+- Payment is simulated (COD + UPI app open) — shop must confirm payment manually  
+- Addresses saved on phone only — not synced to cloud yet  
+- Single admin account — not multi-staff  
 
-### 4.3 Maintenance & Support
-
-| Aspect | Approach |
-|--------|----------|
-| Updates | Git version control, semantic versioning |
-| Bug fixes | Issue tracker (GitHub Issues) |
-| User support | User manual, in-app help (optional) |
-
-**Conclusion:** ✅ **Operationally feasible** — Standard mobile app operations; no special infrastructure required.
+For college project demo, operational feasibility is **acceptable**.
 
 ---
 
 ## 5. Schedule Feasibility
 
-### 5.1 Estimated Effort
+14-week plan (see proposal). We completed main features in ~10 weeks and used last weeks for testing and docs.
 
-| Phase | Person-Hours (4-member team) |
-|-------|------------------------------|
-| Requirements & docs | 40–60 hrs |
-| Design | 30–40 hrs |
-| Development | 120–160 hrs |
-| Testing | 30–40 hrs |
-| Report & presentation | 20–30 hrs |
-| **Total** | **240–330 hrs** |
+| Milestone | Target | Status |
+|-----------|--------|--------|
+| SRS + design | Week 4 | Done |
+| Working API | Week 6 | Done |
+| Customer app flow | Week 8 | Done |
+| Admin module | Week 10 | Done |
+| Testing + docs | Week 14 | In progress |
 
-### 5.2 Timeline vs. Academic Semester
-
-- Typical semester: 14–16 weeks
-- Recommended project duration: 14 weeks (see proposal Gantt)
-- Buffer: 2 weeks for revisions and defense prep
-
-**Conclusion:** ✅ **Schedule feasible** with disciplined weekly milestones.
+**Result:** Schedule feasible with buffer for exams.
 
 ---
 
-## 6. Legal & Ethical Feasibility
+## 6. Legal / Ethical
 
-| Concern | Mitigation |
-|---------|------------|
-| User privacy | Store minimal PII; privacy policy template |
-| Payment data | No real payment in v1; mock checkout |
-| Copyright (cake images) | Use royalty-free or own photos |
-| Terms of service | Template for academic demo |
-
-**Conclusion:** ✅ **Legally feasible** for academic scope with mock payments and proper image licensing.
+- We use demo product images from Unsplash (free to use with attribution in README)  
+- User passwords are hashed — not stored plain text  
+- Demo accounts only in seed data — no real customer data  
+- GDPR not required for academic demo  
 
 ---
 
-## 7. Overall Feasibility Summary
+## 7. Conclusion
 
-| Dimension | Result |
-|-----------|--------|
-| Technical | ✅ Feasible |
-| Economic | ✅ Feasible |
-| Operational | ✅ Feasible |
-| Schedule | ✅ Feasible |
-| Legal/Ethical | ✅ Feasible |
+| Type | Feasible? |
+|------|-----------|
+| Technical | Yes |
+| Economic | Yes |
+| Operational | Yes (for demo / small bakery) |
+| Schedule | Yes |
 
-### Recommendation
-
-**Proceed with the project.** The Cake Online Shopping Android App is feasible within typical Software Engineering course constraints. Recommended approach: MVP with customer features first, admin module as stretch goal.
+**Recommendation:** Project approved to proceed. We started implementation after guide review of this study.
 
 ---
 
-*Document Version: 1.0 | June 2026*
+*Prepared by project team | June 2026*

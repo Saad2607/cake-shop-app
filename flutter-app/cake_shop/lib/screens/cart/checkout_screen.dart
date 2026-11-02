@@ -13,6 +13,9 @@ import '../../utils/currency_formatter.dart';
 import '../../utils/payment_labels.dart';
 import '../../widgets/delivery_address_sheet.dart';
 import '../../widgets/delivery_eta_chip.dart';
+import '../../widgets/glass/glass_card.dart';
+import '../../widgets/glass/glass_container.dart';
+import '../../widgets/glass/primary_button.dart';
 import '../../widgets/gradient_header.dart';
 import '../../utils/promo_countdown.dart';
 import '../../widgets/upi_payment_sheet.dart';
@@ -36,10 +39,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   bool _isPlacing = false;
 
   static const _deliverySlots = [
-    ('express', 'Express · 2–4 hours', 'Fastest'),
-    ('today_afternoon', 'Today · 2–4 PM', 'Popular'),
-    ('today_evening', 'Today · 6–8 PM', ''),
-    ('tomorrow_morning', 'Tomorrow · 10 AM–12 PM', ''),
+    ('express', 'Express Delivery · 2–4 hours', 'Fastest', 0.0),
+    ('morning', 'Morning Slot · 10 AM – 1 PM', 'Fresh Bake', 0.0),
+    ('afternoon', 'Afternoon Slot · 2 PM – 5 PM', 'Popular', 0.0),
+    ('evening', 'Evening Slot · 6 PM – 9 PM', 'Prime Party', 0.0),
+    ('midnight', 'Midnight Surprise · 11:45 PM – 12:15 AM', 'Midnight (+₹150)', 150.0),
   ];
 
   @override
@@ -71,7 +75,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       lastDate: today.add(const Duration(days: 90)),
       builder: (context, child) => Theme(
         data: Theme.of(context).copyWith(
-          colorScheme: const ColorScheme.light(primary: AppTheme.primary),
+          colorScheme: const ColorScheme.light(
+            primary: AppTheme.primary,
+            onPrimary: Colors.white,
+            surface: AppTheme.surface,
+            onSurface: AppTheme.textDark,
+          ),
         ),
         child: child!,
       ),
@@ -196,7 +205,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     final cart = context.watch<CartProvider>();
     final promo = context.watch<PromoProvider>();
     final discount = promo.discountAmount(cart.total);
-    final payable = promo.payableTotal(cart.total);
+    final midnightFee = _deliverySlot == 'midnight' ? 150.0 : 0.0;
+    final payable = promo.payableTotal(cart.total) + midnightFee;
     final minWarning = promo.minOrderWarning(cart.total);
 
     return Scaffold(
@@ -211,62 +221,81 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           Expanded(
             child: SingleChildScrollView(
               physics: const BouncingScrollPhysics(),
-              padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   _stepsRow(),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 18),
                   _orderSummary(cart),
-                  const SizedBox(height: 24),
-                  _sectionTitle('Delivery details'),
+                  const SizedBox(height: 22),
+                  _sectionTitle('Delivery Details'),
                   const SizedBox(height: 10),
                   DeliveryEtaChip.checkout(scheduledDate: _deliveryDate),
                   const SizedBox(height: 12),
-                  _card(
+                  GlassCard(
+                    padding: const EdgeInsets.all(16),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         TextField(
                           controller: _addressController,
                           maxLines: 3,
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                             labelText: 'Delivery address',
                             hintText: 'House no., street, city, pin code',
-                            prefixIcon: Icon(Icons.location_on_outlined),
-                            border: InputBorder.none,
+                            prefixIcon: const Icon(Icons.location_on_outlined, color: AppTheme.primary),
+                            filled: true,
+                            fillColor: Colors.white.withValues(alpha: 0.6),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: const BorderSide(color: AppTheme.cardBorder),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: const BorderSide(color: AppTheme.cardBorder),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: const BorderSide(color: AppTheme.primary, width: 1.5),
+                            ),
                           ),
                         ),
-                        const Divider(height: 1, color: AppTheme.cardBorder),
-                        TextButton.icon(
-                          onPressed: () async {
-                            await showDeliveryAddressSheet(context);
-                            if (!mounted) return;
-                            final saved = context
-                                .read<DeliveryAddressProvider>()
-                                .fullAddress;
-                            if (saved.isNotEmpty) {
-                              setState(() => _addressController.text = saved);
-                            }
-                          },
-                          icon: const Icon(Icons.my_location_rounded, size: 18),
-                          label: const Text('Use saved or GPS location'),
-                          style: TextButton.styleFrom(
-                            foregroundColor: AppTheme.primary,
+                        const SizedBox(height: 10),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: TextButton.icon(
+                            onPressed: () async {
+                              await showDeliveryAddressSheet(context);
+                              if (!mounted) return;
+                              final saved = context
+                                  .read<DeliveryAddressProvider>()
+                                  .fullAddress;
+                              if (saved.isNotEmpty) {
+                                setState(() => _addressController.text = saved);
+                              }
+                            },
+                            icon: const Icon(Icons.my_location_rounded, size: 18),
+                            label: const Text('Use saved or GPS location'),
+                            style: TextButton.styleFrom(
+                              foregroundColor: AppTheme.primary,
+                              padding: EdgeInsets.zero,
+                            ),
                           ),
                         ),
                       ],
                     ),
                   ),
                   const SizedBox(height: 12),
-                  _card(
+                  GlassCard(
                     onTap: _pickDate,
+                    padding: const EdgeInsets.all(16),
                     child: Row(
                       children: [
                         Container(
                           padding: const EdgeInsets.all(10),
                           decoration: BoxDecoration(
-                            color: AppTheme.primaryLight.withValues(alpha: 0.35),
+                            color: AppTheme.primaryLight.withValues(alpha: 0.45),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: const Icon(
@@ -280,7 +309,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Delivery date', style: AppTheme.bodySmall),
+                              Text('Delivery Date', style: AppTheme.bodySmall),
                               const SizedBox(height: 2),
                               Text(
                                 _deliveryDate == null
@@ -301,109 +330,78 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 12),
-                  Container(
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          AppTheme.successLight,
-                          AppTheme.goldLight.withValues(alpha: 0.5),
-                        ],
-                      ),
-                      borderRadius: AppTheme.radiusMd,
-                      border: Border.all(
-                        color: AppTheme.success.withValues(alpha: 0.15),
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(
-                          Icons.local_shipping_rounded,
-                          color: AppTheme.success,
-                          size: 20,
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            'Express delivery · 2–4 hours · Free',
-                            style: AppTheme.titleMedium.copyWith(fontSize: 12),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  _sectionTitle('Delivery slot'),
+                  const SizedBox(height: 20),
+                  _sectionTitle('Delivery Slot'),
                   const SizedBox(height: 10),
                   ..._deliverySlots.map((slot) {
                     final selected = _deliverySlot == slot.$1;
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 8),
-                      child: Material(
-                        color: Colors.transparent,
-                        child: InkWell(
-                          onTap: () => setState(() => _deliverySlot = slot.$1),
-                          borderRadius: AppTheme.radiusMd,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                            decoration: BoxDecoration(
-                              color: selected
-                                  ? AppTheme.primaryLight.withValues(alpha: 0.25)
-                                  : AppTheme.surface,
-                              borderRadius: AppTheme.radiusMd,
-                              border: Border.all(
-                                color: selected ? AppTheme.primary : AppTheme.cardBorder,
-                                width: selected ? 2 : 1,
+                      child: GlassCard(
+                        onTap: () => setState(() => _deliverySlot = slot.$1),
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                        border: Border.all(
+                          color: selected ? AppTheme.primary : AppTheme.glassBorder,
+                          width: selected ? 1.8 : 1,
+                        ),
+                        color: selected
+                            ? AppTheme.primaryLight.withValues(alpha: 0.35)
+                            : Colors.white.withValues(alpha: 0.6),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.schedule_rounded,
+                              size: 20,
+                              color: selected ? AppTheme.primary : AppTheme.textMuted,
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                slot.$2,
+                                style: AppTheme.titleMedium.copyWith(
+                                  fontSize: 14,
+                                  fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
+                                ),
                               ),
                             ),
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.schedule_rounded,
-                                  size: 20,
-                                  color: selected ? AppTheme.primary : AppTheme.textMuted,
+                            if (slot.$3.isNotEmpty)
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                decoration: BoxDecoration(
+                                  color: AppTheme.goldLight,
+                                  borderRadius: BorderRadius.circular(6),
                                 ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Text(slot.$2, style: AppTheme.titleMedium.copyWith(fontSize: 14)),
-                                ),
-                                if (slot.$3.isNotEmpty)
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                    decoration: BoxDecoration(
-                                      color: AppTheme.goldLight,
-                                      borderRadius: BorderRadius.circular(6),
-                                    ),
-                                    child: Text(
-                                      slot.$3,
-                                      style: AppTheme.labelBold.copyWith(fontSize: 9),
-                                    ),
+                                child: Text(
+                                  slot.$3,
+                                  style: AppTheme.labelBold.copyWith(
+                                    fontSize: 9,
+                                    color: const Color(0xFF6B5030),
                                   ),
-                                Radio<String>(
-                                  value: slot.$1,
-                                  groupValue: _deliverySlot,
-                                  activeColor: AppTheme.primary,
-                                  onChanged: (v) => setState(() => _deliverySlot = v!),
                                 ),
-                              ],
+                              ),
+                            Radio<String>(
+                              value: slot.$1,
+                              groupValue: _deliverySlot,
+                              activeColor: AppTheme.primary,
+                              onChanged: (v) => setState(() => _deliverySlot = v!),
                             ),
-                          ),
+                          ],
                         ),
                       ),
                     );
                   }),
-                  const SizedBox(height: 16),
-                  _sectionTitle('Payment method'),
+                  const SizedBox(height: 20),
+                  _sectionTitle('Payment Method'),
                   const SizedBox(height: 8),
                   Text(
-                    'Pay online',
-                    style: AppTheme.bodySmall.copyWith(
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.3,
+                    'PAY ONLINE',
+                    style: AppTheme.labelBold.copyWith(
+                      fontSize: 10,
+                      color: AppTheme.primary,
+                      letterSpacing: 0.5,
                     ),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 8),
                   _paymentOption(
                     title: 'UPI',
                     subtitle: 'Opens PhonePe, GPay or Paytm with amount pre-filled',
@@ -412,64 +410,70 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     badge: 'Popular',
                   ),
                   if (_paymentMethod == 'UPI') ...[
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 10),
                     _upiAppSelector(),
                   ],
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 8),
                   _paymentOption(
                     title: 'Debit / Credit Card',
                     subtitle: 'Visa, Mastercard, RuPay',
                     icon: Icons.credit_card_rounded,
                     value: 'CARD',
                   ),
-                  const SizedBox(height: 18),
+                  const SizedBox(height: 16),
                   Text(
-                    'Pay on delivery',
-                    style: AppTheme.bodySmall.copyWith(
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.3,
+                    'PAY ON DELIVERY',
+                    style: AppTheme.labelBold.copyWith(
+                      fontSize: 10,
+                      color: AppTheme.primary,
+                      letterSpacing: 0.5,
                     ),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 8),
                   _paymentOption(
                     title: 'Cash on Delivery',
                     subtitle: 'Pay when your cake arrives',
                     icon: Icons.payments_outlined,
                     value: 'COD',
                   ),
-                  const SizedBox(height: 24),
-                  _sectionTitle('Promo code'),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 20),
+                  _sectionTitle('Promo Code'),
+                  const SizedBox(height: 10),
                   _promoSection(promo, minWarning),
-                  const SizedBox(height: 24),
-                  _card(
+                  const SizedBox(height: 20),
+                  GlassCard(
+                    padding: const EdgeInsets.all(18),
                     child: Column(
                       children: [
                         _billRow('Item total', CurrencyFormatter.format(cart.total)),
                         if (discount > 0) ...[
-                          const SizedBox(height: 10),
+                          const SizedBox(height: 8),
                           _billRow(
                             'Promo (${promo.appliedCode})',
                             '-${CurrencyFormatter.format(discount)}',
                             valueColor: AppTheme.success,
                           ),
                         ],
-                        const SizedBox(height: 10),
-                        _billRow('Delivery', 'FREE', valueColor: AppTheme.success),
-                        const SizedBox(height: 10),
+                        const SizedBox(height: 8),
+                        _billRow(
+                          'Delivery fee',
+                          _deliverySlot == 'midnight' ? '₹150 (Midnight Surprise)' : 'FREE',
+                          valueColor: _deliverySlot == 'midnight' ? AppTheme.primary : AppTheme.success,
+                        ),
+                        const SizedBox(height: 8),
                         _billRow('Service fee', 'FREE', valueColor: AppTheme.success),
                         const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 14),
+                          padding: EdgeInsets.symmetric(vertical: 12),
                           child: Divider(height: 1, color: AppTheme.cardBorder),
                         ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text('To pay', style: AppTheme.titleLarge),
+                            Text('To Pay', style: AppTheme.titleLarge),
                             Text(
                               CurrencyFormatter.format(payable),
                               style: AppTheme.displayMedium.copyWith(
-                                fontSize: 24,
+                                fontSize: 22,
                                 color: AppTheme.primary,
                               ),
                             ),
@@ -491,7 +495,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   Widget _stepsRow() {
     return Row(
       children: [
-        _stepChip('Cart', false),
+        _stepChip('Cart', true),
         _stepLine(),
         _stepChip('Checkout', true),
         _stepLine(),
@@ -505,12 +509,24 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       child: Column(
         children: [
           Container(
-            width: 28,
-            height: 28,
+            width: 30,
+            height: 30,
             decoration: BoxDecoration(
               gradient: active ? AppTheme.ctaGradient : null,
-              color: active ? null : AppTheme.cardBorder,
+              color: active ? null : Colors.white.withValues(alpha: 0.6),
               shape: BoxShape.circle,
+              border: Border.all(
+                color: active ? Colors.transparent : AppTheme.glassBorder,
+              ),
+              boxShadow: active
+                  ? [
+                      BoxShadow(
+                        color: AppTheme.primary.withValues(alpha: 0.25),
+                        blurRadius: 8,
+                        offset: const Offset(0, 3),
+                      ),
+                    ]
+                  : null,
             ),
             child: Center(
               child: active
@@ -524,11 +540,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     ),
             ),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 5),
           Text(
             label,
             style: AppTheme.labelBold.copyWith(
-              fontSize: 9,
+              fontSize: 10,
               color: active ? AppTheme.primary : AppTheme.textMuted,
             ),
           ),
@@ -539,77 +555,48 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   Widget _stepLine() {
     return Container(
-      width: 24,
+      width: 28,
       height: 2,
-      margin: const EdgeInsets.only(bottom: 18),
-      color: AppTheme.cardBorder,
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: AppTheme.primary.withValues(alpha: 0.3),
+        borderRadius: BorderRadius.circular(1),
+      ),
     );
   }
 
   Widget _buildBottomBar(double total) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
-      decoration: BoxDecoration(
-        color: AppTheme.surface,
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.primaryDark.withValues(alpha: 0.08),
-            blurRadius: 24,
-            offset: const Offset(0, -6),
-          ),
-        ],
+    return GlassContainer(
+      blurSigma: 24,
+      opacity: 0.94,
+      color: Colors.white,
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+      border: Border.all(
+        color: Colors.white.withValues(alpha: 0.9),
+        width: 1.5,
       ),
+      boxShadow: [
+        BoxShadow(
+          color: AppTheme.primaryDark.withValues(alpha: 0.08),
+          blurRadius: 20,
+          offset: const Offset(0, -6),
+        ),
+      ],
+      padding: const EdgeInsets.fromLTRB(20, 14, 20, 18),
       child: SafeArea(
         top: false,
-        child: SizedBox(
-          height: 52,
-          width: double.infinity,
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: _isPlacing ? null : AppTheme.ctaGradient,
-              color: _isPlacing ? AppTheme.cardBorder : null,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: _isPlacing
-                  ? null
-                  : [
-                      BoxShadow(
-                        color: AppTheme.primary.withValues(alpha: 0.25),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-            ),
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: _isPlacing ? null : _placeOrder,
-                borderRadius: BorderRadius.circular(16),
-                child: Center(
-                  child: _isPlacing
-                      ? const SizedBox(
-                          height: 22,
-                          width: 22,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                      : Text(
-                          _placeOrderLabel(total),
-                          style: AppTheme.titleMedium.copyWith(color: Colors.white),
-                        ),
-                ),
-              ),
-            ),
-          ),
+        child: PrimaryButton(
+          label: _placeOrderLabel(total),
+          isLoading: _isPlacing,
+          onPressed: _isPlacing ? null : _placeOrder,
         ),
       ),
     );
   }
 
   Widget _promoSection(PromoProvider promo, String? minWarning) {
-    return _card(
+    return GlassCard(
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -619,15 +606,28 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 child: TextField(
                   controller: _promoController,
                   textCapitalization: TextCapitalization.characters,
-                  decoration: const InputDecoration(
-                    labelText: 'Enter code',
+                  decoration: InputDecoration(
+                    labelText: 'Enter promo code',
                     hintText: 'e.g. SWEET50',
-                    prefixIcon: Icon(Icons.local_offer_outlined),
-                    border: InputBorder.none,
+                    prefixIcon: const Icon(Icons.local_offer_outlined, color: AppTheme.primary),
+                    filled: true,
+                    fillColor: Colors.white.withValues(alpha: 0.6),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: AppTheme.cardBorder),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: AppTheme.cardBorder),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: AppTheme.primary, width: 1.5),
+                    ),
                   ),
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 10),
               ElevatedButton(
                 onPressed: () {
                   final ok = promo.applyCode(_promoController.text);
@@ -637,9 +637,15 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       content: Text(
                         ok ? 'Promo code applied' : 'Invalid promo code',
                       ),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      behavior: SnackBarBehavior.floating,
                     ),
                   );
                 },
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 15),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
                 child: const Text('Apply'),
               ),
             ],
@@ -648,12 +654,15 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             const SizedBox(height: 10),
             Row(
               children: [
-                Icon(Icons.check_circle_rounded, color: AppTheme.success, size: 18),
+                const Icon(Icons.check_circle_rounded, color: AppTheme.success, size: 18),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    '${promo.appliedCode} applied',
-                    style: AppTheme.bodyMedium.copyWith(color: AppTheme.success),
+                    '${promo.appliedCode} applied successfully',
+                    style: AppTheme.bodyMedium.copyWith(
+                      color: AppTheme.success,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
                 TextButton(
@@ -693,7 +702,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             const SizedBox(height: 8),
             Text(
               minWarning,
-              style: AppTheme.bodySmall.copyWith(color: AppTheme.secondary),
+              style: AppTheme.bodySmall.copyWith(color: AppTheme.roseAccent),
             ),
           ],
         ],
@@ -702,13 +711,14 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   }
 
   Widget _orderSummary(CartProvider cart) {
-    return _card(
+    return GlassCard(
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Text('Your order', style: AppTheme.titleLarge),
+              Text('Order Items', style: AppTheme.titleLarge),
               const Spacer(),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -726,15 +736,15 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 12),
           ...cart.items.map(
             (item) => Padding(
-              padding: const EdgeInsets.only(bottom: 12),
+              padding: const EdgeInsets.only(bottom: 10),
               child: Row(
                 children: [
                   Container(
-                    width: 48,
-                    height: 48,
+                    width: 44,
+                    height: 44,
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
@@ -742,12 +752,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                           AppTheme.goldLight,
                         ],
                       ),
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(12),
                     ),
                     child: const Icon(
                       Icons.cake_rounded,
                       color: AppTheme.primary,
-                      size: 24,
+                      size: 22,
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -772,6 +782,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     CurrencyFormatter.format(item.lineTotal),
                     style: AppTheme.titleMedium.copyWith(
                       fontSize: 13,
+                      fontWeight: FontWeight.w700,
                       color: AppTheme.primary,
                     ),
                   ),
@@ -785,27 +796,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   }
 
   Widget _sectionTitle(String title) {
-    return Text(title, style: AppTheme.displayMedium.copyWith(fontSize: 20));
-  }
-
-  Widget _card({required Widget child, VoidCallback? onTap}) {
-    return Material(
-      color: AppTheme.surface,
-      borderRadius: AppTheme.radiusLg,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: AppTheme.radiusLg,
-        child: Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(18),
-          decoration: BoxDecoration(
-            borderRadius: AppTheme.radiusLg,
-            border: Border.all(color: AppTheme.cardBorder),
-            boxShadow: [AppTheme.softShadow],
-          ),
-          child: child,
-        ),
-      ),
+    return Text(
+      title,
+      style: AppTheme.displayMedium.copyWith(fontSize: 18),
     );
   }
 
@@ -813,11 +806,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: AppTheme.bodyMedium.copyWith(color: AppTheme.textMuted)),
+        Text(label, style: AppTheme.bodyMedium.copyWith(color: AppTheme.textMuted, fontSize: 13)),
         Text(
           value,
           style: AppTheme.titleMedium.copyWith(
-            fontSize: 14,
+            fontSize: 13,
             color: valueColor ?? AppTheme.textDark,
           ),
         ),
@@ -831,18 +824,19 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       return 'Pay $amount with UPI';
     }
     if (_paymentMethod == 'CARD') {
-      return 'Pay $amount with card';
+      return 'Pay $amount with Card';
     }
-    return 'Place order · $amount';
+    return 'Place Order · $amount';
   }
 
   Widget _upiAppSelector() {
-    return _card(
+    return GlassCard(
+      padding: const EdgeInsets.all(14),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text('Choose UPI app', style: AppTheme.titleMedium.copyWith(fontSize: 13)),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
           Row(
             children: [
               Expanded(child: _upiAppChip('PHONEPE', 'PhonePe', const Color(0xFF5F259F))),
@@ -852,7 +846,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               Expanded(child: _upiAppChip('PAYTM', 'Paytm', const Color(0xFF00BAF2))),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           Row(
             children: [
               Expanded(child: Divider(color: Colors.grey.shade300)),
@@ -863,15 +857,28 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               Expanded(child: Divider(color: Colors.grey.shade300)),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
           TextField(
             controller: _upiIdController,
             onChanged: (_) => setState(() {}),
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               labelText: 'Pay with UPI ID',
               hintText: 'yourname@oksbi or 10-digit mobile',
-              prefixIcon: Icon(Icons.alternate_email_rounded),
-              border: InputBorder.none,
+              prefixIcon: const Icon(Icons.alternate_email_rounded, color: AppTheme.primary),
+              filled: true,
+              fillColor: Colors.white.withValues(alpha: 0.6),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: AppTheme.cardBorder),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: AppTheme.cardBorder),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: AppTheme.primary, width: 1.5),
+              ),
             ),
           ),
         ],
@@ -892,12 +899,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         borderRadius: BorderRadius.circular(12),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 180),
-          padding: const EdgeInsets.symmetric(vertical: 12),
+          padding: const EdgeInsets.symmetric(vertical: 10),
           decoration: BoxDecoration(
-            color: selected ? color.withValues(alpha: 0.12) : AppTheme.background,
+            color: selected ? color.withValues(alpha: 0.12) : Colors.white.withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: selected ? color : AppTheme.cardBorder,
+              color: selected ? color : AppTheme.glassBorder,
               width: selected ? 2 : 1,
             ),
           ),
@@ -932,87 +939,71 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     String? badge,
   }) {
     final selected = _paymentMethod == value;
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: () => setState(() => _paymentMethod = value),
-        borderRadius: AppTheme.radiusLg,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: AppTheme.surface,
-            borderRadius: AppTheme.radiusLg,
-            border: Border.all(
-              color: selected ? AppTheme.primary : AppTheme.cardBorder,
-              width: selected ? 2 : 1,
+    return GlassCard(
+      onTap: () => setState(() => _paymentMethod = value),
+      border: Border.all(
+        color: selected ? AppTheme.primary : AppTheme.glassBorder,
+        width: selected ? 1.8 : 1,
+      ),
+      color: selected
+          ? AppTheme.primaryLight.withValues(alpha: 0.35)
+          : Colors.white.withValues(alpha: 0.6),
+      padding: const EdgeInsets.all(14),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: selected
+                  ? AppTheme.primaryLight.withValues(alpha: 0.6)
+                  : Colors.white.withValues(alpha: 0.7),
+              borderRadius: BorderRadius.circular(12),
             ),
-            boxShadow: selected
-                ? [
-                    BoxShadow(
-                      color: AppTheme.primary.withValues(alpha: 0.1),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
-                    ),
-                  ]
-                : [AppTheme.softShadow],
+            child: Icon(
+              icon,
+              color: selected ? AppTheme.primary : AppTheme.textMuted,
+              size: 22,
+            ),
           ),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: selected
-                      ? AppTheme.primaryLight.withValues(alpha: 0.4)
-                      : AppTheme.background,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(
-                  icon,
-                  color: selected ? AppTheme.primary : AppTheme.textMuted,
-                ),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
                   children: [
-                    Row(
-                      children: [
-                        Text(title, style: AppTheme.titleMedium),
-                        if (badge != null) ...[
-                          const SizedBox(width: 8),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: AppTheme.successLight,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              badge,
-                              style: const TextStyle(
-                                fontSize: 9,
-                                fontWeight: FontWeight.w700,
-                                color: AppTheme.success,
-                              ),
-                            ),
+                    Text(title, style: AppTheme.titleMedium.copyWith(fontSize: 14)),
+                    if (badge != null) ...[
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: AppTheme.successLight,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          badge,
+                          style: const TextStyle(
+                            fontSize: 9,
+                            fontWeight: FontWeight.w700,
+                            color: AppTheme.success,
                           ),
-                        ],
-                      ],
-                    ),
-                    Text(subtitle, style: AppTheme.bodySmall.copyWith(fontSize: 11)),
+                        ),
+                      ),
+                    ],
                   ],
                 ),
-              ),
-              Radio<String>(
-                value: value,
-                groupValue: _paymentMethod,
-                activeColor: AppTheme.primary,
-                onChanged: (v) => setState(() => _paymentMethod = v!),
-              ),
-            ],
+                Text(subtitle, style: AppTheme.bodySmall.copyWith(fontSize: 11)),
+              ],
+            ),
           ),
-        ),
+          Radio<String>(
+            value: value,
+            groupValue: _paymentMethod,
+            activeColor: AppTheme.primary,
+            onChanged: (v) => setState(() => _paymentMethod = v!),
+          ),
+        ],
       ),
     );
   }

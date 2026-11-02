@@ -1,7 +1,8 @@
 import 'dart:async';
-import 'package:flutter/cupertino.dart';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../../constants/app_branding.dart';
 import '../../providers/notification_provider.dart';
 import '../../providers/auth_provider.dart';
@@ -16,12 +17,13 @@ import '../../widgets/cake_card_widget.dart';
 import '../../widgets/delivery_address_sheet.dart';
 import '../../widgets/delivery_eta_chip.dart';
 import '../../widgets/empty_state.dart';
-import '../../widgets/home_refresh_indicator.dart';
+import '../../widgets/glass/glass_search_bar.dart';
 import '../../widgets/promo_banner.dart';
 import '../../widgets/product_carousel_tile.dart';
 import '../../widgets/section_header.dart';
 import '../../widgets/sort_filter_sheet.dart';
 import '../../widgets/app_logo.dart';
+import '../catalog/cake_customizer_screen.dart';
 import '../catalog/cake_detail_screen.dart';
 import '../orders/order_detail_screen.dart';
 
@@ -41,10 +43,10 @@ class _HomeTabState extends State<HomeTab> {
   bool _gridEntranceDone = false;
 
   static const _categories = [
-    _Cat('ALL', 'All', Icons.grid_view_rounded),
+    _Cat('ALL', 'All Cakes', Icons.auto_awesome_rounded),
     _Cat('BIRTHDAY', 'Birthday', Icons.celebration_rounded),
     _Cat('WEDDING', 'Wedding', Icons.favorite_rounded),
-    _Cat('CUPCAKE', 'Cupcake', Icons.cake_outlined),
+    _Cat('CUPCAKE', 'Cupcakes', Icons.cake_rounded),
     _Cat('CUSTOM', 'Custom', Icons.brush_rounded),
     _Cat('SEASONAL', 'Seasonal', Icons.ac_unit_rounded),
   ];
@@ -58,7 +60,7 @@ class _HomeTabState extends State<HomeTab> {
         context.read<PromoCatalogProvider>().loadActivePromos(),
       ]);
       if (!mounted) return;
-      Future.delayed(const Duration(milliseconds: 750), () {
+      Future.delayed(const Duration(milliseconds: 650), () {
         if (mounted) setState(() => _gridEntranceDone = true);
       });
     });
@@ -87,7 +89,7 @@ class _HomeTabState extends State<HomeTab> {
 
   void _onSearchChanged(String value, CakeProvider provider) {
     _searchDebounce?.cancel();
-    _searchDebounce = Timer(const Duration(milliseconds: 350), () {
+    _searchDebounce = Timer(const Duration(milliseconds: 320), () {
       provider.setSearch(value.trim());
     });
   }
@@ -104,25 +106,38 @@ class _HomeTabState extends State<HomeTab> {
       showModalBottomSheet<void>(
         context: context,
         backgroundColor: Colors.transparent,
-        builder: (ctx) => Container(
-          padding: const EdgeInsets.fromLTRB(24, 20, 24, 32),
-          decoration: const BoxDecoration(
-            color: AppTheme.surface,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.notifications_none_rounded, color: AppTheme.primary, size: 40),
-              const SizedBox(height: 12),
-              Text('Order updates', style: AppTheme.titleLarge),
-              const SizedBox(height: 8),
-              Text(
-                'Sign in to track your deliveries and get status updates.',
-                textAlign: TextAlign.center,
-                style: AppTheme.bodyMedium.copyWith(color: AppTheme.textMuted),
+        builder: (ctx) => ClipRRect(
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+            child: Container(
+              padding: const EdgeInsets.fromLTRB(24, 20, 24, 32),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.95),
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
               ),
-            ],
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: AppTheme.primaryLight.withValues(alpha: 0.5),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.notifications_none_rounded, color: AppTheme.primary, size: 36),
+                  ),
+                  const SizedBox(height: 16),
+                  Text('Order updates', style: AppTheme.titleLarge),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Sign in to track your deliveries and get real-time order alerts.',
+                    textAlign: TextAlign.center,
+                    style: AppTheme.bodyMedium.copyWith(color: AppTheme.textMuted),
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
       );
@@ -135,100 +150,118 @@ class _HomeTabState extends State<HomeTab> {
     showModalBottomSheet<void>(
       context: context,
       backgroundColor: Colors.transparent,
-      builder: (ctx) => Container(
-        constraints: BoxConstraints(
-          maxHeight: MediaQuery.of(ctx).size.height * 0.5,
-        ),
-        padding: const EdgeInsets.fromLTRB(24, 16, 24, 28),
-        decoration: const BoxDecoration(
-          color: AppTheme.surface,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: AppTheme.cardBorder,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
+      builder: (ctx) => ClipRRect(
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+          child: Container(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(ctx).size.height * 0.55,
             ),
-            const SizedBox(height: 16),
-            Text('Order updates', style: AppTheme.titleLarge),
-            const SizedBox(height: 12),
-            if (active.isEmpty)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                child: Text(
-                  'No active orders right now.',
-                  style: AppTheme.bodyMedium.copyWith(color: AppTheme.textMuted),
+            padding: const EdgeInsets.fromLTRB(24, 16, 24, 28),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.95),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Center(
+                  child: Container(
+                    width: 44,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: AppTheme.textMuted.withValues(alpha: 0.25),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
                 ),
-              )
-            else
-              Flexible(
-                child: ListView.separated(
-                  shrinkWrap: true,
-                  itemCount: active.length.clamp(0, 3),
-                  separatorBuilder: (_, __) => const Divider(height: 20, color: AppTheme.cardBorder),
-                  itemBuilder: (_, i) {
-                    final order = active[i];
-                    final color = AppTheme.orderStatusColor(order.status);
-                    return Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        onTap: () {
-                          Navigator.pop(ctx);
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => OrderDetailScreen(order: order),
-                            ),
-                          );
-                        },
-                        borderRadius: BorderRadius.circular(12),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 6),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(order.orderNumber, style: AppTheme.titleMedium),
-                                    const SizedBox(height: 2),
-                                    Text(
-                                      OrderStatusFlow.label(order.status),
-                                      style: AppTheme.bodySmall.copyWith(color: color),
-                                    ),
-                                  ],
+                const SizedBox(height: 16),
+                Text('Active Deliveries', style: AppTheme.titleLarge),
+                const SizedBox(height: 12),
+                if (active.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 20),
+                    child: Text(
+                      'No active orders right now. Treat yourself to fresh cake!',
+                      style: AppTheme.bodyMedium.copyWith(color: AppTheme.textMuted),
+                    ),
+                  )
+                else
+                  Flexible(
+                    child: ListView.separated(
+                      shrinkWrap: true,
+                      itemCount: active.length.clamp(0, 3),
+                      separatorBuilder: (_, __) => const Divider(height: 18, color: AppTheme.cardBorder),
+                      itemBuilder: (_, i) {
+                        final order = active[i];
+                        final color = AppTheme.orderStatusColor(order.status);
+                        return Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: () {
+                              Navigator.pop(ctx);
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => OrderDetailScreen(order: order),
                                 ),
+                              );
+                            },
+                            borderRadius: BorderRadius.circular(14),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 6),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(order.orderNumber, style: AppTheme.titleMedium),
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          OrderStatusFlow.label(order.status),
+                                          style: AppTheme.bodySmall.copyWith(color: color, fontWeight: FontWeight.w700),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const Icon(
+                                    Icons.arrow_forward_ios_rounded,
+                                    size: 14,
+                                    color: AppTheme.primary,
+                                  ),
+                                ],
                               ),
-                              Icon(
-                                Icons.chevron_right_rounded,
-                                color: AppTheme.primary.withValues(alpha: 0.7),
-                              ),
-                            ],
+                            ),
                           ),
-                        ),
-                      ),
-                    );
-                  },
+                        );
+                      },
+                    ),
+                  ),
+                const SizedBox(height: 16),
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: AppTheme.ctaGradient,
+                    borderRadius: AppTheme.radiusMd,
+                  ),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      widget.onSwitchTab?.call(4); // profile or orders
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      shadowColor: Colors.transparent,
+                      foregroundColor: Colors.white,
+                    ),
+                    child: const Text('View all orders'),
+                  ),
                 ),
-              ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(ctx);
-                widget.onSwitchTab?.call(2);
-              },
-              child: const Text('View all orders'),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -237,35 +270,23 @@ class _HomeTabState extends State<HomeTab> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<CakeProvider>();
+    final topPadding = MediaQuery.of(context).padding.top;
 
     return Scaffold(
       backgroundColor: AppTheme.background,
-      body: CustomScrollView(
-        controller: _scrollController,
-        physics: const AlwaysScrollableScrollPhysics(
-          parent: BouncingScrollPhysics(),
-        ),
-        slivers: [
-          CupertinoSliverRefreshControl(
-            onRefresh: _handleRefresh,
-            refreshTriggerPullDistance: 130,
-            refreshIndicatorExtent: 72,
-            builder: (
-              context,
-              refreshState,
-              pulledExtent,
-              refreshTriggerPullDistance,
-              refreshIndicatorExtent,
-            ) {
-              return HomeRefreshIndicator(
-                refreshState: refreshState,
-                pulledExtent: pulledExtent,
-                refreshTriggerPullDistance: refreshTriggerPullDistance,
-                refreshIndicatorExtent: refreshIndicatorExtent,
-              );
-            },
+      body: RefreshIndicator(
+        onRefresh: _handleRefresh,
+        color: AppTheme.primary,
+        backgroundColor: Colors.white,
+        displacement: 28,
+        edgeOffset: topPadding,
+        child: CustomScrollView(
+          controller: _scrollController,
+          physics: const AlwaysScrollableScrollPhysics(
+            parent: ClampingScrollPhysics(),
           ),
-          SliverToBoxAdapter(child: _buildHeader(provider)),
+          slivers: [
+            SliverToBoxAdapter(child: _buildHeader(provider)),
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.only(top: 8),
@@ -274,19 +295,25 @@ class _HomeTabState extends State<HomeTab> {
               ),
             ),
           ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 6, 16, 6),
+              child: _cakeStudioBanner(context),
+            ),
+          ),
           if (provider.bestsellers.length >= 3)
             SliverToBoxAdapter(child: _bestsellersRow(provider)),
           SliverToBoxAdapter(child: _orderAgainSection(context)),
           SliverToBoxAdapter(
             child: SectionHeader(
               title: provider.selectedCategory == 'ALL'
-                  ? 'Handcrafted for you'
+                  ? 'Artisan Creations'
                   : _categories
                       .firstWhere((c) => c.key == provider.selectedCategory)
                       .label,
               subtitle: provider.displayCakes.isNotEmpty &&
                       !provider.isInitialLoading
-                  ? '${provider.displayCakes.length} artisan creations · baked fresh daily'
+                  ? '${provider.displayCakes.length} handcrafted delights · baked fresh today'
                   : null,
             ),
           ),
@@ -297,12 +324,12 @@ class _HomeTabState extends State<HomeTab> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    SizedBox(
+                    const SizedBox(
                       width: 36,
                       height: 36,
                       child: CircularProgressIndicator(
                         strokeWidth: 2.5,
-                        color: AppTheme.primary.withValues(alpha: 0.7),
+                        color: AppTheme.primary,
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -332,7 +359,7 @@ class _HomeTabState extends State<HomeTab> {
                 icon: Icons.search_off_rounded,
                 title: 'No cakes found',
                 subtitle:
-                    'Try a different search or browse another category.',
+                    'Try another keyword or browse another delightful category.',
                 actionLabel:
                     provider.searchQuery.isNotEmpty ? 'Clear search' : null,
                 onAction: provider.searchQuery.isNotEmpty
@@ -345,7 +372,7 @@ class _HomeTabState extends State<HomeTab> {
             )
           else ...[
             SliverPadding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 110),
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 120),
               sliver: SliverGrid(
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
@@ -379,7 +406,7 @@ class _HomeTabState extends State<HomeTab> {
                       builder: (context, value, child) => Opacity(
                         opacity: value,
                         child: Transform.translate(
-                          offset: Offset(0, 20 * (1 - value)),
+                          offset: Offset(0, 18 * (1 - value)),
                           child: child,
                         ),
                       ),
@@ -393,11 +420,18 @@ class _HomeTabState extends State<HomeTab> {
           ],
         ],
       ),
+      ),
     );
   }
 
   Widget _buildHeader(CakeProvider provider) {
     final delivery = context.watch<DeliveryAddressProvider>();
+    final auth = context.watch<AuthProvider>();
+    final user = auth.user;
+
+    final greeting = user != null && user.name.isNotEmpty
+        ? 'Hi, ${user.name.split(' ').first}'
+        : 'Welcome';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -422,148 +456,172 @@ class _HomeTabState extends State<HomeTab> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
+                              Row(
+                                children: [
+                                  Text(
+                                    greeting,
+                                    style: AppTheme.titleMedium.copyWith(
+                                      color: Colors.white.withValues(alpha: 0.9),
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  const Text('✨', style: TextStyle(fontSize: 12)),
+                                ],
+                              ),
                               Text(
                                 kAppName,
                                 style: AppTheme.displayLarge.copyWith(
                                   color: Colors.white,
-                                  fontSize: 28,
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                'Artisan cakes & confections',
-                                style: AppTheme.bodySmall.copyWith(
-                                  color: Colors.white.withValues(alpha: 0.75),
+                                  fontSize: 27,
+                                  letterSpacing: -0.5,
                                 ),
                               ),
                             ],
                           ),
                         ),
+                        // Liquid Glass Notification Action
                         GestureDetector(
                           onTap: () => _showOrderUpdates(context),
-                          child: Container(
-                            padding: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.15),
-                              borderRadius: BorderRadius.circular(14),
-                              border: Border.all(
-                                color: Colors.white.withValues(alpha: 0.2),
-                              ),
-                            ),
-                            child: Badge(
-                              isLabelVisible: context.watch<NotificationProvider>().customerNotificationCount > 0,
-                              label: Text(
-                                '${context.watch<NotificationProvider>().customerNotificationCount}',
-                                style: const TextStyle(fontSize: 10),
-                              ),
-                              backgroundColor: AppTheme.gold,
-                              child: const Icon(
-                                Icons.notifications_none_rounded,
-                                color: Colors.white,
-                                size: 22,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(16),
+                            child: BackdropFilter(
+                              filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                              child: Container(
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.16),
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(
+                                    color: Colors.white.withValues(alpha: 0.28),
+                                  ),
+                                ),
+                                child: Badge(
+                                  isLabelVisible: context
+                                          .watch<NotificationProvider>()
+                                          .customerNotificationCount >
+                                      0,
+                                  label: Text(
+                                    '${context.watch<NotificationProvider>().customerNotificationCount}',
+                                    style: const TextStyle(fontSize: 10),
+                                  ),
+                                  backgroundColor: AppTheme.gold,
+                                  child: const Icon(
+                                    Icons.notifications_none_rounded,
+                                    color: Colors.white,
+                                    size: 22,
+                                  ),
+                                ),
                               ),
                             ),
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 12),
                     DeliveryEtaChip(
                       label: DeliveryEta.homeChipLabel(),
                       light: true,
                     ),
                     const SizedBox(height: 12),
-                    InkWell(
+                    // Liquid Glass Delivery Location Card
+                    GestureDetector(
                       onTap: () => showDeliveryAddressSheet(context),
-                      borderRadius: BorderRadius.circular(14),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 14,
-                          vertical: 10,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(14),
-                          border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.18),
-                          ),
-                        ),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(6),
-                              decoration: BoxDecoration(
-                                color: AppTheme.gold.withValues(alpha: 0.9),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: const Icon(
-                                Icons.location_on_rounded,
-                                color: Colors.white,
-                                size: 16,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(16),
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 10,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.14),
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: Colors.white.withValues(alpha: 0.22),
                               ),
                             ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Deliver to',
-                                    style: TextStyle(
-                                      color: Colors.white.withValues(alpha: 0.7),
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.w600,
-                                    ),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(6),
+                                  decoration: BoxDecoration(
+                                    color: AppTheme.gold,
+                                    borderRadius: BorderRadius.circular(8),
                                   ),
-                                  Text(
-                                    delivery.displayLine,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 5,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.15),
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Row(
-                                children: [
-                                  const Icon(
-                                    Icons.schedule_rounded,
+                                  child: const Icon(
+                                    Icons.location_on_rounded,
                                     color: Colors.white,
-                                    size: 12,
+                                    size: 16,
                                   ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    delivery.hasAddress ? '2–4 hrs' : 'Set',
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w700,
-                                    ),
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'DELIVER TO',
+                                        style: TextStyle(
+                                          color: Colors.white.withValues(alpha: 0.72),
+                                          fontSize: 9.5,
+                                          fontWeight: FontWeight.w700,
+                                          letterSpacing: 0.6,
+                                        ),
+                                      ),
+                                      Text(
+                                        delivery.displayLine,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ],
-                              ),
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                    vertical: 4,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withValues(alpha: 0.18),
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      const Icon(
+                                        Icons.schedule_rounded,
+                                        color: Colors.white,
+                                        size: 12,
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        delivery.hasAddress ? '2–4 hrs' : 'Set',
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                                Icon(
+                                  Icons.keyboard_arrow_down_rounded,
+                                  color: Colors.white.withValues(alpha: 0.8),
+                                  size: 20,
+                                ),
+                              ],
                             ),
-                            const SizedBox(width: 4),
-                            Icon(
-                              Icons.keyboard_arrow_down_rounded,
-                              color: Colors.white.withValues(alpha: 0.8),
-                              size: 20,
-                            ),
-                          ],
+                          ),
                         ),
                       ),
                     ),
@@ -573,93 +631,30 @@ class _HomeTabState extends State<HomeTab> {
             ),
           ),
         ),
+        // Floating Search Bar with Liquid Glass styling
         Transform.translate(
-          offset: const Offset(0, -18),
+          offset: const Offset(0, -20),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: AppTheme.surface,
-                      borderRadius: AppTheme.radiusMd,
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppTheme.primaryDark.withValues(alpha: 0.12),
-                          blurRadius: 24,
-                          offset: const Offset(0, 8),
-                        ),
-                      ],
-                    ),
-                    child: TextField(
-                      controller: _searchController,
-                      style: AppTheme.bodyMedium.copyWith(fontSize: 14),
-                      decoration: InputDecoration(
-                        hintText: 'Search cakes, flavors, occasions…',
-                        prefixIcon: Icon(
-                          Icons.search_rounded,
-                          color: AppTheme.primary.withValues(alpha: 0.7),
-                        ),
-                        suffixIcon: _searchController.text.isNotEmpty
-                            ? IconButton(
-                                icon: const Icon(Icons.close_rounded, size: 20),
-                                onPressed: () {
-                                  _searchController.clear();
-                                  provider.setSearch('');
-                                },
-                              )
-                            : null,
-                        filled: true,
-                        fillColor: AppTheme.surface,
-                        border: OutlineInputBorder(
-                          borderRadius: AppTheme.radiusMd,
-                          borderSide: BorderSide.none,
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(vertical: 14),
-                      ),
-                      onChanged: (v) => _onSearchChanged(v, provider),
-                      onSubmitted: provider.setSearch,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Material(
-                  color: AppTheme.surface,
-                  borderRadius: AppTheme.radiusMd,
-                  elevation: 0,
-                  shadowColor: AppTheme.primaryDark.withValues(alpha: 0.12),
-                  child: InkWell(
-                    onTap: () => showSortFilterSheet(context, provider),
-                    borderRadius: AppTheme.radiusMd,
-                    child: Container(
-                      padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(
-                        borderRadius: AppTheme.radiusMd,
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppTheme.primaryDark.withValues(alpha: 0.12),
-                            blurRadius: 24,
-                            offset: const Offset(0, 8),
-                          ),
-                        ],
-                      ),
-                      child: const Icon(Icons.tune_rounded, color: AppTheme.primary, size: 22),
-                    ),
-                  ),
-                ),
-              ],
+            child: GlassSearchBar(
+              controller: _searchController,
+              onChanged: (v) => _onSearchChanged(v, provider),
+              onSubmitted: provider.setSearch,
+              onClear: () => provider.setSearch(''),
+              onFilterTap: () => showSortFilterSheet(context, provider),
+              hasActiveFilter: provider.sortOption != CakeSortOption.recommended,
             ),
           ),
         ),
-        const SizedBox(height: 18),
+        const SizedBox(height: 12),
+        // Categories horizontal list
         SizedBox(
-          height: 102,
+          height: 98,
           child: Stack(
             children: [
               ListView.separated(
                 primary: false,
-                physics: const ClampingScrollPhysics(),
+                physics: const BouncingScrollPhysics(),
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.fromLTRB(16, 0, 24, 0),
                 itemCount: _categories.length,
@@ -679,7 +674,7 @@ class _HomeTabState extends State<HomeTab> {
                 right: 0,
                 top: 0,
                 bottom: 0,
-                width: 32,
+                width: 28,
                 child: IgnorePointer(
                   child: DecoratedBox(
                     decoration: BoxDecoration(
@@ -698,7 +693,7 @@ class _HomeTabState extends State<HomeTab> {
             ],
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 14),
       ],
     );
   }
@@ -707,15 +702,17 @@ class _HomeTabState extends State<HomeTab> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SectionHeader(
-          title: 'Bestsellers',
-          subtitle: 'Top rated by our customers',
+        SectionHeader(
+          title: 'Top Bestsellers',
+          subtitle: 'Most loved handcrafted creations',
+          actionLabel: 'See all',
+          onAction: () => widget.onSwitchTab?.call(1),
         ),
         SizedBox(
-          height: 188,
+          height: 196,
           child: ListView.separated(
             primary: false,
-            physics: const ClampingScrollPhysics(),
+            physics: const BouncingScrollPhysics(),
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
             itemCount: provider.bestsellers.length,
@@ -748,51 +745,161 @@ class _HomeTabState extends State<HomeTab> {
     final order = last.first;
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
-      child: Material(
-        color: AppTheme.surface,
-        borderRadius: AppTheme.radiusLg,
-        child: InkWell(
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => OrderDetailScreen(order: order)),
-          ),
+      padding: const EdgeInsets.fromLTRB(16, 6, 16, 4),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
           borderRadius: AppTheme.radiusLg,
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              borderRadius: AppTheme.radiusLg,
-              border: Border.all(color: AppTheme.cardBorder),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.95), width: 1.2),
+          boxShadow: [AppTheme.softShadow],
+        ),
+        child: Material(
+          color: Colors.transparent,
+          borderRadius: AppTheme.radiusLg,
+          child: InkWell(
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => OrderDetailScreen(order: order)),
             ),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppTheme.goldLight,
-                    borderRadius: BorderRadius.circular(14),
+            borderRadius: AppTheme.radiusLg,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppTheme.primaryLight.withValues(alpha: 0.5),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: const Icon(Icons.replay_rounded, color: AppTheme.primary, size: 22),
                   ),
-                  child: const Icon(Icons.replay_rounded, color: AppTheme.primary),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Reorder your favourite', style: AppTheme.titleMedium),
+                        Text(
+                          order.items?.first.cakeName ?? order.orderNumber,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTheme.bodySmall,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Icon(Icons.arrow_forward_ios_rounded, color: AppTheme.textMuted, size: 14),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _cakeStudioBanner(BuildContext context) {
+    return GestureDetector(
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const CakeCustomizerScreen()),
+      ),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xFF2B1D19), Color(0xFF4A252D)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(22),
+          border: Border.all(
+            color: Colors.white.withValues(alpha: 0.15),
+            width: 1.2,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF2B1D19).withValues(alpha: 0.2),
+              blurRadius: 18,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.14),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.28),
+                  width: 1.2,
                 ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+              ),
+              child: const Center(
+                child: Text('🎨', style: TextStyle(fontSize: 24)),
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
                     children: [
-                      Text('Order again', style: AppTheme.titleMedium),
                       Text(
-                        order.items?.first.cakeName ?? order.orderNumber,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: AppTheme.bodySmall,
+                        'Cake Studio 3D',
+                        style: AppTheme.titleMedium.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 15,
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: AppTheme.gold,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: const Text(
+                          'STUDIO',
+                          style: TextStyle(
+                            fontSize: 8,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF3E2723),
+                          ),
+                        ),
                       ),
                     ],
                   ),
-                ),
-                const Icon(Icons.chevron_right_rounded, color: AppTheme.textMuted),
-              ],
+                  const SizedBox(height: 3),
+                  Text(
+                    'Customize base shape, toppings & photo print in 3D',
+                    style: AppTheme.bodySmall.copyWith(
+                      color: Colors.white.withValues(alpha: 0.82),
+                      fontSize: 11,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: AppTheme.primary,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(
+                Icons.arrow_forward_rounded,
+                color: Colors.white,
+                size: 16,
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -845,23 +952,27 @@ class _CategoryTile extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 250),
+        duration: const Duration(milliseconds: 240),
         curve: Curves.easeOutCubic,
-        width: 88,
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
+        width: 86,
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
         decoration: BoxDecoration(
-          color: selected ? AppTheme.primary.withValues(alpha: 0.08) : AppTheme.surface,
-          borderRadius: BorderRadius.circular(18),
+          color: selected
+              ? AppTheme.primaryLight.withValues(alpha: 0.55)
+              : Colors.white,
+          borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: selected ? AppTheme.primary : AppTheme.cardBorder,
+            color: selected
+                ? AppTheme.primary.withValues(alpha: 0.5)
+                : AppTheme.cardBorder,
             width: selected ? 1.5 : 1,
           ),
           boxShadow: selected
               ? [
                   BoxShadow(
-                    color: AppTheme.primary.withValues(alpha: 0.12),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
+                    color: AppTheme.primary.withValues(alpha: 0.16),
+                    blurRadius: 10,
+                    offset: const Offset(0, 3),
                   ),
                 ]
               : [AppTheme.softShadow],
@@ -871,15 +982,15 @@ class _CategoryTile extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              width: 40,
-              height: 40,
+              width: 38,
+              height: 38,
               decoration: BoxDecoration(
                 gradient: selected
                     ? AppTheme.ctaGradient
                     : LinearGradient(
                         colors: [
-                          AppTheme.primaryLight.withValues(alpha: 0.3),
-                          AppTheme.goldLight.withValues(alpha: 0.5),
+                          AppTheme.primaryLight.withValues(alpha: 0.35),
+                          AppTheme.creamDark.withValues(alpha: 0.6),
                         ],
                       ),
                 borderRadius: BorderRadius.circular(12),
@@ -887,10 +998,10 @@ class _CategoryTile extends StatelessWidget {
               child: Icon(
                 icon,
                 color: selected ? Colors.white : AppTheme.primary,
-                size: 22,
+                size: 20,
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4),
               child: Text(
@@ -900,7 +1011,7 @@ class _CategoryTile extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: AppTheme.labelBold.copyWith(
                   fontSize: 10,
-                  color: selected ? AppTheme.primary : AppTheme.textMuted,
+                  color: selected ? AppTheme.primary : AppTheme.textDark,
                 ),
               ),
             ),

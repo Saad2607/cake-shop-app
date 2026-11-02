@@ -130,7 +130,38 @@ class _AdminOrderCardState extends State<AdminOrderCard> {
                             ),
                           ),
                           const SizedBox(height: 8),
-                          _statusBadge(order.status, statusColor),
+                          Wrap(
+                            spacing: 6,
+                            runSpacing: 4,
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            children: [
+                              _statusBadge(order.status, statusColor),
+                              if (order.deliveryPartnerName != null && order.deliveryPartnerName!.isNotEmpty)
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF0288D1).withValues(alpha: 0.12),
+                                    borderRadius: BorderRadius.circular(6),
+                                    border: Border.all(color: const Color(0xFF0288D1).withValues(alpha: 0.3)),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Icon(Icons.delivery_dining_rounded, size: 13, color: Color(0xFF0288D1)),
+                                      const SizedBox(width: 3),
+                                      Text(
+                                        order.deliveryPartnerName!,
+                                        style: const TextStyle(
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.bold,
+                                          color: Color(0xFF0288D1),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                            ],
+                          ),
                         ],
                       ),
                     ),
@@ -232,6 +263,75 @@ class _AdminOrderCardState extends State<AdminOrderCard> {
           ),
         ),
         _infoRow(Icons.payment_outlined, 'Payment', PaymentLabels.format(order.paymentMethod)),
+        if (order.deliveryPartnerName != null && order.deliveryPartnerName!.isNotEmpty) ...[
+          const SizedBox(height: 10),
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: const Color(0xFF0288D1).withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: const Color(0xFF0288D1).withValues(alpha: 0.3)),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF0288D1).withValues(alpha: 0.15),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.delivery_dining_rounded, size: 20, color: Color(0xFF0288D1)),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'ASSIGNED DELIVERY PARTNER',
+                        style: TextStyle(
+                          fontSize: 9.5,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 0.5,
+                          color: Color(0xFF0288D1),
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        order.deliveryPartnerName!,
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                      ),
+                      if (order.deliveryPartnerPhone != null && order.deliveryPartnerPhone!.isNotEmpty)
+                        Text(
+                          order.deliveryPartnerPhone!,
+                          style: const TextStyle(fontSize: 11.5, color: AdminTheme.textSecondary),
+                        ),
+                    ],
+                  ),
+                ),
+                if (order.deliveryOtp != null) ...[
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF2E7D32).withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(color: const Color(0xFF2E7D32).withValues(alpha: 0.4)),
+                    ),
+                    child: Column(
+                      children: [
+                        const Text('OTP PIN', style: TextStyle(fontSize: 8, fontWeight: FontWeight.bold, color: Color(0xFF2E7D32))),
+                        Text(
+                          order.deliveryOtp!,
+                          style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13, color: Color(0xFF2E7D32)),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
         if (order.items != null && order.items!.isNotEmpty) ...[
           const SizedBox(height: 12),
           Text('Order items', style: AdminTheme.sectionTitle.copyWith(fontSize: 13)),

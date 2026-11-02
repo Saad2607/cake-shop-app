@@ -11,6 +11,8 @@ import '../../providers/delivery_address_provider.dart';
 import '../../widgets/cart_item_thumbnail.dart';
 import '../../widgets/delivery_address_sheet.dart';
 import '../../widgets/empty_state.dart';
+import '../../widgets/glass/glass_card.dart';
+import '../../widgets/glass/primary_button.dart';
 import 'checkout_screen.dart';
 
 class CartTab extends StatefulWidget {
@@ -55,10 +57,11 @@ class _CartTabState extends State<CartTab> {
       SnackBar(
         content: Text('${item.cakeName ?? 'Item'} removed'),
         behavior: SnackBarBehavior.floating,
-        backgroundColor: AppTheme.primaryDark,
+        backgroundColor: AppTheme.textDark,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
         action: SnackBarAction(
           label: 'Undo',
-          textColor: AppTheme.goldLight,
+          textColor: AppTheme.roseAccent,
           onPressed: () {
             cart.addItem(
               cakeId: item.cakeId,
@@ -82,38 +85,49 @@ class _CartTabState extends State<CartTab> {
     return Scaffold(
       backgroundColor: AppTheme.background,
       body: CustomScrollView(
+        physics: const BouncingScrollPhysics(),
         slivers: [
           SliverAppBar(
             pinned: true,
-            backgroundColor: AppTheme.surface,
+            backgroundColor: AppTheme.background.withValues(alpha: 0.95),
             foregroundColor: AppTheme.textDark,
             elevation: 0,
-            title: Text('Your Cart', style: AppTheme.displayMedium.copyWith(fontSize: 22)),
+            title: Text(
+              'Your Cart',
+              style: AppTheme.displayMedium.copyWith(fontSize: 22),
+            ),
             bottom: cart.items.isNotEmpty
                 ? PreferredSize(
-                    preferredSize: const Size.fromHeight(60),
+                    preferredSize: const Size.fromHeight(66),
                     child: Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 0, 20, 14),
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
                       child: Container(
-                        padding: const EdgeInsets.all(14),
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
                               AppTheme.successLight,
-                              AppTheme.goldLight.withValues(alpha: 0.5),
+                              Colors.white.withValues(alpha: 0.9),
                             ],
                           ),
                           borderRadius: AppTheme.radiusMd,
                           border: Border.all(
-                            color: AppTheme.success.withValues(alpha: 0.15),
+                            color: AppTheme.success.withValues(alpha: 0.25),
                           ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppTheme.success.withValues(alpha: 0.08),
+                              blurRadius: 10,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
                         ),
                         child: Row(
                           children: [
                             Container(
                               padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
-                                color: AppTheme.success.withValues(alpha: 0.15),
+                                color: AppTheme.success.withValues(alpha: 0.16),
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: const Icon(
@@ -129,11 +143,17 @@ class _CartTabState extends State<CartTab> {
                                 children: [
                                   Text(
                                     'Express delivery · 2–4 hrs',
-                                    style: AppTheme.titleMedium.copyWith(fontSize: 13),
+                                    style: AppTheme.titleMedium.copyWith(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w700,
+                                    ),
                                   ),
                                   Text(
                                     '${cart.itemCount} item(s) · Complimentary delivery',
-                                    style: AppTheme.bodySmall.copyWith(fontSize: 11),
+                                    style: AppTheme.bodySmall.copyWith(
+                                      fontSize: 11,
+                                      color: AppTheme.textMuted,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -165,35 +185,47 @@ class _CartTabState extends State<CartTab> {
           else ...[
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                padding: const EdgeInsets.fromLTRB(16, 6, 16, 0),
                 child: _DeliveryAddressChip(),
               ),
             ),
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-                child: OutlinedButton.icon(
-                  onPressed: widget.onBrowseCakes,
-                  icon: const Icon(Icons.add_rounded, size: 18),
-                  label: const Text('Add more items'),
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                child: Row(
+                  children: [
+                    Text(
+                      'Cart Items (${cart.itemCount})',
+                      style: AppTheme.titleMedium.copyWith(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const Spacer(),
+                    TextButton.icon(
+                      onPressed: widget.onBrowseCakes,
+                      icon: const Icon(Icons.add_rounded, size: 16),
+                      label: const Text('Add items'),
+                      style: TextButton.styleFrom(
+                        foregroundColor: AppTheme.primary,
+                        visualDensity: VisualDensity.compact,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
             SliverPadding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 200),
+              padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
               sliver: SliverList(
                 delegate: SliverChildBuilderDelegate(
                   (context, i) {
                     final item = cart.items[i];
-                    return Container(
-                      margin: const EdgeInsets.only(bottom: 14),
-                      decoration: BoxDecoration(
-                        color: AppTheme.surface,
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: GlassCard(
                         borderRadius: AppTheme.radiusLg,
-                        boxShadow: [AppTheme.softShadow],
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(14),
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -205,13 +237,45 @@ class _CartTabState extends State<CartTab> {
                                 children: [
                                   Text(
                                     item.cakeName ?? 'Cake',
-                                    style: AppTheme.titleMedium,
+                                    style: AppTheme.titleMedium.copyWith(
+                                      fontSize: 15,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    '${item.selectedSize} · ${item.selectedFlavor}',
-                                    style: AppTheme.bodySmall,
+                                  const SizedBox(height: 3),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 2,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: AppTheme.primaryLight.withValues(alpha: 0.35),
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: Text(
+                                      '${item.selectedSize} · ${item.selectedFlavor}',
+                                      style: AppTheme.bodySmall.copyWith(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w600,
+                                        color: AppTheme.primary,
+                                      ),
+                                    ),
                                   ),
+                                  if (item.customMessage != null &&
+                                      item.customMessage!.trim().isNotEmpty) ...[
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      '"${item.customMessage}"',
+                                      style: AppTheme.bodySmall.copyWith(
+                                        fontStyle: FontStyle.italic,
+                                        fontSize: 11,
+                                        color: AppTheme.textMuted,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ],
                                   const SizedBox(height: 12),
                                   Row(
                                     children: [
@@ -231,7 +295,7 @@ class _CartTabState extends State<CartTab> {
                                         child: Text(
                                           '${item.quantity}',
                                           style: AppTheme.titleLarge.copyWith(
-                                            fontSize: 16,
+                                            fontSize: 15,
                                           ),
                                         ),
                                       ),
@@ -254,15 +318,24 @@ class _CartTabState extends State<CartTab> {
                                   CurrencyFormatter.format(item.lineTotal),
                                   style: AppTheme.titleLarge.copyWith(
                                     color: AppTheme.primary,
+                                    fontSize: 16,
                                   ),
                                 ),
-                                IconButton(
-                                  icon: Icon(
-                                    Icons.delete_outline_rounded,
-                                    color: AppTheme.textMuted.withValues(alpha: 0.6),
-                                    size: 20,
+                                const SizedBox(height: 16),
+                                Material(
+                                  color: Colors.transparent,
+                                  child: InkWell(
+                                    onTap: () => _removeWithUndo(context, item),
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(4),
+                                      child: Icon(
+                                        Icons.delete_outline_rounded,
+                                        color: AppTheme.textMuted.withValues(alpha: 0.65),
+                                        size: 20,
+                                      ),
+                                    ),
                                   ),
-                                  onPressed: () => _removeWithUndo(context, item),
                                 ),
                               ],
                             ),
@@ -275,102 +348,94 @@ class _CartTabState extends State<CartTab> {
                 ),
               ),
             ),
-          ],
-        ],
-      ),
-      bottomNavigationBar: cart.items.isEmpty
-          ? null
-          : Container(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
-              decoration: BoxDecoration(
-                color: AppTheme.surface,
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppTheme.primaryDark.withValues(alpha: 0.08),
-                    blurRadius: 24,
-                    offset: const Offset(0, -6),
-                  ),
-                ],
-              ),
-              child: SafeArea(
-                top: false,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    _billRow('Item total', CurrencyFormatter.format(cart.total)),
-                    const SizedBox(height: 8),
-                    _billRow('Delivery', 'FREE', valueColor: AppTheme.success),
-                    const SizedBox(height: 8),
-                    _billRow('Service fee', 'FREE', valueColor: AppTheme.success),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 16),
-                      child: Divider(height: 1, color: AppTheme.cardBorder),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('Total', style: AppTheme.titleLarge),
-                        Text(
-                          CurrencyFormatter.format(cart.total),
-                          style: AppTheme.displayMedium.copyWith(fontSize: 24),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 18),
-                    Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        onTap: () => _checkout(context),
-                        borderRadius: BorderRadius.circular(16),
-                        child: Ink(
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            gradient: AppTheme.ctaGradient,
-                            borderRadius: BorderRadius.circular(16),
-                            boxShadow: [
-                              BoxShadow(
-                                color: AppTheme.primary.withValues(alpha: 0.3),
-                                blurRadius: 12,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          child: Center(
-                            child: Text(
-                              'Proceed to checkout · ${CurrencyFormatter.format(cart.total)}',
-                              style: AppTheme.titleMedium.copyWith(
-                                color: Colors.white,
-                              ),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 6, 16, 170),
+                child: GlassCard(
+                  borderRadius: AppTheme.radiusLg,
+                  padding: const EdgeInsets.all(18),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(7),
+                            decoration: BoxDecoration(
+                              color: AppTheme.primaryLight.withValues(alpha: 0.5),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: const Icon(
+                              Icons.receipt_long_rounded,
+                              color: AppTheme.primary,
+                              size: 18,
                             ),
                           ),
-                        ),
+                          const SizedBox(width: 10),
+                          Text(
+                            'Bill Summary',
+                            style: AppTheme.titleMedium.copyWith(
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 14),
+                      _billRow('Item total', CurrencyFormatter.format(cart.total)),
+                      const SizedBox(height: 8),
+                      _billRow('Delivery fee', 'FREE', valueColor: AppTheme.success),
+                      const SizedBox(height: 8),
+                      _billRow('Packaging & taxes', 'FREE', valueColor: AppTheme.success),
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 12),
+                        child: Divider(height: 1, color: AppTheme.cardBorder),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('Total to Pay', style: AppTheme.titleLarge),
+                          Text(
+                            CurrencyFormatter.format(cart.total),
+                            style: AppTheme.displayMedium.copyWith(
+                              fontSize: 22,
+                              color: AppTheme.primary,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      PrimaryButton(
+                        label: 'Place Order · ${CurrencyFormatter.format(cart.total)}',
+                        icon: Icons.arrow_forward_rounded,
+                        onPressed: () => _checkout(context),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
+          ],
+        ],
+      ),
     );
   }
 
   Widget _qtyButton({required IconData icon, VoidCallback? onTap}) {
     return Material(
       color: onTap != null
-          ? AppTheme.primaryLight.withValues(alpha: 0.4)
-          : AppTheme.cardBorder,
+          ? AppTheme.primaryLight.withValues(alpha: 0.45)
+          : AppTheme.cardBorder.withValues(alpha: 0.5),
       borderRadius: BorderRadius.circular(10),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(10),
         child: SizedBox(
-          width: 34,
-          height: 34,
+          width: 32,
+          height: 32,
           child: Icon(
             icon,
-            size: 18,
-            color: onTap != null ? AppTheme.primary : AppTheme.textMuted,
+            size: 16,
+            color: onTap != null ? AppTheme.primary : AppTheme.textMuted.withValues(alpha: 0.5),
           ),
         ),
       ),
@@ -381,11 +446,15 @@ class _CartTabState extends State<CartTab> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: AppTheme.bodyMedium.copyWith(color: AppTheme.textMuted)),
+        Text(
+          label,
+          style: AppTheme.bodyMedium.copyWith(color: AppTheme.textMuted, fontSize: 13),
+        ),
         Text(
           value,
           style: AppTheme.titleMedium.copyWith(
-            fontSize: 14,
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
             color: valueColor ?? AppTheme.textDark,
           ),
         ),
@@ -398,38 +467,49 @@ class _DeliveryAddressChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final delivery = context.watch<DeliveryAddressProvider>();
-    return Material(
-      color: AppTheme.surface,
+    return GlassCard(
       borderRadius: AppTheme.radiusMd,
-      child: InkWell(
-        onTap: () => showDeliveryAddressSheet(context),
-        borderRadius: AppTheme.radiusMd,
-        child: Container(
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            borderRadius: AppTheme.radiusMd,
-            border: Border.all(color: AppTheme.cardBorder),
+      onTap: () => showDeliveryAddressSheet(context),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: AppTheme.primaryLight.withValues(alpha: 0.4),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.location_on_rounded, color: AppTheme.primary, size: 18),
           ),
-          child: Row(
-            children: [
-              const Icon(Icons.location_on_outlined, color: AppTheme.primary, size: 20),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Deliver to', style: AppTheme.bodySmall.copyWith(fontSize: 10)),
-                    Text(
-                      delivery.hasAddress ? delivery.displayLine : 'Add delivery address',
-                      style: AppTheme.titleMedium.copyWith(fontSize: 13),
-                    ),
-                  ],
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'DELIVER TO',
+                  style: AppTheme.labelBold.copyWith(
+                    fontSize: 9,
+                    color: AppTheme.primary,
+                    letterSpacing: 0.5,
+                  ),
                 ),
-              ),
-              const Icon(Icons.chevron_right_rounded, color: AppTheme.textMuted),
-            ],
+                const SizedBox(height: 2),
+                Text(
+                  delivery.hasAddress ? delivery.displayLine : 'Add delivery address',
+                  style: AppTheme.titleMedium.copyWith(fontSize: 13),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
           ),
-        ),
+          Icon(
+            Icons.chevron_right_rounded,
+            color: AppTheme.textMuted.withValues(alpha: 0.7),
+            size: 20,
+          ),
+        ],
       ),
     );
   }

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/glass/glass_card.dart';
+import '../../widgets/glass/primary_button.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -49,6 +51,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         SnackBar(
           content: Text(auth.error ?? 'Registration failed'),
           behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
       );
     }
@@ -62,6 +65,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       backgroundColor: AppTheme.background,
       body: SafeArea(
         child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -81,91 +85,169 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         onPressed: () => Navigator.pop(context),
                       ),
                     ),
-                    const Icon(Icons.person_add_alt_1, size: 48, color: Colors.white),
-                    const SizedBox(height: 16),
-                    const Text(
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.2),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.person_add_alt_1_rounded, size: 40, color: Colors.white),
+                    ),
+                    const SizedBox(height: 14),
+                    Text(
                       'Create Account',
-                      style: TextStyle(
+                      style: AppTheme.displayLarge.copyWith(
                         color: Colors.white,
                         fontSize: 26,
-                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 6),
                     Text(
-                      'Join us and start ordering delicious cakes',
-                      style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.85),
-                        fontSize: 14,
+                      'Join Sweet Delights and enjoy handcrafted luxury cakes',
+                      textAlign: TextAlign.center,
+                      style: AppTheme.bodySmall.copyWith(
+                        color: Colors.white.withValues(alpha: 0.9),
+                        fontSize: 13,
                       ),
                     ),
                   ],
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(24),
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
                 child: Column(
                   children: [
-                    TextField(
-                      controller: _nameController,
-                      textCapitalization: TextCapitalization.words,
-                      decoration: const InputDecoration(
-                        labelText: 'Full Name',
-                        prefixIcon: Icon(Icons.person_outline),
-                      ),
-                    ),
-                    const SizedBox(height: 14),
-                    TextField(
-                      controller: _emailController,
-                      keyboardType: TextInputType.emailAddress,
-                      decoration: const InputDecoration(
-                        labelText: 'Email',
-                        prefixIcon: Icon(Icons.email_outlined),
-                      ),
-                    ),
-                    const SizedBox(height: 14),
-                    TextField(
-                      controller: _phoneController,
-                      keyboardType: TextInputType.phone,
-                      decoration: const InputDecoration(
-                        labelText: 'Phone Number',
-                        prefixIcon: Icon(Icons.phone_outlined),
-                      ),
-                    ),
-                    const SizedBox(height: 14),
-                    TextField(
-                      controller: _passwordController,
-                      obscureText: _obscurePassword,
-                      decoration: InputDecoration(
-                        labelText: 'Password',
-                        prefixIcon: const Icon(Icons.lock_outline),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscurePassword
-                                ? Icons.visibility_off_outlined
-                                : Icons.visibility_outlined,
+                    GlassCard(
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        children: [
+                          TextField(
+                            controller: _nameController,
+                            textCapitalization: TextCapitalization.words,
+                            decoration: InputDecoration(
+                              labelText: 'Full Name',
+                              prefixIcon: const Icon(Icons.person_outline, color: AppTheme.primary),
+                              filled: true,
+                              fillColor: Colors.white.withValues(alpha: 0.7),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: const BorderSide(color: AppTheme.cardBorder),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: const BorderSide(color: AppTheme.cardBorder),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: const BorderSide(color: AppTheme.primary, width: 1.5),
+                              ),
+                            ),
                           ),
-                          onPressed: () =>
-                              setState(() => _obscurePassword = !_obscurePassword),
-                        ),
+                          const SizedBox(height: 14),
+                          TextField(
+                            controller: _emailController,
+                            keyboardType: TextInputType.emailAddress,
+                            decoration: InputDecoration(
+                              labelText: 'Email Address',
+                              prefixIcon: const Icon(Icons.email_outlined, color: AppTheme.primary),
+                              filled: true,
+                              fillColor: Colors.white.withValues(alpha: 0.7),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: const BorderSide(color: AppTheme.cardBorder),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: const BorderSide(color: AppTheme.cardBorder),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: const BorderSide(color: AppTheme.primary, width: 1.5),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 14),
+                          TextField(
+                            controller: _phoneController,
+                            keyboardType: TextInputType.phone,
+                            decoration: InputDecoration(
+                              labelText: 'Phone Number',
+                              prefixIcon: const Icon(Icons.phone_outlined, color: AppTheme.primary),
+                              filled: true,
+                              fillColor: Colors.white.withValues(alpha: 0.7),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: const BorderSide(color: AppTheme.cardBorder),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: const BorderSide(color: AppTheme.cardBorder),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: const BorderSide(color: AppTheme.primary, width: 1.5),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 14),
+                          TextField(
+                            controller: _passwordController,
+                            obscureText: _obscurePassword,
+                            decoration: InputDecoration(
+                              labelText: 'Password',
+                              prefixIcon: const Icon(Icons.lock_outline, color: AppTheme.primary),
+                              filled: true,
+                              fillColor: Colors.white.withValues(alpha: 0.7),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: const BorderSide(color: AppTheme.cardBorder),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: const BorderSide(color: AppTheme.cardBorder),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: const BorderSide(color: AppTheme.primary, width: 1.5),
+                              ),
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _obscurePassword
+                                      ? Icons.visibility_off_outlined
+                                      : Icons.visibility_outlined,
+                                  color: AppTheme.textMuted,
+                                ),
+                                onPressed: () =>
+                                    setState(() => _obscurePassword = !_obscurePassword),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          PrimaryButton(
+                            label: 'Create Account',
+                            isLoading: auth.isLoading,
+                            onPressed: auth.isLoading ? null : _register,
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 28),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: auth.isLoading ? null : _register,
-                        child: auth.isLoading
-                            ? const SizedBox(
-                                height: 22,
-                                width: 22,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: Colors.white,
-                                ),
-                              )
-                            : const Text('Create Account'),
-                      ),
+                    const SizedBox(height: 18),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Already have an account?',
+                          style: TextStyle(color: AppTheme.textMuted, fontSize: 13),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          style: TextButton.styleFrom(
+                            foregroundColor: AppTheme.primary,
+                            textStyle: const TextStyle(fontWeight: FontWeight.w700),
+                          ),
+                          child: const Text('Sign in'),
+                        ),
+                      ],
                     ),
                   ],
                 ),

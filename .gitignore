@@ -24,3 +24,6 @@ Thumbs.db
 
 # Logs
 *.log
+
+# SE documentation markdown (submit .docx to faculty instead)
+docs/*.md

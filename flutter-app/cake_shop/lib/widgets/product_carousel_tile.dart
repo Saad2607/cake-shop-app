@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../models/cake.dart';
 import '../theme/app_theme.dart';
@@ -5,7 +6,7 @@ import '../utils/cake_price.dart';
 import '../utils/currency_formatter.dart';
 import 'cake_image_tile.dart';
 
-/// Compact horizontal product tile for home carousels (Swiggy/Blinkit style).
+/// Compact horizontal product tile with frosted styling for home carousels.
 class ProductCarouselTile extends StatelessWidget {
   final Cake cake;
   final VoidCallback onTap;
@@ -19,7 +20,7 @@ class ProductCarouselTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 132,
+      width: 140,
       child: Material(
         color: Colors.transparent,
         child: InkWell(
@@ -27,32 +28,72 @@ class ProductCarouselTile extends StatelessWidget {
           borderRadius: AppTheme.radiusMd,
           child: Ink(
             decoration: BoxDecoration(
-              color: AppTheme.surface,
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Colors.white,
+                  Colors.white.withValues(alpha: 0.90),
+                ],
+              ),
               borderRadius: AppTheme.radiusMd,
-              border: Border.all(color: AppTheme.cardBorder),
-              boxShadow: [AppTheme.softShadow],
+              border: Border.all(
+                color: Colors.white.withValues(alpha: 0.95),
+                width: 1.2,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF2B1D19).withValues(alpha: 0.05),
+                  blurRadius: 14,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 ClipRRect(
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
                   child: SizedBox(
-                    height: 88,
+                    height: 94,
                     width: double.infinity,
                     child: Stack(
                       fit: StackFit.expand,
                       children: [
                         CakeImageTile(cake: cake, iconSize: 32),
+                        // Glass shine on top
+                        Positioned(
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          height: 30,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [
+                                  Colors.white.withValues(alpha: 0.35),
+                                  Colors.white.withValues(alpha: 0.0),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
                         if (!cake.inStock)
-                          Container(
-                            color: Colors.black.withValues(alpha: 0.55),
-                            alignment: Alignment.center,
-                            child: Text(
-                              'Sold out',
-                              style: AppTheme.labelBold.copyWith(
-                                color: Colors.white,
-                                fontSize: 10,
+                          ClipRect(
+                            child: BackdropFilter(
+                              filter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
+                              child: Container(
+                                color: Colors.black.withValues(alpha: 0.45),
+                                alignment: Alignment.center,
+                                child: Text(
+                                  'Sold out',
+                                  style: AppTheme.labelBold.copyWith(
+                                    color: Colors.white,
+                                    fontSize: 10,
+                                  ),
+                                ),
                               ),
                             ),
                           ),
@@ -61,7 +102,7 @@ class ProductCarouselTile extends StatelessWidget {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
+                  padding: const EdgeInsets.fromLTRB(10, 8, 10, 10),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [

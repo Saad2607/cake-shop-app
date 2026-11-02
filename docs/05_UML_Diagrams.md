@@ -1,12 +1,12 @@
 # UML Diagrams
 
-## Cake Online Shopping Android App
+## Sweet Delights — Cake Online Shopping App
 
 **Document ID:** UML-CAKE-001  
-**Version:** 1.0  
+**Version:** 2.0  
 **Date:** June 2026
 
-> Use [Mermaid Live Editor](https://mermaid.live) or Draw.io to render/export these diagrams for your report.
+> Open `.md` files in VS Code with Mermaid preview, or paste diagrams in [mermaid.live](https://mermaid.live) for report/PPT images.
 
 ---
 
@@ -14,29 +14,31 @@
 
 ```mermaid
 flowchart TB
-    subgraph System["Cake Online Shopping App"]
+    subgraph System["Sweet Delights System"]
         UC1[Register]
         UC2[Login / Logout]
         UC3[Browse Catalog]
         UC4[Search & Filter]
-        UC5[View Cake Details]
+        UC5[View Cake Detail]
         UC6[Add to Cart]
-        UC7[Manage Cart]
-        UC8[Checkout & Place Order]
-        UC9[View Order History]
-        UC10[Track Order Status]
-        UC11[Manage Profile]
-        UC12[Manage Products]
-        UC13[Manage Orders]
+        UC7[Checkout]
+        UC8[Track Orders]
+        UC9[Cancel Order]
+        UC10[Rate Order]
+        UC11[Manage Menu]
+        UC12[Update Order Status]
+        UC13[Manage Offers]
+        UC14[View Dashboard]
     end
 
-    Customer((Customer))
     Guest((Guest))
-    Admin((Administrator))
+    Customer((Customer))
+    Admin((Admin))
 
     Guest --> UC3
     Guest --> UC4
     Guest --> UC5
+    Guest --> UC2
 
     Customer --> UC1
     Customer --> UC2
@@ -48,264 +50,181 @@ flowchart TB
     Customer --> UC8
     Customer --> UC9
     Customer --> UC10
-    Customer --> UC11
 
     Admin --> UC2
+    Admin --> UC11
     Admin --> UC12
     Admin --> UC13
+    Admin --> UC14
 ```
 
 ---
 
-## 2. Use Case Descriptions
+## 2. Use Case Descriptions (Sample)
 
-### UC-01: Register Account
+### UC-07 Checkout
+| Field | Detail |
+|-------|--------|
+| Actor | Customer |
+| Precondition | User logged in, cart not empty |
+| Main flow | 1. Open checkout 2. Select address 3. Apply promo 4. Choose payment 5. Place order |
+| Postcondition | Order created, cart cleared |
+| Exception | Network error → show retry message |
 
-| Field | Description |
-|-------|-------------|
-| **Actor** | Customer |
-| **Precondition** | App installed, user not logged in |
-| **Main Flow** | 1. User opens Register screen<br>2. Enters name, email, phone, password<br>3. System validates input<br>4. System creates account<br>5. User redirected to Login or Home |
-| **Alternate Flow** | 3a. Email already exists → show error<br>3b. Invalid email format → show validation error |
-| **Postcondition** | New user record in database |
-
-### UC-08: Place Order
-
-| Field | Description |
-|-------|-------------|
-| **Actor** | Customer |
-| **Precondition** | User logged in, cart not empty |
-| **Main Flow** | 1. User opens Cart and taps Checkout<br>2. Enters delivery address and date<br>3. Selects payment method<br>4. Reviews order summary<br>5. Confirms order<br>6. System generates order ID and clears cart<br>7. Confirmation screen displayed |
-| **Postcondition** | Order saved with PENDING status |
+### UC-12 Update Order Status
+| Field | Detail |
+|-------|--------|
+| Actor | Admin |
+| Precondition | Admin logged in |
+| Main flow | 1. Open Orders tab 2. Select order 3. Change status 4. Save |
+| Postcondition | Customer sees updated status |
 
 ---
 
-## 3. Class Diagram
+## 3. Class Diagram (Logical)
 
 ```mermaid
 classDiagram
     class User {
-        +Long id
+        +String id
         +String name
         +String email
         +String phone
-        +String passwordHash
-        +UserRole role
-        +Long createdAt
+        +String role
+        +login()
+        +updateProfile()
     }
 
     class Cake {
-        +Long id
+        +String id
         +String name
-        +String description
-        +CakeCategory category
-        +Double basePrice
-        +String imageUrl
-        +List~String~ flavors
+        +String category
+        +double basePrice
         +List~String~ sizes
-        +Float rating
-        +Boolean inStock
+        +List~String~ flavors
+        +boolean inStock
     }
 
     class CartItem {
-        +Long id
-        +Long userId
-        +Long cakeId
-        +Int quantity
+        +String id
+        +String userId
+        +String cakeId
+        +int quantity
         +String selectedSize
         +String selectedFlavor
-        +String customMessage
-        +Double unitPrice
+        +double unitPrice
     }
 
     class Order {
-        +Long id
+        +String id
         +String orderNumber
-        +Long userId
-        +Double totalAmount
-        +OrderStatus status
-        +String deliveryAddress
-        +Long deliveryDate
-        +String paymentMethod
-        +Long createdAt
+        +String userId
+        +double totalAmount
+        +String status
+        +List~OrderItem~ items
+        +cancel()
+        +submitReview()
     }
 
-    class OrderItem {
-        +Long id
-        +Long orderId
-        +Long cakeId
-        +String cakeName
-        +Int quantity
-        +String size
-        +String flavor
-        +String customMessage
-        +Double price
+    class Promo {
+        +String id
+        +String title
+        +String code
+        +double discountPercent
+        +boolean active
     }
 
-    class UserRepository {
-        +register(user) Result
-        +login(email, password) Result~User~
-        +getUserById(id) User
-    }
-
-    class CakeRepository {
-        +getAllCakes() List~Cake~
-        +getCakeById(id) Cake
-        +search(query) List~Cake~
-        +filter(category, minPrice, maxPrice) List~Cake~
-    }
-
-    class CartRepository {
-        +getCartItems(userId) List~CartItem~
-        +addItem(item) Unit
-        +updateQuantity(id, qty) Unit
-        +removeItem(id) Unit
-        +clearCart(userId) Unit
-    }
-
-    class OrderRepository {
-        +placeOrder(order, items) Order
-        +getOrdersByUser(userId) List~Order~
-        +updateStatus(orderId, status) Unit
-    }
-
-    class CatalogViewModel {
-        -cakeRepository: CakeRepository
-        +cakes: LiveData~List~Cake~~
-        +loadCakes()
-        +search(query)
-    }
-
-    class CartViewModel {
-        -cartRepository: CartRepository
-        +cartItems: LiveData~List~CartItem~~
-        +total: LiveData~Double~
-        +addToCart(item)
-        +removeFromCart(id)
-    }
-
-    User "1" --> "*" CartItem : owns
-    User "1" --> "*" Order : places
-    Cake "1" --> "*" CartItem : in
-    Order "1" --> "*" OrderItem : contains
-    Cake "1" --> "*" OrderItem : references
-
-    UserRepository ..> User
-    CakeRepository ..> Cake
-    CartRepository ..> CartItem
-    OrderRepository ..> Order
-    OrderRepository ..> OrderItem
-
-    CatalogViewModel --> CakeRepository
-    CartViewModel --> CartRepository
+    User "1" --> "*" CartItem
+    User "1" --> "*" Order
+    Cake "1" --> "*" CartItem
+    Order "*" --> "*" OrderItem
 ```
 
 ---
 
-## 4. Sequence Diagram — Login
+## 4. Sequence Diagram — Place Order
 
 ```mermaid
 sequenceDiagram
-    actor User
-    participant LoginActivity
-    participant AuthViewModel
-    participant UserRepository
-    participant UserDao
-    participant Database
+    actor Customer
+    participant App as Flutter App
+    participant API as Express API
+    participant DB as MongoDB
 
-    User->>LoginActivity: Enter email & password
-    User->>LoginActivity: Tap Login
-    LoginActivity->>AuthViewModel: login(email, password)
-    AuthViewModel->>UserRepository: authenticate(email, password)
-    UserRepository->>UserDao: getUserByEmail(email)
-    UserDao->>Database: SELECT query
-    Database-->>UserDao: User row
-    UserDao-->>UserRepository: User entity
-    UserRepository->>UserRepository: verifyPassword(hash)
-    alt Valid credentials
-        UserRepository-->>AuthViewModel: Success(User)
-        AuthViewModel-->>LoginActivity: Navigate to Main
-        LoginActivity-->>User: Show Home screen
-    else Invalid credentials
-        UserRepository-->>AuthViewModel: Error
-        AuthViewModel-->>LoginActivity: Show error message
-        LoginActivity-->>User: "Invalid email or password"
-    end
+    Customer->>App: Tap Place Order
+    App->>API: POST /api/orders (JWT, address, promo)
+    API->>DB: Load cart items
+    API->>API: Validate prices & promo
+    API->>DB: Create order document
+    API->>DB: Delete cart items
+    DB-->>API: OK
+    API-->>App: Order JSON
+    App-->>Customer: Show confirmation screen
 ```
 
 ---
 
-## 5. Sequence Diagram — Place Order
+## 5. Sequence Diagram — Admin Updates Status
 
 ```mermaid
 sequenceDiagram
-    actor User
-    participant CheckoutActivity
-    participant OrderViewModel
-    participant OrderRepository
-    participant CartRepository
-    participant OrderDao
-    participant CartDao
+    actor Admin
+    participant App as Flutter App
+    participant API as Express API
+    participant DB as MongoDB
+    participant Customer as Customer App
 
-    User->>CheckoutActivity: Fill address, date, payment
-    User->>CheckoutActivity: Tap Place Order
-    CheckoutActivity->>OrderViewModel: placeOrder(details)
-    OrderViewModel->>CartRepository: getCartItems(userId)
-    CartRepository-->>OrderViewModel: List of CartItems
-    OrderViewModel->>OrderViewModel: calculateTotal()
-    OrderViewModel->>OrderRepository: createOrder(order, items)
-    OrderRepository->>OrderDao: insertOrder(order)
-    OrderRepository->>OrderDao: insertOrderItems(items)
-    OrderRepository->>CartRepository: clearCart(userId)
-    CartRepository->>CartDao: deleteAllForUser(userId)
-    OrderRepository-->>OrderViewModel: Order with orderNumber
-    OrderViewModel-->>CheckoutActivity: Success
-    CheckoutActivity-->>User: Order Confirmation screen
+    Admin->>App: Change status to BAKING
+    App->>API: PATCH /admin/orders/:id/status
+    API->>DB: Update order.status
+    DB-->>API: Updated order
+    API-->>App: Success
+    Note over Customer: Polls orders / gets local notification
+    Customer->>App: Open Orders tab
+    App->>API: GET /api/orders
+    API-->>App: Status = BAKING
 ```
 
 ---
 
-## 6. Activity Diagram — Shopping Flow
+## 6. Activity Diagram — Customer Order Flow
 
 ```mermaid
 flowchart TD
-    A([Start App]) --> B{Logged in?}
-    B -->|No| C[Login / Register]
-    B -->|Yes| D[Home - Browse Catalog]
+    A[Open App] --> B{Logged in?}
+    B -->|No| C[Browse as Guest]
+    B -->|Yes| D[Browse Home]
     C --> D
-    D --> E[Select Category / Search]
-    E --> F[View Cake Details]
-    F --> G{In Stock?}
-    G -->|No| D
-    G -->|Yes| H[Select Size, Flavor, Qty]
-    H --> I[Add to Cart]
-    I --> J{Continue Shopping?}
-    J -->|Yes| D
-    J -->|No| K[Open Cart]
-    K --> L{Cart Empty?}
-    L -->|Yes| D
-    L -->|No| M[Checkout]
-    M --> N[Enter Delivery Info]
-    N --> O[Review Order]
-    O --> P{Confirm?}
-    P -->|No| K
-    P -->|Yes| Q[Place Order]
-    Q --> R[Order Confirmation]
-    R --> S([End])
+    D --> E[Select Cake]
+    E --> F[Choose Size & Flavour]
+    F --> G{Login?}
+    G -->|No| H[Login Screen]
+    H --> G2{Success?}
+    G2 -->|No| D
+    G2 -->|Yes| I[Add to Cart]
+    G -->|Yes| I
+    I --> J[Open Cart]
+    J --> K[Checkout]
+    K --> L[Enter Address]
+    L --> M[Select Payment]
+    M --> N[Place Order]
+    N --> O[Confirmation]
+    O --> P[Track in Orders Tab]
 ```
 
 ---
 
-## 7. Activity Diagram — Order Status (Admin)
+## 7. Activity Diagram — Admin Order Handling
 
 ```mermaid
-flowchart LR
-    PENDING --> CONFIRMED
-    CONFIRMED --> BAKING
-    BAKING --> READY
-    READY --> DELIVERED
-    PENDING --> CANCELLED
-    CONFIRMED --> CANCELLED
+flowchart TD
+    A[Admin Login] --> B[Open Orders Tab]
+    B --> C[See PENDING orders]
+    C --> D[Accept → CONFIRMED]
+    D --> E[Start baking → BAKING]
+    E --> F[Ready → READY]
+    F --> G[Delivered → DELIVERED]
+    C --> H[Or Cancel order]
 ```
 
 ---
@@ -313,35 +232,28 @@ flowchart LR
 ## 8. Component Diagram
 
 ```mermaid
-flowchart TB
-    subgraph Presentation
-        Activities[Activities]
-        Fragments[Fragments]
-        Adapters[RecyclerView Adapters]
+flowchart LR
+    subgraph Client["Flutter App"]
+        UI[Screens]
+        PR[Providers]
+        API_CLIENT[ApiService]
+        UI --> PR --> API_CLIENT
     end
 
-    subgraph ViewModel
-        VMs[ViewModels]
+    subgraph Server["Node.js"]
+        ROUTES[Routes]
+        CTRL[Controllers]
+        MW[Auth Middleware]
+        SVC[Promo Service]
+        ROUTES --> MW --> CTRL --> SVC
     end
 
-    subgraph Domain
-        Repos[Repositories]
-        Models[Entity Models]
+    subgraph Data["MongoDB"]
+        COL[(Collections)]
     end
 
-    subgraph Data
-        Room[Room Database]
-        Prefs[SharedPreferences]
-        API[Retrofit API - Optional]
-    end
-
-    Activities --> VMs
-    Fragments --> VMs
-    VMs --> Repos
-    Repos --> Room
-    Repos --> Prefs
-    Repos --> API
-    Room --> Models
+    API_CLIENT <-->|REST/JSON| ROUTES
+    CTRL <-->|Mongoose| COL
 ```
 
 ---
@@ -350,38 +262,16 @@ flowchart TB
 
 ```mermaid
 flowchart TB
-    subgraph Client["Android Device"]
-        APK[Cake Shop APK]
-        SQLite[(SQLite DB)]
-        APK --> SQLite
-    end
+    Phone[Android Phone\nFlutter APK]
+    Emulator[Android Emulator]
+    API_SERVER[Node.js Server\nPort 3000]
+    MONGO[(MongoDB Atlas)]
 
-    subgraph Optional["Optional Cloud"]
-        Server[REST API Server]
-        CloudDB[(Cloud Database)]
-        Server --> CloudDB
-    end
-
-    APK -.->|HTTPS| Server
+    Phone -->|WiFi / Internet| API_SERVER
+    Emulator -->|10.0.2.2| API_SERVER
+    API_SERVER --> MONGO
 ```
 
 ---
 
-## 10. State Diagram — Order Lifecycle
-
-```mermaid
-stateDiagram-v2
-    [*] --> Pending: Order placed
-    Pending --> Confirmed: Admin confirms
-    Pending --> Cancelled: User/Admin cancels
-    Confirmed --> Baking: Production starts
-    Confirmed --> Cancelled: Admin cancels
-    Baking --> Ready: Cake finished
-    Ready --> Delivered: Delivered to customer
-    Delivered --> [*]
-    Cancelled --> [*]
-```
-
----
-
-*Export diagrams as PNG/SVG for inclusion in Project Report and presentation slides.*
+*Draw these diagrams in your report using Mermaid export or redraw in Draw.io for submission PDF.*

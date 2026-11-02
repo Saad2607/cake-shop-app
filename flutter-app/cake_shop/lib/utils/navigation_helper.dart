@@ -3,8 +3,10 @@ import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/notification_provider.dart';
 import '../providers/order_provider.dart';
+import '../providers/rider_provider.dart';
 import '../screens/admin/admin_main_screen.dart';
 import '../screens/home/main_screen.dart';
+import '../screens/rider/rider_main_screen.dart';
 import '../services/notification_service.dart';
 
 /// Central navigation after auth events.
@@ -29,6 +31,17 @@ class NavigationHelper {
     );
   }
 
+  static Future<void> afterRiderAuth(BuildContext context) async {
+    await NotificationService.instance.requestPermission();
+    if (!context.mounted) return;
+    context.read<RiderProvider>().loadAll();
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (_) => const RiderMainScreen()),
+      (_) => false,
+    );
+  }
+
   static Future<void> afterAuth(
     BuildContext context,
     AuthProvider auth, {
@@ -36,6 +49,10 @@ class NavigationHelper {
   }) async {
     if (auth.user?.role == 'ADMIN') {
       afterAdminAuth(context);
+      return;
+    }
+    if (auth.user?.role == 'RIDER') {
+      await afterRiderAuth(context);
       return;
     }
 

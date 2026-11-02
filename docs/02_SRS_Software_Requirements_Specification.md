@@ -1,293 +1,266 @@
 # Software Requirements Specification (SRS)
 
-## Cake Online Shopping Android App
-
-**Product name:** Sweet Delights
+## Sweet Delights — Cake Online Shopping App
 
 **Document ID:** SRS-CAKE-001  
-**Version:** 1.0  
-**Date:** June 2026
+**Version:** 2.0  
+**Date:** June 2026  
+**Prepared by:** [Team Name]
 
 ---
 
 ## 1. Introduction
 
 ### 1.1 Purpose
-This Software Requirements Specification describes the functional and non-functional requirements for the Cake Online Shopping Android App. It is intended for developers, testers, project supervisors, and stakeholders.
+This SRS document describes what the **Sweet Delights** cake ordering system should do. It is written for our development team, guide, and examiner. It covers functional requirements, non-functional requirements, and interfaces.
 
 ### 1.2 Scope
-The system is an Android mobile application enabling users to browse a cake catalog, customize orders, manage a shopping cart, and place orders. An optional admin module supports product and order management.
+The system has three parts:
+1. **Flutter Android app** — customer and admin UI  
+2. **Node.js REST API** — business logic and security  
+3. **MongoDB database** — stores users, cakes, cart, orders, promos  
 
-### 1.3 Definitions & Acronyms
+Customers browse and order cakes. Admin manages menu and orders from the same app using admin login.
 
-| Term | Definition |
-|------|------------|
-| SRS | Software Requirements Specification |
-| UI | User Interface |
-| API | Application Programming Interface |
-| MVP | Minimum Viable Product |
-| CRUD | Create, Read, Update, Delete |
-| Room | Android SQLite ORM library |
+### 1.3 Definitions
+
+| Term | Meaning |
+|------|---------|
+| API | Application Programming Interface (backend URLs) |
+| JWT | JSON Web Token used for login session |
+| COD | Cash on Delivery |
+| UPI | Unified Payments Interface (PhonePe, GPay, etc.) |
+| Admin | Bakery staff with special login |
+| Guest | User who did not login yet |
 
 ### 1.4 References
-- IEEE Std 830-1998 (SRS template guidance)
-- Android Developer Documentation
-- Material Design 3 Guidelines
-
-### 1.5 Overview
-Sections 2–4 cover overall description, functional requirements, and non-functional requirements.
+- IEEE 830 style SRS format (from SE syllabus)  
+- Flutter documentation — https://flutter.dev  
+- Express.js documentation  
 
 ---
 
 ## 2. Overall Description
 
-### 2.1 Product Perspective
-The app is a standalone Android client with local SQLite storage. It may optionally connect to a REST backend for sync in future versions.
+### 2.1 Product perspective
 
 ```
-┌─────────────────────────────────────┐
-│     Cake Online Shopping App        │
-│  ┌─────────┐  ┌──────────────────┐  │
-│  │   UI    │  │  ViewModel Layer │  │
-│  └────┬────┘  └────────┬─────────┘  │
-│       │                │            │
-│  ┌────▼────────────────▼─────────┐  │
-│  │      Repository Layer         │  │
-│  └────┬──────────────────────────┘  │
-│       │                             │
-│  ┌────▼────┐  ┌─────────────────┐  │
-│  │  Room   │  │ Retrofit (opt.) │  │
-│  │ SQLite  │  │   REST API      │  │
-│  └─────────┘  └─────────────────┘  │
-└─────────────────────────────────────┘
+┌─────────────────┐     HTTPS/JSON      ┌─────────────────┐     Mongoose     ┌──────────┐
+│  Flutter App    │ ◄─────────────────► │  Node.js API    │ ◄──────────────► │ MongoDB  │
+│  (Android)      │     JWT Token       │  (Express)      │                  │          │
+└─────────────────┘                     └─────────────────┘                  └──────────┘
 ```
 
-### 2.2 Product Functions (Summary)
-- User account management
-- Product catalog browsing
-- Search and filter
-- Shopping cart management
-- Order placement and tracking
-- Admin product/order management (optional)
+The mobile app never talks to database directly. All data goes through API.
 
-### 2.3 User Classes
+### 2.2 Product functions (summary)
+- User registration and login  
+- Browse cake catalog with search and categories  
+- Add to cart with customization  
+- Checkout and place order  
+- Track order status  
+- Admin: manage cakes, orders, offers, view dashboard  
 
-| User Class | Description | Technical Skill |
-|------------|-------------|-----------------|
-| Customer | Primary app user | Low–Medium |
-| Administrator | Manages catalog and orders | Medium |
-| Guest | Browses without login | Low |
+### 2.3 User classes
 
-### 2.4 Operating Environment
-- **OS:** Android 7.0 (Nougat, API 24) and above
-- **Devices:** Smartphones and tablets (min 4.5" screen)
-- **Network:** Wi-Fi or mobile data (optional for offline catalog)
+| User | Description |
+|------|-------------|
+| Guest | Can browse home, search, view cake details |
+| Customer | Can cart, checkout, orders, profile, wishlist |
+| Admin | Full admin panel — menu, orders, offers, customers |
 
-### 2.5 Design & Implementation Constraints
-- Must use Kotlin as primary language
-- Must use Material Design components
-- Local data persistence via Room
-- Minimum target SDK: API 34
+### 2.4 Operating environment
+- Android 7.0+ (API 24)  
+- Internet connection required for API  
+- Backend runs on Node 18+ with MongoDB  
 
-### 2.6 Assumptions & Dependencies
-- Users have Google Play Services (optional)
-- Product images are bundled or loaded from URLs
-- Payment is simulated (no real gateway in v1.0)
-- Delivery is handled outside the app (status updates only)
+### 2.5 Constraints
+- College project timeline (one semester)  
+- Payment gateway not fully integrated (simulated)  
+- Single bakery only (not multi-vendor)  
+
+### 2.6 Assumptions
+- User has basic smartphone knowledge  
+- Bakery has one admin account  
+- Product images are URLs (not uploaded files in v1)  
 
 ---
 
 ## 3. Functional Requirements
 
-### 3.1 User Authentication (FR-AUTH)
+### 3.1 Authentication (FR-AUTH)
 
-| ID | Requirement | Priority |
-|----|-------------|----------|
-| FR-AUTH-01 | System shall allow new users to register with name, email, phone, and password | High |
-| FR-AUTH-02 | System shall validate email format and password strength (min 6 characters) | High |
-| FR-AUTH-03 | System shall allow registered users to login with email and password | High |
-| FR-AUTH-04 | System shall display error message for invalid credentials | High |
-| FR-AUTH-05 | System shall allow users to logout | Medium |
-| FR-AUTH-06 | System shall persist login session until logout | Medium |
-| FR-AUTH-07 | System shall allow password change from profile | Low |
+| ID | Requirement | Priority | Status |
+|----|-------------|----------|--------|
+| FR-AUTH-01 | User can register with name, email, phone, password | High | Done |
+| FR-AUTH-02 | Email format and password min 6 chars validated | High | Done |
+| FR-AUTH-03 | User can login with email and password | High | Done |
+| FR-AUTH-04 | Wrong password shows error message | High | Done |
+| FR-AUTH-05 | User can logout | Medium | Done |
+| FR-AUTH-06 | Login session saved until logout | Medium | Done |
+| FR-AUTH-07 | User can update profile | Medium | Done |
+| FR-AUTH-08 | Forgot password option | Low | Partial |
 
-### 3.2 Product Catalog (FR-CAT)
+### 3.2 Catalog (FR-CAT)
 
-| ID | Requirement | Priority |
-|----|-------------|----------|
-| FR-CAT-01 | System shall display list of cakes with image, name, and price | High |
-| FR-CAT-02 | System shall categorize cakes (Birthday, Wedding, Cupcake, Custom, Seasonal) | High |
-| FR-CAT-03 | System shall show cake detail page with description, flavors, sizes, and price | High |
-| FR-CAT-04 | System shall support search by cake name or keyword | High |
-| FR-CAT-05 | System shall filter by category, price range, and rating | Medium |
-| FR-CAT-06 | System shall display product ratings and reviews (read-only in v1) | Low |
-| FR-CAT-07 | System shall show "Out of Stock" for unavailable items | Medium |
+| ID | Requirement | Priority | Status |
+|----|-------------|----------|--------|
+| FR-CAT-01 | Show cakes with image, name, price | High | Done |
+| FR-CAT-02 | Categories: Birthday, Wedding, Cupcake, Custom, Seasonal | High | Done |
+| FR-CAT-03 | Cake detail: description, sizes, flavours, price | High | Done |
+| FR-CAT-04 | Search by cake name | High | Done |
+| FR-CAT-05 | Filter by category, sort options | Medium | Done |
+| FR-CAT-06 | Show rating on cake card | Low | Done (static/seed rating) |
+| FR-CAT-07 | Show out of stock label | Medium | Done |
+| FR-CAT-08 | Promo banners on home | Medium | Done |
 
-### 3.3 Shopping Cart (FR-CART)
+### 3.3 Cart (FR-CART)
 
-| ID | Requirement | Priority |
-|----|-------------|----------|
-| FR-CART-01 | System shall allow adding cakes to cart from detail page | High |
-| FR-CART-02 | System shall allow selecting quantity, size, and flavor before add | High |
-| FR-CART-03 | System shall allow optional custom message on cake (max 50 chars) | Medium |
-| FR-CART-04 | System shall display cart with item list, quantities, and subtotal | High |
-| FR-CART-05 | System shall allow updating quantity or removing items from cart | High |
-| FR-CART-06 | System shall calculate total price including selected options | High |
-| FR-CART-07 | System shall persist cart across app sessions for logged-in users | Medium |
+| ID | Requirement | Priority | Status |
+|----|-------------|----------|--------|
+| FR-CART-01 | Add cake to cart from detail page | High | Done |
+| FR-CART-02 | Select quantity, size, flavour before add | High | Done |
+| FR-CART-03 | Optional custom message on cake | Medium | Done |
+| FR-CART-04 | View cart with subtotal | High | Done |
+| FR-CART-05 | Update quantity or remove item | High | Done |
+| FR-CART-06 | Price calculated with size multiplier | High | Done |
+| FR-CART-07 | Cart saved on server for logged-in user | Medium | Done |
 
-### 3.4 Checkout & Orders (FR-ORD)
+### 3.4 Orders & Checkout (FR-ORD)
 
-| ID | Requirement | Priority |
-|----|-------------|----------|
-| FR-ORD-01 | System shall require login before checkout | High |
-| FR-ORD-02 | System shall collect delivery address and contact phone | High |
-| FR-ORD-03 | System shall allow selecting delivery date (future dates only) | High |
-| FR-ORD-04 | System shall show order summary before confirmation | High |
-| FR-ORD-05 | System shall place order and generate unique order ID | High |
-| FR-ORD-06 | System shall clear cart after successful order | High |
-| FR-ORD-07 | System shall display order confirmation screen | High |
-| FR-ORD-08 | System shall simulate payment (Cash on Delivery / Mock Card) | Medium |
+| ID | Requirement | Priority | Status |
+|----|-------------|----------|--------|
+| FR-ORD-01 | Login required for checkout | High | Done |
+| FR-ORD-02 | Delivery address and phone | High | Done |
+| FR-ORD-03 | Select delivery date | High | Done |
+| FR-ORD-04 | Order summary before confirm | High | Done |
+| FR-ORD-05 | Generate unique order number | High | Done |
+| FR-ORD-06 | Clear cart after successful order | High | Done |
+| FR-ORD-07 | Order confirmation screen | High | Done |
+| FR-ORD-08 | Payment method: COD / UPI / Card (simulated) | Medium | Partial |
+| FR-ORD-09 | Apply promo code at checkout | Medium | Done |
 
-### 3.5 Order History & Tracking (FR-TRACK)
+### 3.5 Order Tracking (FR-TRACK)
 
-| ID | Requirement | Priority |
-|----|-------------|----------|
-| FR-TRACK-01 | System shall list all past orders for logged-in user | High |
-| FR-TRACK-02 | System shall show order details (items, total, date, status) | High |
-| FR-TRACK-03 | System shall display order status: Pending, Confirmed, Baking, Ready, Delivered, Cancelled | High |
-| FR-TRACK-04 | System shall allow cancelling orders in Pending status only | Medium |
+| ID | Requirement | Priority | Status |
+|----|-------------|----------|--------|
+| FR-TRACK-01 | List past orders | High | Done |
+| FR-TRACK-02 | Order detail with items and total | High | Done |
+| FR-TRACK-03 | Status: Pending, Confirmed, Baking, Ready, Delivered, Cancelled | High | Done |
+| FR-TRACK-04 | Cancel order if status is Pending | Medium | Done |
+| FR-TRACK-05 | Visual progress tracker | Medium | Done |
+| FR-TRACK-06 | Rate order after Delivered | Low | Done |
 
-### 3.6 User Profile (FR-PROF)
+### 3.6 Profile (FR-PROF)
 
-| ID | Requirement | Priority |
-|----|-------------|----------|
-| FR-PROF-01 | System shall display user profile (name, email, phone) | Medium |
-| FR-PROF-02 | System shall allow editing profile information | Medium |
-| FR-PROF-03 | System shall allow saving multiple delivery addresses | Low |
+| ID | Requirement | Priority | Status |
+|----|-------------|----------|--------|
+| FR-PROF-01 | Show name, email, phone | Medium | Done |
+| FR-PROF-02 | Edit profile | Medium | Done |
+| FR-PROF-03 | Multiple delivery addresses | Low | Partial (saved on device) |
+| FR-PROF-04 | Wishlist | Low | Done (local) |
 
-### 3.7 Admin Module (FR-ADMIN) — Optional
+### 3.7 Admin (FR-ADMIN)
 
-| ID | Requirement | Priority |
-|----|-------------|----------|
-| FR-ADMIN-01 | Admin shall login with separate admin credentials | Medium |
-| FR-ADMIN-02 | Admin shall add, edit, delete cake products | Medium |
-| FR-ADMIN-03 | Admin shall view all orders and update order status | Medium |
-| FR-ADMIN-04 | Admin shall view basic sales summary | Low |
+| ID | Requirement | Priority | Status |
+|----|-------------|----------|--------|
+| FR-ADMIN-01 | Admin login with admin role | High | Done |
+| FR-ADMIN-02 | Add, edit, delete cakes | High | Done |
+| FR-ADMIN-03 | View and update order status | High | Done |
+| FR-ADMIN-04 | Sales summary dashboard | Medium | Done |
+| FR-ADMIN-05 | Manage promo offers | Medium | Done |
+| FR-ADMIN-06 | View customer list | Low | Done |
+| FR-ADMIN-07 | Charts (weekly revenue, status) | Low | Done |
 
 ---
 
 ## 4. Non-Functional Requirements
 
-### 4.1 Performance (NFR-PERF)
+### 4.1 Performance
+- App should open within 3–4 seconds on mid-range phone  
+- Cake list should load within 2–3 seconds on good network  
+- API timeout set to 15 seconds  
 
-| ID | Requirement |
-|----|-------------|
-| NFR-PERF-01 | App shall launch within 3 seconds on mid-range device |
-| NFR-PERF-02 | Catalog list shall load within 2 seconds |
-| NFR-PERF-03 | App shall support catalog of at least 500 products |
+### 4.2 Usability
+- Material-style UI, bottom navigation  
+- Guest can browse without forced login  
+- Error messages shown in snackbar/dialog  
 
-### 4.2 Usability (NFR-USE)
+### 4.3 Reliability
+- App should not crash on empty cart or network error  
+- Invalid form input shows validation message  
+- Server validates price — client cannot send wrong price  
 
-| ID | Requirement |
-|----|-------------|
-| NFR-USE-01 | UI shall follow Material Design 3 guidelines |
-| NFR-USE-02 | Primary tasks (browse, add to cart, checkout) shall complete in ≤ 5 taps |
-| NFR-USE-03 | App shall provide clear error and success feedback |
+### 4.4 Security
+- Passwords stored as bcrypt hash in MongoDB  
+- JWT token for authenticated API calls  
+- Admin routes check `role === ADMIN`  
+- HTTPS recommended for production deployment  
 
-### 4.3 Reliability (NFR-REL)
+### 4.5 Compatibility
+- Android API 24 to 34 tested  
+- Different screen sizes supported with responsive layout  
 
-| ID | Requirement |
-|----|-------------|
-| NFR-REL-01 | App shall not crash during normal operation |
-| NFR-REL-02 | Cart and order data shall not be lost on app restart |
-| NFR-REL-03 | Invalid input shall be handled gracefully |
-
-### 4.4 Security (NFR-SEC)
-
-| ID | Requirement |
-|----|-------------|
-| NFR-SEC-01 | Passwords shall be stored hashed (not plain text) |
-| NFR-SEC-02 | Session tokens shall be stored in EncryptedSharedPreferences |
-| NFR-SEC-03 | Admin functions shall require admin role verification |
-
-### 4.5 Compatibility (NFR-COMP)
-
-| ID | Requirement |
-|----|-------------|
-| NFR-COMP-01 | App shall run on Android API 24 through API 34 |
-| NFR-COMP-02 | UI shall adapt to screen sizes 4.5" to 10" |
-
-### 4.6 Maintainability (NFR-MAIN)
-
-| ID | Requirement |
-|----|-------------|
-| NFR-MAIN-01 | Code shall follow MVVM architecture |
-| NFR-MAIN-02 | Code shall be documented with KDoc for public APIs |
-| NFR-MAIN-03 | Project shall use Git for version control |
+### 4.6 Maintainability
+- Code split into screens, providers, services, models  
+- Git version control used  
+- Seed script for demo data  
 
 ---
 
 ## 5. External Interface Requirements
 
-### 5.1 User Interfaces
-- Splash screen → Home/Catalog
-- Bottom navigation: Home, Cart, Orders, Profile
-- Material cards, RecyclerView lists, FloatingActionButton where appropriate
+### 5.1 User interfaces
+- Splash → Onboarding (first time) → Main screen  
+- Bottom tabs: Home, Cart, Orders, Account  
+- Admin bottom tabs: Overview, Orders, Menu, Offers, Customers, Account  
 
-### 5.2 Hardware Interfaces
-- Touchscreen input
-- Camera (optional, for profile photo — future)
+### 5.2 Hardware
+- Touchscreen  
+- GPS optional (for delivery address)  
+- Internet  
 
-### 5.3 Software Interfaces
-- Android OS, Google Play Services (optional)
-- Room Database (SQLite)
-- Retrofit for REST API (optional extension)
+### 5.3 Software interfaces
+- REST API over HTTP/JSON  
+- MongoDB via Mongoose  
+- SharedPreferences for local wishlist/addresses  
+- flutter_local_notifications for order alerts  
 
-### 5.4 Communication Interfaces
-- HTTP/HTTPS for optional API calls
-- No SMS/email in v1.0
+### 5.4 Communication
+- HTTP between app and server  
+- Public share page: `GET /p/:cakeId`  
 
 ---
 
 ## 6. Use Case Summary
 
-| Use Case ID | Name | Actor |
-|-------------|------|-------|
-| UC-01 | Register Account | Customer |
-| UC-02 | Login | Customer |
-| UC-03 | Browse Catalog | Customer, Guest |
-| UC-04 | Search Cakes | Customer |
-| UC-05 | View Cake Details | Customer |
-| UC-06 | Add to Cart | Customer |
-| UC-07 | Manage Cart | Customer |
-| UC-08 | Place Order | Customer |
-| UC-09 | Track Order | Customer |
-| UC-10 | Manage Profile | Customer |
-| UC-11 | Manage Products | Admin |
-| UC-12 | Manage Orders | Admin |
+| ID | Use Case | Actor |
+|----|----------|-------|
+| UC-01 | Register account | Customer |
+| UC-02 | Login / Logout | Customer, Admin |
+| UC-03 | Browse catalog | Guest, Customer |
+| UC-04 | Search and filter cakes | Guest, Customer |
+| UC-05 | Add to cart | Customer |
+| UC-06 | Checkout and pay | Customer |
+| UC-07 | Track order | Customer |
+| UC-08 | Cancel pending order | Customer |
+| UC-09 | Rate delivered order | Customer |
+| UC-10 | Manage menu | Admin |
+| UC-11 | Update order status | Admin |
+| UC-12 | Manage offers | Admin |
+| UC-13 | View dashboard | Admin |
 
-*Detailed use cases and diagrams: see `05_UML_Diagrams.md`*
-
----
-
-## 7. Acceptance Criteria
-
-1. All **High** priority functional requirements implemented and tested
-2. App runs without crash on Android 7.0+ emulator and one physical device
-3. Complete user flow: Register → Browse → Add to Cart → Checkout → View Order
-4. Documentation package complete per course rubric
+Detailed diagrams in `05_UML_Diagrams.md`.
 
 ---
 
-## Appendix A: Requirement Traceability Matrix (Sample)
-
-| Requirement | Design Module | Test Case |
-|-------------|---------------|-----------|
-| FR-AUTH-01 | AuthActivity, UserRepository | TC-AUTH-01 |
-| FR-CAT-01 | CatalogFragment, CakeAdapter | TC-CAT-01 |
-| FR-CART-01 | CartViewModel, CartDao | TC-CART-01 |
-| FR-ORD-05 | CheckoutActivity, OrderRepository | TC-ORD-01 |
+## 7. Future Enhancements (not in current version)
+- Razorpay payment with webhook  
+- FCM push notifications  
+- Photo upload for custom cakes  
+- Server-synced addresses  
+- iOS app  
 
 ---
 
-*Approved by: _________________ Date: _________*
+*Version 2.0 — Updated for Flutter + Node.js + MongoDB stack*

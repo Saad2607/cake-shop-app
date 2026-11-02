@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/cake.dart';
@@ -65,13 +66,14 @@ class _QuickAddSheetState extends State<_QuickAddSheet> {
             const SizedBox(width: 10),
             Expanded(
               child: Text(
-                '${widget.cake.name} added',
+                '${widget.cake.name} added to cart',
                 style: AppTheme.bodyMedium.copyWith(color: Colors.white),
               ),
             ),
           ],
         ),
         backgroundColor: AppTheme.primary,
+        behavior: SnackBarBehavior.floating,
       ),
     );
   }
@@ -94,177 +96,212 @@ class _QuickAddSheetState extends State<_QuickAddSheet> {
     }
     final unitPrice = CakePriceCalculator.priceForSize(cake, _size!);
 
-    return Container(
-      decoration: BoxDecoration(
-        color: AppTheme.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.primaryDark.withValues(alpha: 0.15),
-            blurRadius: 30,
-            offset: const Offset(0, -8),
-          ),
-        ],
-      ),
-      padding: EdgeInsets.fromLTRB(
-        24,
-        12,
-        24,
-        24 + MediaQuery.of(context).padding.bottom,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Center(
-            child: Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: AppTheme.cardBorder,
-                borderRadius: BorderRadius.circular(2),
-              ),
+    return ClipRRect(
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.94),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+            border: Border.all(
+              color: Colors.white.withValues(alpha: 0.9),
+              width: 1.4,
             ),
-          ),
-          const SizedBox(height: 20),
-          Row(
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: SizedBox(
-                  width: 80,
-                  height: 80,
-                  child: CakeImageTile(cake: cake, iconSize: 36),
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(cake.name, style: AppTheme.titleLarge, maxLines: 2),
-                    const SizedBox(height: 6),
-                    Text(
-                      CurrencyFormatter.format(unitPrice),
-                      style: AppTheme.displayMedium.copyWith(
-                        fontSize: 22,
-                        color: AppTheme.primary,
-                      ),
-                    ),
-                  ],
-                ),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF2B1D19).withValues(alpha: 0.12),
+                blurRadius: 32,
+                offset: const Offset(0, -8),
               ),
             ],
           ),
-          const SizedBox(height: 24),
-          Text('Size', style: AppTheme.titleMedium.copyWith(fontSize: 13)),
-          const SizedBox(height: 10),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: cake.sizes.map((s) {
-              final sel = _size == s;
-              return _Chip(
-                label: s,
-                selected: sel,
-                onTap: () => setState(() => _size = s),
-              );
-            }).toList(),
+          padding: EdgeInsets.fromLTRB(
+            24,
+            14,
+            24,
+            24 + MediaQuery.of(context).padding.bottom,
           ),
-          const SizedBox(height: 18),
-          Text('Flavor', style: AppTheme.titleMedium.copyWith(fontSize: 13)),
-          const SizedBox(height: 10),
-          Wrap(
-            spacing: 8,
-            children: cake.flavors.map((f) {
-              final sel = _flavor == f;
-              return _Chip(
-                label: f,
-                selected: sel,
-                onTap: () => setState(() => _flavor = f),
-              );
-            }).toList(),
-          ),
-          const SizedBox(height: 20),
-          Row(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Container(
-                decoration: BoxDecoration(
-                  border: Border.all(color: AppTheme.cardBorder),
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: Row(
-                  children: [
-                    _qtyBtn(Icons.remove, _qty > 1 ? () => setState(() => _qty--) : null),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Text('$_qty', style: AppTheme.titleLarge),
-                    ),
-                    _qtyBtn(Icons.add, () => setState(() => _qty++)),
-                  ],
+              Center(
+                child: Container(
+                  width: 44,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: AppTheme.textMuted.withValues(alpha: 0.25),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
                 ),
               ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    onTap: cake.inStock ? _add : null,
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  ClipRRect(
                     borderRadius: BorderRadius.circular(16),
-                    child: Ink(
-                      decoration: BoxDecoration(
-                        gradient: cake.inStock ? AppTheme.ctaGradient : null,
-                        color: cake.inStock ? null : AppTheme.cardBorder,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      child: Center(
-                        child: Text(
-                          'Add · ${CurrencyFormatter.format(unitPrice * _qty)}',
-                          style: AppTheme.titleMedium.copyWith(
-                            color: cake.inStock ? Colors.white : AppTheme.textMuted,
+                    child: SizedBox(
+                      width: 80,
+                      height: 80,
+                      child: CakeImageTile(cake: cake, iconSize: 36),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          cake.name,
+                          style: AppTheme.titleLarge.copyWith(fontSize: 17),
+                          maxLines: 2,
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          CurrencyFormatter.format(unitPrice),
+                          style: AppTheme.displayMedium.copyWith(
+                            fontSize: 22,
+                            color: AppTheme.primary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 22),
+              Text(
+                'CHOOSE SIZE',
+                style: AppTheme.labelBold.copyWith(
+                  fontSize: 11,
+                  color: AppTheme.textMuted,
+                  letterSpacing: 0.8,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: cake.sizes.map((s) {
+                  final sel = _size == s;
+                  return _GlassChip(
+                    label: s,
+                    selected: sel,
+                    onTap: () => setState(() => _size = s),
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 18),
+              Text(
+                'CHOOSE FLAVOR',
+                style: AppTheme.labelBold.copyWith(
+                  fontSize: 11,
+                  color: AppTheme.textMuted,
+                  letterSpacing: 0.8,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: cake.flavors.map((f) {
+                  final sel = _flavor == f;
+                  return _GlassChip(
+                    label: f,
+                    selected: sel,
+                    onTap: () => setState(() => _flavor = f),
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      border: Border.all(color: AppTheme.cardBorder),
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [AppTheme.softShadow],
+                    ),
+                    child: Row(
+                      children: [
+                        _qtyBtn(Icons.remove, _qty > 1 ? () => setState(() => _qty--) : null),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 14),
+                          child: Text('$_qty', style: AppTheme.titleLarge.copyWith(fontSize: 16)),
+                        ),
+                        _qtyBtn(Icons.add, () => setState(() => _qty++)),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: cake.inStock ? _add : null,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        decoration: BoxDecoration(
+                          gradient: cake.inStock ? AppTheme.ctaGradient : null,
+                          color: cake.inStock ? null : AppTheme.cardBorder,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: cake.inStock
+                              ? [
+                                  BoxShadow(
+                                    color: AppTheme.primary.withValues(alpha: 0.35),
+                                    blurRadius: 14,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ]
+                              : null,
+                        ),
+                        child: Center(
+                          child: Text(
+                            'Add · ${CurrencyFormatter.format(unitPrice * _qty)}',
+                            style: AppTheme.titleMedium.copyWith(
+                              color: cake.inStock ? Colors.white : AppTheme.textMuted,
+                            ),
                           ),
                         ),
                       ),
                     ),
                   ),
-                ),
+                ],
               ),
             ],
           ),
-        ],
+        ),
       ),
     );
   }
 
   Widget _qtyBtn(IconData icon, VoidCallback? onTap) {
-    return Material(
-      color: onTap != null
-          ? AppTheme.primaryLight.withValues(alpha: 0.3)
-          : Colors.transparent,
-      borderRadius: BorderRadius.circular(12),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Icon(
-            icon,
-            size: 18,
-            color: onTap != null ? AppTheme.primary : AppTheme.textMuted,
-          ),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: onTap != null
+              ? AppTheme.primaryLight.withValues(alpha: 0.35)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Icon(
+          icon,
+          size: 18,
+          color: onTap != null ? AppTheme.primary : AppTheme.textMuted.withValues(alpha: 0.4),
         ),
       ),
     );
   }
 }
 
-class _Chip extends StatelessWidget {
+class _GlassChip extends StatelessWidget {
   final String label;
   final bool selected;
   final VoidCallback onTap;
 
-  const _Chip({
+  const _GlassChip({
     required this.label,
     required this.selected,
     required this.onTap,
@@ -272,29 +309,35 @@ class _Chip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-          decoration: BoxDecoration(
-            gradient: selected ? AppTheme.ctaGradient : null,
-            color: selected ? null : AppTheme.background,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: selected ? Colors.transparent : AppTheme.cardBorder,
-            ),
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
+        decoration: BoxDecoration(
+          gradient: selected ? AppTheme.ctaGradient : null,
+          color: selected ? null : Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: selected ? Colors.transparent : AppTheme.cardBorder,
+            width: 1.2,
           ),
-          child: Text(
-            label,
-            style: AppTheme.bodyMedium.copyWith(
-              fontSize: 12,
-              color: selected ? Colors.white : AppTheme.textDark,
-              fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-            ),
+          boxShadow: selected
+              ? [
+                  BoxShadow(
+                    color: AppTheme.primary.withValues(alpha: 0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+              : [AppTheme.softShadow],
+        ),
+        child: Text(
+          label,
+          style: AppTheme.bodyMedium.copyWith(
+            fontSize: 12,
+            color: selected ? Colors.white : AppTheme.textDark,
+            fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
           ),
         ),
       ),

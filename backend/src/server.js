@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const os = require('os');
 const { connectDatabase } = require('./config/database');
 const apiRoutes = require('./routes/api');
 const { productSharePage } = require('./controllers/shareController');
@@ -25,13 +26,29 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Internal server error' });
 });
 
+function getLocalIp() {
+  const interfaces = os.networkInterfaces();
+  for (const name of Object.keys(interfaces)) {
+    for (const iface of interfaces[name]) {
+      if (iface.family === 'IPv4' && !iface.internal) {
+        return iface.address;
+      }
+    }
+  }
+  return 'localhost';
+}
+
 async function start() {
   try {
     await connectDatabase();
     app.listen(PORT, '0.0.0.0', () => {
-      console.log(`Cake Shop API running on http://localhost:${PORT}`);
-      console.log(`Phone access: http://10.227.28.97:${PORT}/health`);
-      console.log(`API base:     http://10.227.28.97:${PORT}/api`);
+      const localIp = getLocalIp();
+      console.log(`\n==============================================`);
+      console.log(` Cake Shop API Server Running`);
+      console.log(` Local:        http://localhost:${PORT}`);
+      console.log(` Phone / LAN:  http://${localIp}:${PORT}/api`);
+      console.log(` Health Check: http://${localIp}:${PORT}/health`);
+      console.log(`==============================================\n`);
     });
   } catch (error) {
     console.error('Failed to start server:', error.message);

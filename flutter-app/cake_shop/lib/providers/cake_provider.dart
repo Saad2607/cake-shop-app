@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/cake.dart';
 import '../services/api_service.dart';
+import '../services/offline_catalog_cache.dart';
 
 enum CakeSortOption {
   recommended('Recommended'),
@@ -21,7 +22,17 @@ class CakeProvider extends ChangeNotifier {
   String searchQuery = '';
   CakeSortOption sortOption = CakeSortOption.recommended;
 
-  CakeProvider(this.api);
+  CakeProvider(this.api) {
+    _seedFromCache();
+  }
+
+  Future<void> _seedFromCache() async {
+    final cached = await OfflineCatalogCache.loadCachedCakes();
+    if (cached.isNotEmpty && cakes.isEmpty) {
+      cakes = cached;
+      notifyListeners();
+    }
+  }
 
   List<Cake> get displayCakes {
     final list = List<Cake>.from(cakes);
@@ -62,6 +73,9 @@ class CakeProvider extends ChangeNotifier {
         category: selectedCategory,
         search: searchQuery.isEmpty ? null : searchQuery,
       );
+      if (selectedCategory == 'ALL' && searchQuery.isEmpty) {
+        OfflineCatalogCache.saveCakes(cakes);
+      }
       error = null;
     } catch (e) {
       if (!hadData) {

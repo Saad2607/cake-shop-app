@@ -1,266 +1,239 @@
 # Database Design
 
-## Cake Online Shopping App
+## Sweet Delights — Cake Online Shopping App
 
 **Document ID:** DB-CAKE-001  
-**Version:** 3.0  
+**Version:** 2.0  
 **Date:** June 2026
 
-> **Current stack:** MongoDB with Mongoose ODM. Full schema: [`database/mongodb_schema.md`](../database/mongodb_schema.md)
+> Full field list also in: [`database/mongodb_schema.md`](../database/mongodb_schema.md)
 
 ---
 
 ## 1. Overview
 
-The application uses **MongoDB** as the primary database, accessed by the **Node.js** backend via **Mongoose**. The Flutter app communicates with MongoDB only through the REST API (no direct DB connection).
-
 | Item | Value |
 |------|-------|
-| Database | MongoDB |
+| Database type | MongoDB (NoSQL) |
 | ODM | Mongoose |
 | Database name | `cake_shop` |
-| Collections | `users`, `cakes`, `cartitems`, `orders` |
+| Connection | `MONGODB_URI` in `backend/.env` |
+
+The Flutter app **does not** connect to MongoDB directly. Only the Node.js server talks to the database.
 
 ---
 
-## 2. Entity-Relationship Diagram
+## 2. Collections
+
+| Collection | Purpose |
+|------------|---------|
+| users | Customer and admin accounts |
+| cakes | Product catalog |
+| cartitems | Shopping cart lines per user |
+| orders | Placed orders with embedded items |
+| promos | Home banners and discount codes |
+
+---
+
+## 3. Entity Relationship Diagram
 
 ```mermaid
 erDiagram
-    USERS ||--o{ CART_ITEMS : has
+    USERS ||--o{ CARTITEMS : has
     USERS ||--o{ ORDERS : places
-    CAKES ||--o{ CART_ITEMS : contains
-    CAKES ||--o{ ORDER_ITEMS : includes
-    ORDERS ||--|{ ORDER_ITEMS : has
+    CAKES ||--o{ CARTITEMS : referenced_in
+    CAKES ||--o{ ORDER_ITEMS : snapshot_in
+    ORDERS ||--|{ ORDER_ITEMS : embeds
 
     USERS {
-        integer id PK
-        text name
-        text email UK
-        text phone
-        text password_hash
-        text role
-        integer created_at
+        ObjectId _id PK
+        string name
+        string email UK
+        string phone
+        string passwordHash
+        string role
+        date createdAt
     }
 
     CAKES {
-        integer id PK
-        text name
-        text description
-        text category
-        real base_price
-        text image_url
-        text flavors
-        text sizes
-        real rating
-        integer in_stock
+        ObjectId _id PK
+        string name
+        string category
+        number basePrice
+        array flavors
+        array sizes
+        boolean inStock
     }
 
-    CART_ITEMS {
-        integer id PK
-        integer user_id FK
-        integer cake_id FK
-        integer quantity
-        text selected_size
-        text selected_flavor
-        text custom_message
-        real unit_price
+    CARTITEMS {
+        ObjectId _id PK
+        ObjectId userId FK
+        ObjectId cakeId FK
+        number quantity
+        string selectedSize
+        string selectedFlavor
+        number unitPrice
     }
 
     ORDERS {
-        integer id PK
-        text order_number UK
-        integer user_id FK
-        real total_amount
-        text status
-        text delivery_address
-        integer delivery_date
-        text payment_method
-        integer created_at
+        ObjectId _id PK
+        string orderNumber UK
+        ObjectId userId FK
+        number totalAmount
+        string status
+        array items
     }
 
-    ORDER_ITEMS {
-        integer id PK
-        integer order_id FK
-        integer cake_id FK
-        text cake_name
-        integer quantity
-        text size
-        text flavor
-        text custom_message
-        real price
+    PROMOS {
+        ObjectId _id PK
+        string title
+        string code
+        string action
+        boolean active
     }
 ```
 
 ---
 
-## 3. Table Specifications
+## 4. Collection Details
 
-### 3.1 users
+### 4.1 users
 
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| id | INTEGER | PK, AUTOINCREMENT | Unique user ID |
-| name | TEXT | NOT NULL | Full name |
-| email | TEXT | NOT NULL, UNIQUE | Login email |
-| phone | TEXT | NOT NULL | Contact number |
-| password_hash | TEXT | NOT NULL | Hashed password |
-| role | TEXT | NOT NULL, DEFAULT 'CUSTOMER' | CUSTOMER or ADMIN |
-| created_at | INTEGER | NOT NULL | Unix timestamp |
+| Field | Type | Notes |
+|-------|------|-------|
+| name | String | Required |
+| email | String | Unique, lowercase |
+| phone | String | Required |
+| passwordHash | String | bcrypt, never plain password |
+| role | String | `CUSTOMER` or `ADMIN` |
 
-**Indexes:** `idx_users_email` on `email`
+**Index:** email (unique)
 
----
+### 4.2 cakes
 
-### 3.2 cakes
+| Field | Type | Notes |
+|-------|------|-------|
+| name | String | Required |
+| description | String | Optional |
+| category | String | BIRTHDAY, WEDDING, CUPCAKE, CUSTOM, SEASONAL |
+| basePrice | Number | In INR |
+| imageUrl | String | External image URL |
+| flavors | [String] | e.g. Chocolate, Vanilla |
+| sizes | [String] | e.g. 1kg, 2kg |
+| rating | Number | 0–5 (seed value) |
+| inStock | Boolean | true = available |
 
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| id | INTEGER | PK, AUTOINCREMENT | Product ID |
-| name | TEXT | NOT NULL | Cake name |
-| description | TEXT | | Product description |
-| category | TEXT | NOT NULL | BIRTHDAY, WEDDING, etc. |
-| base_price | REAL | NOT NULL | Starting price |
-| image_url | TEXT | | Image path or URL |
-| flavors | TEXT | NOT NULL | JSON array: ["Vanilla","Chocolate"] |
-| sizes | TEXT | NOT NULL | JSON array: ["500g","1kg","2kg"] |
-| rating | REAL | DEFAULT 0.0 | Average rating 0–5 |
-| in_stock | INTEGER | DEFAULT 1 | 1 = in stock, 0 = out |
+**Index:** category
 
-**Indexes:** `idx_cakes_category` on `category`
+### 4.3 cartitems
 
----
+| Field | Type | Notes |
+|-------|------|-------|
+| userId | ObjectId | Ref → users |
+| cakeId | ObjectId | Ref → cakes |
+| quantity | Number | Min 1 |
+| selectedSize | String | |
+| selectedFlavor | String | |
+| customMessage | String | Optional icing text |
+| unitPrice | Number | Calculated at add time |
 
-### 3.3 cart_items
+**Index:** userId
 
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| id | INTEGER | PK, AUTOINCREMENT | Cart line ID |
-| user_id | INTEGER | FK → users.id, NOT NULL | Owner |
-| cake_id | INTEGER | FK → cakes.id, NOT NULL | Product |
-| quantity | INTEGER | NOT NULL, DEFAULT 1 | Quantity |
-| selected_size | TEXT | NOT NULL | e.g. "1kg" |
-| selected_flavor | TEXT | NOT NULL | e.g. "Chocolate" |
-| custom_message | TEXT | | Optional icing message |
-| unit_price | REAL | NOT NULL | Price at time of add |
+### 4.4 orders
 
-**Foreign Keys:**
-- `user_id` REFERENCES `users(id)` ON DELETE CASCADE
-- `cake_id` REFERENCES `cakes(id)` ON DELETE CASCADE
+| Field | Type | Notes |
+|-------|------|-------|
+| orderNumber | String | Unique, e.g. ORD-1730123456 |
+| userId | ObjectId | Customer |
+| subtotalAmount | Number | Before discount |
+| discountAmount | Number | Promo discount |
+| totalAmount | Number | Final amount |
+| promoCode | String | Optional |
+| status | String | PENDING … DELIVERED |
+| deliveryAddress | String | Full address text |
+| deliveryDate | Number | Unix timestamp ms |
+| paymentMethod | String | COD, UPI, CARD |
+| items | Array | Embedded line items |
+| rating | Number | 1–5 after delivery |
+| reviewComment | String | Optional |
 
----
+**Embedded item fields:** cakeId, cakeName, quantity, size, flavor, customMessage, price
 
-### 3.4 orders
+**Indexes:** userId, orderNumber, status
 
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| id | INTEGER | PK, AUTOINCREMENT | Order ID |
-| order_number | TEXT | NOT NULL, UNIQUE | e.g. "ORD-20260701-001" |
-| user_id | INTEGER | FK → users.id, NOT NULL | Customer |
-| total_amount | REAL | NOT NULL | Order total |
-| status | TEXT | NOT NULL, DEFAULT 'PENDING' | Order status |
-| delivery_address | TEXT | NOT NULL | Delivery location |
-| delivery_date | INTEGER | NOT NULL | Requested delivery date |
-| payment_method | TEXT | NOT NULL | COD, CARD, etc. |
-| created_at | INTEGER | NOT NULL | Order timestamp |
+### 4.5 promos
 
-**Indexes:** `idx_orders_user_id` on `user_id`, `idx_orders_status` on `status`
-
----
-
-### 3.5 order_items
-
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| id | INTEGER | PK, AUTOINCREMENT | Line item ID |
-| order_id | INTEGER | FK → orders.id, NOT NULL | Parent order |
-| cake_id | INTEGER | FK → cakes.id, NOT NULL | Product reference |
-| cake_name | TEXT | NOT NULL | Snapshot of name at order time |
-| quantity | INTEGER | NOT NULL | Quantity ordered |
-| size | TEXT | NOT NULL | Selected size |
-| flavor | TEXT | NOT NULL | Selected flavor |
-| custom_message | TEXT | | Custom message snapshot |
-| price | TEXT | NOT NULL | Line item price |
-
-**Foreign Keys:**
-- `order_id` REFERENCES `orders(id)` ON DELETE CASCADE
+| Field | Type | Notes |
+|-------|------|-------|
+| title | String | Banner title |
+| subtitle | String | Banner text |
+| action | String | DISCOUNT, INFO, BROWSE_CATEGORY |
+| code | String | e.g. SWEET50 (for discount type) |
+| discountPercent | Number | 0.5 = 50% |
+| minOrder | Number | Minimum cart value |
+| expiresAt | Number | Optional expiry timestamp |
+| active | Boolean | Show on home or not |
+| sortOrder | Number | Banner order |
 
 ---
 
-## 4. Data Dictionary — Enumerations
+## 5. Enumerations
 
-### category (cakes.category)
-| Value | Description |
-|-------|-------------|
-| BIRTHDAY | Birthday cakes |
-| WEDDING | Wedding / tier cakes |
-| CUPCAKE | Cupcakes and muffins |
-| CUSTOM | Fully custom designs |
-| SEASONAL | Holiday / seasonal specials |
+### Order status
+`PENDING` → `CONFIRMED` → `BAKING` → `READY` → `DELIVERED`  
+Also: `CANCELLED`
 
-### status (orders.status)
-| Value | Description |
-|-------|-------------|
-| PENDING | Order placed, awaiting confirmation |
-| CONFIRMED | Bakery confirmed order |
-| BAKING | Cake is being prepared |
-| READY | Ready for pickup/delivery |
-| DELIVERED | Completed |
-| CANCELLED | Cancelled by user or admin |
+### User role
+`CUSTOMER`, `ADMIN`
 
-### role (users.role)
-| Value | Description |
-|-------|-------------|
-| CUSTOMER | Regular app user |
-| ADMIN | Bakery administrator |
+### Cake category
+`BIRTHDAY`, `WEDDING`, `CUPCAKE`, `CUSTOM`, `SEASONAL`
 
 ---
 
-## 5. Sample Data
+## 6. Sample / Seed Data
 
-### Default Admin User
-```
-email: admin@cakeshop.com
-password: admin123 (hashed in app)
-role: ADMIN
+Run from backend folder:
+```bash
+npm run seed
 ```
 
-### Sample Cakes (5 records)
-| Name | Category | Price |
-|------|----------|-------|
-| Chocolate Fudge Birthday | BIRTHDAY | 25.00 |
-| Vanilla Dream Wedding | WEDDING | 120.00 |
-| Red Velvet Cupcake Box | CUPCAKE | 15.00 |
-| Custom Photo Cake | CUSTOM | 45.00 |
-| Christmas Fruit Cake | SEASONAL | 35.00 |
+| Account | Email | Password | Role |
+|---------|-------|----------|------|
+| Customer | customer@test.com | test123 | CUSTOMER |
+| Admin | admin@cakeshop.com | admin123 | ADMIN |
+
+Seed also adds ~24 cakes and 3 promo offers.
 
 ---
 
-## 6. Room Entity Mapping
+## 7. Normalization Note
 
-Room `@Entity` classes map 1:1 to tables. Type converters handle:
-- `List<String>` ↔ JSON string for `flavors` and `sizes`
-- `CakeCategory`, `OrderStatus`, `UserRole` ↔ String
+We use **embedded order items** inside the order document because:
+- Order items never change after placement  
+- One query fetches full order for customer and admin  
+- Common pattern in MongoDB e-commerce apps  
 
----
-
-## 7. Migration Strategy
-
-| Version | Changes |
-|---------|---------|
-| v1 | Initial schema (all tables) |
-| v2 (future) | Add `reviews` table, `addresses` table |
-
-Use Room `Migration` objects for version upgrades.
+Cart is separate collection because it changes often before checkout.
 
 ---
 
-## 8. Backup & Recovery
+## 8. Backup
 
-- SQLite file: `/data/data/com.cakeshop.app/databases/cake_shop_db`
-- Debug: Export via Android Studio Database Inspector
-- Production: Android Auto Backup (optional)
+- **Development:** MongoDB data folder or Atlas backup  
+- **Atlas:** Free tier includes basic backup options  
+- **Export:** `mongodump` for manual backup before demo  
 
 ---
 
-*See also: `database/schema.sql` for executable SQL*
+## 9. Future schema changes
+
+| Change | Reason |
+|--------|--------|
+| addresses collection | Sync addresses to server |
+| payments collection | Store Razorpay transaction ID |
+| reviews collection | Separate product reviews |
+
+---
+
+*See `backend/src/models/` for Mongoose schema code.*

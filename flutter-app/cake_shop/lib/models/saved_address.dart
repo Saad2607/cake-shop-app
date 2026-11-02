@@ -11,9 +11,9 @@ class SavedAddress {
 
   factory SavedAddress.fromJson(Map<String, dynamic> json) {
     return SavedAddress(
-      id: json['id'] as String,
-      label: json['label'] as String,
-      fullAddress: json['fullAddress'] as String,
+      id: (json['id'] ?? json['_id'])?.toString() ?? '',
+      label: json['label'] as String? ?? 'Home',
+      fullAddress: json['fullAddress'] as String? ?? '',
     );
   }
 

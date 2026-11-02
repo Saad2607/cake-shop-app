@@ -21,17 +21,17 @@ const cakeSchema = new mongoose.Schema(
 
 cakeSchema.methods.toPublicJSON = function () {
   return {
-    id: this._id.toString(),
-    name: this.name,
-    description: this.description,
-    category: this.category,
-    basePrice: this.basePrice,
-    imageUrl: this.imageUrl,
-    flavors: this.flavors,
-    sizes: this.sizes,
-    rating: this.rating,
-    inStock: this.inStock,
-    createdAt: this.createdAt?.getTime(),
+    id: this._id?.toString() || '',
+    name: this.name || '',
+    description: this.description || '',
+    category: this.category || 'BIRTHDAY',
+    basePrice: this.basePrice ?? 0,
+    imageUrl: this.imageUrl || '',
+    flavors: this.flavors || [],
+    sizes: this.sizes || [],
+    rating: this.rating ?? 0,
+    inStock: this.inStock ?? true,
+    createdAt: this.createdAt?.getTime() || Date.now(),
   };
 };
 

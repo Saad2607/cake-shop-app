@@ -23,13 +23,13 @@ class CartItem {
 
   factory CartItem.fromJson(Map<String, dynamic> json) {
     return CartItem(
-      id: json['id'] as String,
-      cakeId: json['cakeId'] as String,
-      quantity: json['quantity'] as int,
-      selectedSize: json['selectedSize'] as String,
-      selectedFlavor: json['selectedFlavor'] as String,
+      id: (json['id'] ?? json['_id'])?.toString() ?? '',
+      cakeId: json['cakeId']?.toString() ?? '',
+      quantity: (json['quantity'] as num?)?.toInt() ?? 1,
+      selectedSize: json['selectedSize'] as String? ?? '1kg',
+      selectedFlavor: json['selectedFlavor'] as String? ?? 'Standard',
       customMessage: json['customMessage'] as String?,
-      unitPrice: (json['unitPrice'] as num).toDouble(),
+      unitPrice: (json['unitPrice'] as num?)?.toDouble() ?? 0.0,
       cakeName: json['cakeName'] as String?,
     );
   }
@@ -42,12 +42,14 @@ class CartResponse {
   CartResponse({required this.items, required this.total});
 
   factory CartResponse.fromJson(Map<String, dynamic> json) {
-    final items = (json['items'] as List)
-        .map((e) => CartItem.fromJson(e as Map<String, dynamic>))
+    final rawItems = json['items'] as List?;
+    final items = (rawItems ?? [])
+        .whereType<Map<String, dynamic>>()
+        .map((e) => CartItem.fromJson(e))
         .toList();
     return CartResponse(
       items: items,
-      total: (json['total'] as num).toDouble(),
+      total: (json['total'] as num?)?.toDouble() ?? 0.0,
     );
   }
 }

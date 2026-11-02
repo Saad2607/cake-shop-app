@@ -86,6 +86,7 @@ Backend updates deploy with `git push`. App UI changes need a new APK build.
 |------|-------|----------|
 | Customer | customer@test.com | test123 |
 | Admin | admin@cakeshop.com | admin123 |
+| Delivery Partner | rider@cakeshop.com | rider123 |
 
 ---
 

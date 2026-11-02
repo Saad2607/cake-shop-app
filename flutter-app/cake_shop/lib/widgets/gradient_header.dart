@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 
@@ -7,6 +8,7 @@ class GradientHeader extends StatelessWidget implements PreferredSizeWidget {
   final List<Widget>? actions;
   final Widget? bottom;
   final bool showBack;
+  final VoidCallback? onBack;
 
   const GradientHeader({
     super.key,
@@ -15,6 +17,7 @@ class GradientHeader extends StatelessWidget implements PreferredSizeWidget {
     this.actions,
     this.bottom,
     this.showBack = false,
+    this.onBack,
   });
 
   @override
@@ -30,7 +33,7 @@ class GradientHeader extends StatelessWidget implements PreferredSizeWidget {
     return Container(
       decoration: const BoxDecoration(
         gradient: AppTheme.headerGradient,
-        borderRadius: BorderRadius.vertical(bottom: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(28)),
       ),
       child: SafeArea(
         bottom: false,
@@ -38,20 +41,43 @@ class GradientHeader extends StatelessWidget implements PreferredSizeWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(4, 12, 12, 16),
+              padding: const EdgeInsets.fromLTRB(8, 10, 16, 18),
               child: Row(
                 children: [
                   if (showBack)
-                    IconButton(
-                      icon: const Icon(
-                        Icons.arrow_back_ios_new,
-                        color: Colors.white,
-                        size: 20,
+                    Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: ClipOval(
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.white.withValues(alpha: 0.16),
+                              border: Border.all(
+                                color: Colors.white.withValues(alpha: 0.3),
+                              ),
+                            ),
+                            child: IconButton(
+                              icon: const Icon(
+                                Icons.arrow_back_ios_new_rounded,
+                                color: Colors.white,
+                                size: 18,
+                              ),
+                              onPressed: () {
+                                if (onBack != null) {
+                                  onBack!();
+                                } else if (Navigator.canPop(context)) {
+                                  Navigator.pop(context);
+                                }
+                              },
+                            ),
+                          ),
+                        ),
                       ),
-                      onPressed: () => Navigator.pop(context),
                     )
                   else
-                    const SizedBox(width: 16),
+                    const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -60,16 +86,20 @@ class GradientHeader extends StatelessWidget implements PreferredSizeWidget {
                           title,
                           style: AppTheme.displayMedium.copyWith(
                             color: Colors.white,
-                            fontSize: 24,
+                            fontSize: 23,
+                            letterSpacing: -0.3,
                           ),
                         ),
-                        if (subtitle != null)
+                        if (subtitle != null) ...[
+                          const SizedBox(height: 2),
                           Text(
                             subtitle!,
                             style: AppTheme.bodySmall.copyWith(
-                              color: Colors.white.withValues(alpha: 0.8),
+                              color: Colors.white.withValues(alpha: 0.82),
+                              fontSize: 12,
                             ),
                           ),
+                        ],
                       ],
                     ),
                   ),

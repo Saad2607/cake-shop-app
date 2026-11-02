@@ -31,24 +31,31 @@ class AdminDashboard {
   factory AdminDashboard.fromJson(Map<String, dynamic> json) {
     final breakdown = <String, int>{};
     (json['statusBreakdown'] as Map<String, dynamic>? ?? {}).forEach((k, v) {
-      breakdown[k] = (v as num).toInt();
+      if (v is num) breakdown[k] = v.toInt();
     });
+
+    final weeklyList = (json['weeklyStats'] as List? ?? [])
+        .whereType<Map<String, dynamic>>()
+        .map((e) => WeeklyStat.fromJson(e))
+        .toList();
+
+    final orderList = (json['recentOrders'] as List? ?? [])
+        .whereType<Map<String, dynamic>>()
+        .map((e) => Order.fromJson(e))
+        .toList();
+
     return AdminDashboard(
-      totalOrders: (json['totalOrders'] as num).toInt(),
-      pendingOrders: (json['pendingOrders'] as num).toInt(),
-      todayOrders: (json['todayOrders'] as num).toInt(),
-      totalRevenue: (json['totalRevenue'] as num).toDouble(),
-      todayRevenue: (json['todayRevenue'] as num).toDouble(),
-      customerCount: (json['customerCount'] as num).toInt(),
-      cakeCount: (json['cakeCount'] as num).toInt(),
-      outOfStockCount: (json['outOfStockCount'] as num).toInt(),
+      totalOrders: (json['totalOrders'] as num?)?.toInt() ?? 0,
+      pendingOrders: (json['pendingOrders'] as num?)?.toInt() ?? 0,
+      todayOrders: (json['todayOrders'] as num?)?.toInt() ?? 0,
+      totalRevenue: (json['totalRevenue'] as num?)?.toDouble() ?? 0.0,
+      todayRevenue: (json['todayRevenue'] as num?)?.toDouble() ?? 0.0,
+      customerCount: (json['customerCount'] as num?)?.toInt() ?? 0,
+      cakeCount: (json['cakeCount'] as num?)?.toInt() ?? 0,
+      outOfStockCount: (json['outOfStockCount'] as num?)?.toInt() ?? 0,
       statusBreakdown: breakdown,
-      weeklyStats: (json['weeklyStats'] as List? ?? [])
-          .map((e) => WeeklyStat.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      recentOrders: (json['recentOrders'] as List)
-          .map((e) => Order.fromJson(e as Map<String, dynamic>))
-          .toList(),
+      weeklyStats: weeklyList,
+      recentOrders: orderList,
     );
   }
 }

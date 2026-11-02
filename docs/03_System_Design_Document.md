@@ -1,9 +1,9 @@
 # System Design Document (SDD)
 
-## Cake Online Shopping Android App
+## Sweet Delights — Cake Online Shopping App
 
 **Document ID:** SDD-CAKE-001  
-**Version:** 1.0  
+**Version:** 2.0  
 **Date:** June 2026
 
 ---
@@ -11,316 +11,226 @@
 ## 1. Introduction
 
 ### 1.1 Purpose
-This document describes the system architecture, module design, data flow, and interface specifications for the Cake Online Shopping Android App.
+This document explains **how** we designed the Sweet Delights system — architecture, modules, data flow, and main API endpoints.
 
 ### 1.2 Scope
-Covers Flutter mobile app, Node.js REST API, and MongoDB database design.
+Covers Flutter mobile app, Node.js backend, and MongoDB. Does not cover Play Store publishing process.
 
 ---
 
 ## 2. System Architecture
 
-### 2.1 Full-Stack Architecture
+### 2.1 Three-tier architecture
 
 ```
-┌─────────────────┐     HTTP/REST      ┌─────────────────┐     Mongoose     ┌─────────────────┐
-│  Flutter App    │ ◄────────────────► │  Node.js API    │ ◄──────────────► │    MongoDB      │
-│  (Provider)     │     JWT Auth       │  (Express)      │                  │                 │
-└─────────────────┘                    └─────────────────┘                  └─────────────────┘
+┌──────────────────────────────────────────────────────────────┐
+│                    PRESENTATION LAYER                         │
+│   Flutter Screens + Widgets + Provider (state management)     │
+└────────────────────────────┬─────────────────────────────────┘
+                             │ HTTP + JSON + JWT
+┌────────────────────────────▼─────────────────────────────────┐
+│                    APPLICATION LAYER                          │
+│   Express.js Controllers + Middleware + Services            │
+└────────────────────────────┬─────────────────────────────────┘
+                             │ Mongoose ODM
+┌────────────────────────────▼─────────────────────────────────┐
+│                      DATA LAYER                               │
+│   MongoDB (users, cakes, cartitems, orders, promos)         │
+└──────────────────────────────────────────────────────────────┘
 ```
 
-### 2.2 Flutter Client Pattern
-
-```
-┌──────────────────────────────────────────────────────────┐
-│                        VIEW LAYER                         │
-│  Activities / Fragments / XML Layouts / Adapters         │
-└─────────────────────────┬────────────────────────────────┘
-                          │ observes
-┌─────────────────────────▼────────────────────────────────┐
-│                     VIEWMODEL LAYER                       │
-│  AuthViewModel | CatalogViewModel | CartViewModel |       │
-│  OrderViewModel | ProfileViewModel | AdminViewModel       │
-└─────────────────────────┬────────────────────────────────┘
-                          │ uses
-┌─────────────────────────▼────────────────────────────────┐
-│                    REPOSITORY LAYER                       │
-│  UserRepository | CakeRepository | CartRepository |       │
-│  OrderRepository                                          │
-└─────────────────────────┬────────────────────────────────┘
-                          │ uses
-┌─────────────────────────▼────────────────────────────────┐
-│                      DATA LAYER                           │
-│  HTTP API Service (REST) → Node.js Backend → MongoDB      │
-└──────────────────────────────────────────────────────────┘
-```
-
-### 2.2 Layer Responsibilities
-
-| Layer | Responsibility |
-|-------|----------------|
-| **View** | Display UI, capture user input, observe ViewModel state |
-| **ViewModel** | Business logic, UI state, survives configuration changes |
-| **Repository** | Single source of truth, abstracts data sources |
-| **Data** | Persistence (Room), preferences, network |
+### 2.2 Why we chose this design
+- **Flutter** — one codebase for Android, fast UI development  
+- **REST API** — clear separation; multiple clients possible later  
+- **MongoDB** — flexible schema for order items embedded in order document  
+- **Provider** — simple state management (team already learning Flutter)  
 
 ---
 
-## 3. Module Design
+## 3. Flutter App Design
 
-### 3.1 Application Modules
-
-| Module | Package | Description |
-|--------|---------|-------------|
-| **app** | `com.cakeshop.app` | Application class, DI setup |
-| **ui.auth** | `...ui.auth` | Login, Register screens |
-| **ui.catalog** | `...ui.catalog` | Home, product list, detail |
-| **ui.cart** | `...ui.cart` | Cart management |
-| **ui.checkout** | `...ui.checkout` | Checkout flow |
-| **ui.orders** | `...ui.orders` | Order history, tracking |
-| **ui.profile** | `...ui.profile` | User profile |
-| **ui.admin** | `...ui.admin` | Admin dashboard (optional) |
-| **data** | `...data` | Entities, DAOs, Database, Repositories |
-| **utils** | `...utils` | Helpers, constants, validators |
-
-### 3.2 Screen Flow
+### 3.1 Folder structure
 
 ```
-SplashActivity
+lib/
+├── main.dart                 # App entry, providers setup
+├── config/                   # API URL config
+├── models/                   # User, Cake, Order, CartItem, etc.
+├── providers/                # Auth, Cart, Order, Cake, Admin...
+├── services/                 # ApiService, NotificationService
+├── screens/
+│   ├── home/                 # MainScreen, HomeTab
+│   ├── cart/                 # Cart, Checkout
+│   ├── orders/               # Orders list, detail, confirmation
+│   ├── profile/              # Profile, settings, wishlist
+│   ├── admin/                # Admin tabs and forms
+│   └── auth/                 # Login, register
+├── widgets/                  # Reusable UI components
+├── theme/                    # Colors, fonts
+└── utils/                    # Helpers (pricing, auth guard, etc.)
+```
+
+### 3.2 Screen flow (Customer)
+
+```
+Splash → Onboarding (first time) → MainScreen
+                                      │
+                    ┌─────────────────┼─────────────────┐
+                    ▼                 ▼                 ▼
+                  Home              Cart            Orders
+                    │                 │                 │
+                    ▼                 ▼                 ▼
+              CakeDetail          Checkout         OrderDetail
+                    │                 │
+                    └──── Cart ◄──────┘
+```
+
+### 3.3 Screen flow (Admin)
+
+After login with `role = ADMIN`, `AppRouter` opens `AdminMainScreen`:
+
+```
+Overview → KPI cards, charts, recent orders
+Orders   → Filter, search, update status
+Menu     → Product list, add/edit cake
+Offers   → Promo CRUD, analytics
+Customers→ Customer list with order count
+Account  → Profile, logout
+```
+
+### 3.4 State management (Provider)
+
+| Provider | Responsibility |
+|----------|----------------|
+| AuthProvider | Login, register, user profile |
+| CakeProvider | Catalog, search, category filter |
+| CartProvider | Cart items from API |
+| OrderProvider | Place order, list orders |
+| PromoProvider | Applied discount code |
+| PromoCatalogProvider | Home banner offers |
+| AdminProvider | Dashboard, admin CRUD |
+| NotificationProvider | Local notification state |
+| WishlistProvider | Local wishlist |
+| DeliveryAddressProvider | Local saved addresses |
+
+---
+
+## 4. Backend Design
+
+### 4.1 Folder structure
+
+```
+backend/src/
+├── server.js              # Express app start
+├── config/database.js     # MongoDB connect
+├── models/                # Mongoose schemas
+├── controllers/           # Route logic
+├── routes/api.js          # All API routes
+├── middleware/auth.js       # JWT + admin check
+├── services/promoService.js
+└── utils/                 # Validators, pricing, errors
+```
+
+### 4.2 API endpoints (summary)
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| POST | /api/auth/register | No | Register |
+| POST | /api/auth/login | No | Login, returns JWT |
+| GET | /api/auth/profile | Yes | Get profile |
+| PUT | /api/auth/profile | Yes | Update profile |
+| GET | /api/cakes | No | List cakes |
+| GET | /api/cakes/:id | No | Cake detail |
+| POST | /api/cakes | Admin | Create cake |
+| PUT | /api/cakes/:id | Admin | Update cake |
+| DELETE | /api/cakes/:id | Admin | Delete cake |
+| GET | /api/cart | Yes | Get cart |
+| POST | /api/cart | Yes | Add to cart |
+| PUT | /api/cart/:id | Yes | Update item |
+| DELETE | /api/cart/:id | Yes | Remove item |
+| POST | /api/orders | Yes | Place order |
+| GET | /api/orders | Yes | My orders |
+| PATCH | /api/orders/:id/cancel | Yes | Cancel |
+| PATCH | /api/orders/:id/review | Yes | Rate order |
+| GET | /api/promos | No | Active promos |
+| GET | /api/admin/dashboard | Admin | Stats |
+| GET | /api/admin/orders | Admin | All orders |
+| PATCH | /api/admin/orders/:id/status | Admin | Update status |
+| CRUD | /api/admin/promos | Admin | Manage offers |
+
+### 4.3 Authentication flow
+
+1. User sends email + password to `/api/auth/login`  
+2. Server checks bcrypt hash  
+3. Server returns JWT token (valid 7 days)  
+4. App saves token in SharedPreferences  
+5. Every API call sends header: `Authorization: Bearer <token>`  
+6. `authMiddleware` verifies token; `adminMiddleware` checks role  
+
+### 4.4 Order placement flow
+
+1. Customer opens checkout  
+2. App sends cart items + address + promo code to `POST /api/orders`  
+3. Server re-calculates prices from database (security)  
+4. Server validates promo via `promoService`  
+5. Order document created; cart cleared  
+6. Response returned to app → confirmation screen  
+
+### 4.5 Order status flow
+
+```
+PENDING → CONFIRMED → BAKING → READY → DELIVERED
     │
-    ├──► LoginActivity ◄──► RegisterActivity
-    │         │
-    │         ▼
-    └──► MainActivity (Bottom Navigation)
-              │
-              ├── HomeFragment ──► CakeDetailActivity
-              ├── CartFragment ──► CheckoutActivity ──► OrderConfirmationActivity
-              ├── OrdersFragment ──► OrderDetailActivity
-              └── ProfileFragment
+    └──→ CANCELLED (customer or admin)
 ```
 
----
-
-## 4. Class Design (Key Classes)
-
-### 4.1 Entity Classes
-
-```kotlin
-// User
-data class User(
-    val id: Long,
-    val name: String,
-    val email: String,
-    val phone: String,
-    val passwordHash: String,
-    val role: UserRole,  // CUSTOMER, ADMIN
-    val createdAt: Long
-)
-
-// Cake (Product)
-data class Cake(
-    val id: Long,
-    val name: String,
-    val description: String,
-    val category: CakeCategory,
-    val basePrice: Double,
-    val imageUrl: String,
-    val flavors: List<String>,
-    val sizes: List<CakeSize>,
-    val rating: Float,
-    val inStock: Boolean
-)
-
-// CartItem
-data class CartItem(
-    val id: Long,
-    val userId: Long,
-    val cakeId: Long,
-    val quantity: Int,
-    val selectedSize: String,
-    val selectedFlavor: String,
-    val customMessage: String?,
-    val unitPrice: Double
-)
-
-// Order
-data class Order(
-    val id: Long,
-    val orderNumber: String,
-    val userId: Long,
-    val totalAmount: Double,
-    val status: OrderStatus,
-    val deliveryAddress: String,
-    val deliveryDate: Long,
-    val paymentMethod: String,
-    val createdAt: Long
-)
-
-// OrderItem
-data class OrderItem(
-    val id: Long,
-    val orderId: Long,
-    val cakeId: Long,
-    val cakeName: String,
-    val quantity: Int,
-    val size: String,
-    val flavor: String,
-    val customMessage: String?,
-    val price: Double
-)
-```
-
-### 4.2 Enumerations
-
-```kotlin
-enum class CakeCategory { BIRTHDAY, WEDDING, CUPCAKE, CUSTOM, SEASONAL }
-enum class OrderStatus { PENDING, CONFIRMED, BAKING, READY, DELIVERED, CANCELLED }
-enum class UserRole { CUSTOMER, ADMIN }
-```
+Status changes validated in `orderStatus.js` utility.
 
 ---
 
 ## 5. Database Design
 
-See `04_Database_Design.md` for full ER diagram and schema.
+See `04_Database_Design.md` and `database/mongodb_schema.md`.
 
-**Tables:** `users`, `cakes`, `cart_items`, `orders`, `order_items`
+Collections: **users**, **cakes**, **cartitems**, **orders**, **promos**
 
----
-
-## 6. API Design (Optional Backend)
-
-### 6.1 REST Endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/auth/register` | Register user |
-| POST | `/api/auth/login` | Login, return token |
-| GET | `/api/cakes` | List cakes (paginated) |
-| GET | `/api/cakes/{id}` | Cake detail |
-| GET | `/api/cakes/search?q=` | Search |
-| POST | `/api/cart/items` | Add to cart |
-| GET | `/api/cart` | Get user cart |
-| DELETE | `/api/cart/items/{id}` | Remove item |
-| POST | `/api/orders` | Place order |
-| GET | `/api/orders` | User orders |
-| GET | `/api/orders/{id}` | Order detail |
-| PATCH | `/api/orders/{id}/status` | Update status (admin) |
-
-### 6.2 Sample JSON — Create Order
-
-```json
-{
-  "deliveryAddress": "123 Main St, City",
-  "deliveryDate": "2026-07-15",
-  "paymentMethod": "COD",
-  "items": [
-    {
-      "cakeId": 1,
-      "quantity": 1,
-      "size": "1kg",
-      "flavor": "Chocolate",
-      "customMessage": "Happy Birthday!"
-    }
-  ]
-}
-```
+Order items are **embedded** inside order document (not separate collection).
 
 ---
 
-## 7. UI Design Guidelines
+## 6. Security Design
 
-### 7.1 Color Palette
-
-| Color | Hex | Usage |
-|-------|-----|-------|
-| Primary | `#E91E63` | Buttons, accents (pink — cake theme) |
-| Primary Dark | `#C2185B` | Status bar |
-| Secondary | `#FF9800` | Highlights |
-| Background | `#FFF8F0` | Warm cream background |
-| Surface | `#FFFFFF` | Cards |
-| Text Primary | `#212121` | Body text |
-| Text Secondary | `#757575` | Subtitles |
-
-### 7.2 Typography
-- **Headings:** Roboto Medium, 20–24sp
-- **Body:** Roboto Regular, 14–16sp
-- **Captions:** Roboto Regular, 12sp
-
-### 7.3 Key Screens (Wireframe Descriptions)
-
-**Home Screen**
-- Top: Search bar + category chips (horizontal scroll)
-- Body: Grid of cake cards (2 columns) — image, name, price, rating
-- Bottom nav: Home | Cart (badge) | Orders | Profile
-
-**Cake Detail**
-- Hero image, name, price, rating
-- Description paragraph
-- Dropdowns: Size, Flavor
-- Text field: Custom message
-- Quantity stepper
-- FAB or bottom bar: "Add to Cart"
-
-**Cart**
-- List of items with thumbnail, name, options, price
-- Swipe to delete or minus button
-- Footer: Subtotal, Checkout button
-
-**Checkout**
-- Delivery address (EditText)
-- Date picker
-- Payment method radio (COD / Mock Card)
-- Order summary list
-- Place Order button
+| Threat | Protection |
+|--------|------------|
+| Password leak | bcrypt hashing |
+| Fake API calls | JWT on protected routes |
+| Customer accessing admin | Role check middleware |
+| Wrong cart price | Server-side `cakePricing.js` |
+| SQL injection | N/A — MongoDB with Mongoose |
 
 ---
 
-## 8. Security Design
+## 7. Deployment Design
 
-| Concern | Implementation |
-|---------|----------------|
-| Password storage | BCrypt or SHA-256 with salt |
-| Session | User ID in EncryptedSharedPreferences |
-| Input validation | Email regex, length checks on all forms |
-| SQL injection | Room parameterized queries |
-| Admin access | Role check in repository before admin ops |
+| Environment | Backend | Database | App |
+|-------------|---------|----------|-----|
+| Development | localhost:3000 | Local MongoDB | Emulator |
+| Production | Render.com | MongoDB Atlas | Release APK |
 
----
-
-## 9. Error Handling
-
-| Scenario | User Message | Action |
-|----------|--------------|--------|
-| Network failure | "Unable to connect. Please try again." | Retry button |
-| Invalid login | "Invalid email or password" | Clear password field |
-| Empty cart checkout | "Your cart is empty" | Navigate to home |
-| Out of stock | "This item is currently unavailable" | Disable add button |
-| DB error | "Something went wrong" | Log to Logcat |
+`PUBLIC_APP_URL` used for share links (`/p/:cakeId`).
 
 ---
 
-## 10. Deployment
+## 8. Design decisions log
 
-### 10.1 Build Variants
-- **debug** — Test data preloaded, logging enabled
-- **release** — ProGuard/R8 minification, signed APK
-
-### 10.2 Distribution
-- Debug APK for supervisor demo
-- Optional: Google Play internal testing track
-
----
-
-## 11. Future Enhancements
-
-1. Firebase Authentication & Firestore sync
-2. Real payment gateway (Stripe)
-3. Push notifications for order updates
-4. Google Maps delivery tracking
-5. Wishlist and favorites
-6. Multi-language support
+| Decision | Reason |
+|----------|--------|
+| Flutter instead of Kotlin | Faster UI, team preference |
+| MongoDB instead of MySQL | Flexible JSON documents for order items |
+| Provider instead of Bloc | Simpler for project size |
+| Single app for admin + customer | Less work than two apps |
+| Image URL instead of upload | Saves time; upload is future work |
 
 ---
 
-*Document Version: 1.0 | June 2026*
+*Version 2.0 | Sweet Delights SE Project*

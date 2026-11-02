@@ -1,267 +1,175 @@
 # Presentation Outline
 
-## Cake Online Shopping Android App — Project Defense
+## Sweet Delights — Project Defense / Viva
 
 **Duration:** 15–20 minutes + Q&A  
-**Format:** PowerPoint / Google Slides  
-**Team:** [Names]
+**Team:** [Names and roll numbers]  
+**Guide:** [Supervisor Name]
 
 ---
 
-## Slide 1: Title Slide
-
-- **Title:** Cake Online Shopping Android App
-- Team members & IDs
-- Course: Software Engineering
-- Supervisor name
-- Institution & date
+## Slide 1 — Title
+- **Sweet Delights — Cake Online Shopping App**
+- Team names, roll nos.
+- Software Engineering Project
+- [College Name], June 2026
 
 ---
 
-## Slide 2: Agenda
-
-1. Problem & motivation
-2. Objectives & scope
-3. Requirements overview
-4. System design & architecture
-5. Database design
-6. UML diagrams
-7. Implementation demo
-8. Testing results
-9. Conclusion & future work
-10. Q&A
-
----
-
-## Slide 3: Problem Statement
-
-- Traditional cake ordering challenges
-- Phone orders → errors, limited hours
-- No digital catalog for local bakeries
-- **Our solution:** Mobile app for 24/7 browsing and ordering
-
-*Visual: Before/After comparison or pain point icons*
+## Slide 2 — Agenda
+1. Problem statement  
+2. Objectives  
+3. SDLC phases  
+4. System architecture  
+5. Database design  
+6. UML (use case + sequence)  
+7. **Live demo**  
+8. Testing  
+9. Conclusion & future work  
+10. Q&A  
 
 ---
 
-## Slide 4: Project Objectives
+## Slide 3 — Problem Statement
+- Phone orders → mistakes, no menu at night  
+- Small bakeries have no app  
+- **Solution:** Mobile app + backend for ordering and tracking  
 
-- User-friendly Android cake shopping app
-- Browse, customize, cart, checkout
-- Order tracking and history
-- Complete SE documentation
-- MVVM + Room architecture
-
----
-
-## Slide 5: Scope
-
-**In Scope:**
-- Android app, SQLite, customer features, documentation
-
-**Out of Scope:**
-- iOS, real payments, GPS tracking (v1)
+*Use simple before/after image or bullet points*
 
 ---
 
-## Slide 6: Feasibility Summary
-
-| Dimension | Result |
-|-----------|--------|
-| Technical | ✅ Feasible |
-| Economic | ✅ Low cost |
-| Operational | ✅ Standard ops |
-| Schedule | ✅ 14 weeks |
+## Slide 4 — Objectives
+- Android app for cake shopping  
+- Cart, checkout, order tracking  
+- Admin for menu and orders  
+- Full SE documentation  
 
 ---
 
-## Slide 7: Functional Requirements
+## Slide 5 — SDLC We Followed
+Show table from `12_SDLC_Phase_Summary.md`:
+Planning → Requirements → Design → Implementation → Testing → Deployment → Docs
 
-- Authentication (register, login)
-- Product catalog (browse, search, filter)
-- Shopping cart
-- Checkout & orders
-- Order history & tracking
-- User profile
-
-*Reference SRS document*
+Mention we used iterative approach within each phase.
 
 ---
 
-## Slide 8: Non-Functional Requirements
-
-- Performance: < 3s launch
-- Security: Hashed passwords
-- Usability: Material Design
-- Compatibility: Android 7.0+
-
----
-
-## Slide 9: System Architecture (MVVM)
-
-```
-View → ViewModel → Repository → Room DB
-```
-
-- Diagram from SDD
-- Layer responsibilities
-
----
-
-## Slide 10: Use Case Diagram
-
-*Insert exported use case diagram*
-
-- Customer, Guest, Admin actors
-- 12 primary use cases
-
----
-
-## Slide 11: Class Diagram
-
-*Insert class diagram*
-
-- Key entities: User, Cake, CartItem, Order
-- Repositories and ViewModels
-
----
-
-## Slide 12: Database ER Diagram
-
-*Insert ER diagram*
-
-- 5 tables
-- Relationships: User→Orders, Order→OrderItems
-
----
-
-## Slide 13: Sequence Diagram — Place Order
-
-*Insert sequence diagram*
-
-- Checkout flow interaction
-
----
-
-## Slide 14: UI Design
-
-*Screenshots or wireframes:*
-- Login / Register
-- Home catalog
-- Cake detail
-- Cart
-- Checkout
-- Order confirmation
-
-**Color theme:** Pink (#E91E63) + cream background
-
----
-
-## Slide 15: Technology Stack
-
+## Slide 6 — Technology Stack
 | Layer | Tech |
 |-------|------|
-| Language | Kotlin |
-| UI | Material Design 3 |
-| DB | Room (SQLite) |
-| Architecture | MVVM |
+| Frontend | Flutter, Provider |
+| Backend | Node.js, Express |
+| Database | MongoDB |
+| Auth | JWT, bcrypt |
+
+*Why Flutter?* — Fast UI, one codebase  
+*Why MongoDB?* — Flexible order documents  
 
 ---
 
-## Slide 16: Implementation Highlights
-
-- Package structure
-- Room entities & DAOs
-- RecyclerView adapters
-- LiveData for reactive UI
-- Sample data seeding
-
-*Optional: 1–2 code snippets*
+## Slide 7 — System Architecture
+Paste diagram from SDD:
+```
+Flutter App ↔ REST API ↔ MongoDB
+```
 
 ---
 
-## Slide 17: Live Demo
-
-**Demo script (5 min):**
-1. Launch app → Login
-2. Browse cakes → Filter Birthday
-3. Open cake detail → Add to cart
-4. View cart → Checkout
-5. Place order → View confirmation
-6. Check order history
-
-*Record backup video if live demo risky*
+## Slide 8 — Database Design
+- 5 collections: users, cakes, cartitems, orders, promos  
+- Show ER diagram from `05_UML_Diagrams.md`  
 
 ---
 
-## Slide 18: Testing
-
-- Test plan overview
-- 29+ test cases
-- Pass rate: ___%
-- Tools: JUnit, Espresso, manual
-
-*Table of results*
+## Slide 9 — Use Case Diagram
+- Guest, Customer, Admin actors  
+- Main use cases: browse, order, admin manage  
 
 ---
 
-## Slide 19: Challenges & Solutions
-
-| Challenge | Solution |
-|-----------|----------|
-| Learning Android/Kotlin | Official docs, tutorials |
-| Cart total calculation | Centralized calculator |
-| DB relationships | Early schema review |
+## Slide 10 — Sequence Diagram
+- Place order flow (customer → app → API → DB)  
 
 ---
 
-## Slide 20: Conclusion
+## Slide 11 — LIVE DEMO (5–7 min) ⭐
+**Script — practice this:**
 
-- Successfully delivered MVP cake shopping app
-- Full SDLC documentation
-- Meets primary requirements
-- Ready for extension (Firebase, payments)
-
----
-
-## Slide 21: Future Work
-
-- Real payment gateway
-- Push notifications
-- Multi-bakery marketplace
-- Web admin panel
-- iOS version
+1. **Guest browse** — home, search, cake detail  
+2. **Customer login** — customer@test.com  
+3. **Add to cart** — size, flavour, message  
+4. **Checkout** — address, SWEET50 promo, COD  
+5. **Admin login** — admin@cakeshop.com  
+6. **Update order** — Pending → Baking → Ready  
+7. **Customer** — show status change + notification  
+8. **Admin** — quick show Offers tab or dashboard chart  
 
 ---
 
-## Slide 22: Thank You / Q&A
-
-- Questions?
-- Contact: [team email]
-- GitHub / project folder path
-
----
-
-## Presenter Assignment (Suggested)
-
-| Slides | Presenter |
-|--------|-----------|
-| 1–3 | Member 1 (Intro) |
-| 4–8 | Member 2 (Requirements) |
-| 9–13 | Member 3 (Design) |
-| 14–17 | Member 4 (Implementation & Demo) |
-| 18–22 | All / Member 1 (Testing & Close) |
+## Slide 12 — Key Features Implemented
+- Guest browse  
+- Server-side price validation  
+- Promo system  
+- Admin dashboard + charts  
+- Share cake link  
+- Order reviews  
 
 ---
 
-## Tips for Defense
+## Slide 13 — Testing
+- 25+ manual test cases  
+- Pass rate ~90%+  
+- Postman API tests  
+- Sample bug fix (mention 1 real bug you fixed)  
 
-1. **Rehearse demo** on actual device beforehand
-2. **Backup APK** and screen recording
-3. **Know your UML** — examiners often ask about diagrams
-4. **Trace requirements** — link features to SRS IDs
-5. **Time management** — 2 min per slide average
+Show RTM summary from doc 11.
 
 ---
 
-*Document Version: 1.0 | June 2026*
+## Slide 14 — Challenges Faced
+*Be honest — examiners like this:*
+- Flutter learning curve  
+- Phone connecting to localhost API → solved with server settings  
+- Pull-to-refresh UI bug → fixed  
+- Started with Kotlin plan, switched to Flutter + API  
+
+---
+
+## Slide 15 — Future Work
+- Razorpay real payment  
+- FCM push notifications  
+- Photo upload for custom cakes  
+- Server-synced addresses  
+- iOS version  
+
+---
+
+## Slide 16 — Conclusion
+- Built full-stack cake ordering system  
+- Meets most SRS requirements  
+- Ready for demo and documentation submission  
+- Thank you  
+
+---
+
+## Slide 17 — Q&A
+
+**Prepare answers for:**
+- Why MongoDB not SQL?  
+- How is admin secured?  
+- How is cart price validated?  
+- What is JWT?  
+- What would you do differently?  
+
+---
+
+## Demo Backup Plan
+- Screen recording video if live demo fails  
+- Emulator + phone both ready  
+- Backend running before entering room  
+- `npm run seed` done morning of viva  
+
+---
+
+*Good luck! — Team Sweet Delights*

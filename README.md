@@ -127,7 +127,7 @@ The login screen features quick 1-tap role selector chips to test the end-to-end
 | Role | Email | Password | Primary Interface |
 |:---|:---|:---|:---|
 | **Customer** | `customer@test.com` | `test123` | Storefront, Customizer, Cart, Live GPS Tracking & PIN |
-| **Bakery Kitchen (Admin)** | `admin@cakeshop.com` | `admin123` | Kitchen Display System (KDS), Dispatch, Store Metrics |
+| **Bakery Kitchen (Admin)** | `admin@cakeshop.com` | `Admin@123` | Kitchen Display System (KDS), Dispatch, Store Metrics |
 | **Delivery Partner (Rider)** | `rider@cakeshop.com` | `rider123` | Delivery Dashboard, Map Navigation, PIN Verification |
 
 ---
